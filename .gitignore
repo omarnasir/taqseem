@@ -128,3 +128,24 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Python dependencies
+*.pyc
+*.egg-info
+dist
+.venv
+docs/_build/
+.tox
+dist
+.cache/
+build
+.vscode
+.env
+.pytest_cache
+.idea/
+.envrc
+.DS_Store
+.idea
+.python-version
+.coverage*
+prof
