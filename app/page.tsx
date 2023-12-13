@@ -17,9 +17,7 @@ export default async function Home() {
   }
   return (
       <SessionProvider session={session}>
-        <main className={styles.main}>
-            <ClientExample />
-        </main>
+          <ClientExample />
       </SessionProvider>
   )
 }

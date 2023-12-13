@@ -5,10 +5,10 @@ export function SignIn({
   provider,
   ...props
 }: { provider?: string } & React.ComponentPropsWithRef<typeof Button>) {
+
   return (
     <form
       action={async () => {
-        "use server"
         await signIn(provider)
       }}
     >
@@ -21,7 +21,6 @@ export function SignOut(props: React.ComponentPropsWithRef<typeof Button>) {
   return (
     <form
       action={async () => {
-        "use server"
         await signOut()
       }}
       className="w-full"
