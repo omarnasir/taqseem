@@ -1,12 +1,13 @@
 'use client';
 
-import Logout from '@/app/user/Logout';
-
+import Logout from '@/components/user/Logout';
+import { useSession } from 'next-auth/react';
 
 export default function DashboardPage() {
-
+  const { data } = useSession();
   return (
-    <div>private dashboard page - you need to be logged in to view this
+    <div>Welcome to the dashboard, {data?.user?.email}!
+     {data?.user?.name}
       <Logout />
     </div>
 

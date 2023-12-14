@@ -2,12 +2,13 @@ import { Flex } from '@chakra-ui/react';
 import { auth } from '@/auth';
 
 import DashboardPage from './dashboard/page';
-import Form from "@/app/user/Login"
-
+import Login from "@/components/user/Login"
+import { getServerSession } from 'next-auth';
 
 export default async function Home() {
-  const session = await auth();
-  
+  // const session = await auth();
+  const session = await getServerSession(auth);
+
   return (
     <Flex
       w={'100%'}
@@ -22,7 +23,7 @@ export default async function Home() {
           justifyContent="center"
           alignItems="middle"
         >
-          <Form />
+          <Login />
         </Flex>
       )}
     </Flex>

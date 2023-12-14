@@ -16,8 +16,8 @@ export async function POST(request: Request) {
       }
     });
     if (user) {
-      return NextResponse.json({ message: 'User already exists' }, 
-      { status: 400 });
+      return NextResponse.json({ message: 'User already exists' },
+        { status: 400 });
     }
 
     // add user to db
@@ -31,10 +31,10 @@ export async function POST(request: Request) {
     // remove hashedPassword from response
     const { hashedPassword, ...rest } = newUser;
     return NextResponse.json({ message: 'success', user: rest },
-    { status: 200 });
+      { status: 200 });
   } catch (e) {
     console.log({ e });
-    return NextResponse.json({ message: 'error' }, 
-    { status: 500 });
+    return NextResponse.json({ message: 'error' },
+      { status: 500 });
   }
 }

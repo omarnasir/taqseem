@@ -1,16 +1,14 @@
 import NextAuth from "next-auth"
-import type { NextAuthConfig } from "next-auth"
+import NextAuthOptions from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/app/prisma"
 
-import {
-  hashPassword,
-  verifyPassword
-} from "@/app/utils/hashing"
+import { verifyPassword } from "@/app/utils/hashing"
 
-export const config = {
+// const config = {
+export const auth = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -19,44 +17,59 @@ export const config = {
   pages: {
     signIn: "/",
   },
-  secret: process.env.AUTH_SECRET,
+  debug: true,
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [CredentialsProvider({
     id: 'credentials',
     name: 'Credentials',
     credentials: {
-      email: { label: 'Email', type: 'email' },
-      password: { label: 'Password', type: 'password' },
+      email: {},
+      password: {}
     },
     async authorize(credentials: any, req: any) {
+      try {
+        // Add logic here to look up the user from the credentials supplied
+        if (credentials.email === "" || credentials.password === "") {
+          return null
+        }
 
-      // Add logic here to look up the user from the credentials supplied
-      if (credentials.email === "" || credentials.password === "") {
-        return null
-      }
-      // First check if the user exists
-      const user = await prisma.user.findUnique({
-        where: {
-          email: credentials.email,
-        },
-      })
-      if (!user) {
-        return null
-      }
-
-      // If user exists, check if password matches
-      if (user && await verifyPassword(credentials.password, user.hashedPassword)) {
+        // First check if the user exists
+        const user = await prisma.user.findUnique({
+          where: {
+            email: credentials.email,
+          },
+        })
+        if (user && await verifyPassword(credentials.password, user.hashedPassword)) {
           // If password matches, return user
           const { hashedPassword, ...rest } = user
-          console.log({rest})
-        return rest
-      } else {
-        // If password doesn't match, return null
+          return rest
+        } else {
+          // If password doesn't match, return null
+          return null
+        }
+      }
+      catch (e) {
         return null
       }
     }
   })
   ],
-} satisfies NextAuthConfig
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      return true
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('/')) return `${baseUrl}${url}`
+      return baseUrl
+    }
+  }
+  //   authorized({ request, auth }) {
+  //     const { pathname } = request.nextUrl
+  //     if (pathname === "/middleware-example") return !!auth
+  //     return true
+  //   },
+  // },
+} )// satisfies NextAuthConfig
 
 
-export const { handlers, auth, signIn, signOut } = NextAuth(config)
+// export const { handlers, auth, signIn, signOut } = NextAuth(config)

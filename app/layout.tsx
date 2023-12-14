@@ -10,7 +10,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { auth } from '@/auth';
 
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from '@/app/utils/AuthProvider';
+import { getServerSession } from 'next-auth';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -29,14 +30,15 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  // const session = await auth();
+  const session = await getServerSession();
 
   return (
     <html lang="en">
       <body>
-        <SessionProvider session={session}>
+        <SessionProvider>
           <ChakraProvider>
-            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+            {/* <ColorModeScript initialColorMode={theme.config.initialColorMode} /> */}
             {children}
           </ChakraProvider>
         </SessionProvider>
