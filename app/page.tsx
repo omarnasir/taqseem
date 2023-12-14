@@ -7,7 +7,7 @@ import Form from "@/app/user/Login"
 
 export default async function Home() {
   const session = await auth();
-
+  
   return (
     <Flex
       w={'100%'}

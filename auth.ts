@@ -5,11 +5,10 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/app/prisma"
 
-import { User } from "@prisma/client"
 import {
   hashPassword,
   verifyPassword
- } from "@/app/utils/hashing"
+} from "@/app/utils/hashing"
 
 export const config = {
   adapter: PrismaAdapter(prisma),
@@ -32,21 +31,23 @@ export const config = {
 
       // Add logic here to look up the user from the credentials supplied
       if (credentials.email === "" || credentials.password === "") {
-        throw new Error("Missing email or password")
+        return null
       }
-      
       // First check if the user exists
       const user = await prisma.user.findUnique({
         where: {
           email: credentials.email,
         },
       })
+      if (!user) {
+        return null
+      }
 
       // If user exists, check if password matches
-      if (user && await verifyPassword(credentials.password,
-        user.hashedPassword)) {
-        // If password matches, return user
-        const { hashedPassword, ...rest } = user
+      if (user && await verifyPassword(credentials.password, user.hashedPassword)) {
+          // If password matches, return user
+          const { hashedPassword, ...rest } = user
+          console.log({rest})
         return rest
       } else {
         // If password doesn't match, return null
