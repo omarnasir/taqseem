@@ -1,47 +1,31 @@
 import './globals.css';
-import {
-  ChakraProvider,
-  extendTheme,
-  type ThemeConfig
-}
-  from "@chakra-ui/react"
+import { ChakraProvider } from "@chakra-ui/react"
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { auth } from '@/app/api/auth/auth';
 
 import { SessionProvider } from '@/app/utils/AuthProvider';
 import { getServerSession } from 'next-auth';
-
-const inter = Inter({ subsets: ['latin'] });
+import customTheme from './utils/CustomTheme';
 
 export const metadata: Metadata = {
-  title: 'Taqseem',
+	title: 'Taqseem',
 };
 
-const config: ThemeConfig = {
-  initialColorMode: 'dark',
-  useSystemColorMode: false,
-}
-const theme = extendTheme({ config })
-
 export default async function RootLayout({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  // const session = await auth();
-  const session = await getServerSession();
+	const session = await getServerSession();
 
-  return (
-    <html lang="en">
-      <body>
-        <SessionProvider>
-          <ChakraProvider>
-            {/* <ColorModeScript initialColorMode={theme.config.initialColorMode} /> */}
-            {children}
-          </ChakraProvider>
-        </SessionProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body>
+				<SessionProvider session={session}>
+					<ChakraProvider theme={customTheme}>
+						{children}
+					</ChakraProvider>
+				</SessionProvider>
+			</body>
+		</html>
+	);
 }
