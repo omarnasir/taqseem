@@ -1,14 +1,13 @@
 import './globals.css';
 import {
   ChakraProvider,
-  ColorModeScript,
   extendTheme,
   type ThemeConfig
 }
   from "@chakra-ui/react"
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { auth } from '@/auth';
+import { auth } from '@/app/api/auth/auth';
 
 import { SessionProvider } from '@/app/utils/AuthProvider';
 import { getServerSession } from 'next-auth';

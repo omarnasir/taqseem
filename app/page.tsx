@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react';
-import { auth } from '@/auth';
+import { auth } from '@/app/api/auth/auth';
 
 import DashboardPage from './dashboard/page';
 import Login from "@/components/user/Login"
