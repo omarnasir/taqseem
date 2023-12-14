@@ -1,9 +1,15 @@
 import NextAuth from "next-auth"
+import type { NextAuthConfig } from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/app/prisma"
-import type { NextAuthConfig } from "next-auth"
 
-import CredentialsProvider from "next-auth/providers/credentials"
+import { User } from "@prisma/client"
+import {
+  hashPassword,
+  verifyPassword
+ } from "@/app/utils/hashing"
 
 export const config = {
   adapter: PrismaAdapter(prisma),
@@ -11,39 +17,45 @@ export const config = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days  
   },
-  // pages: {
-  //   signIn: "/auth/signin",
-  // },
+  pages: {
+    signIn: "/",
+  },
   secret: process.env.AUTH_SECRET,
   providers: [CredentialsProvider({
     id: 'credentials',
     name: 'Credentials',
     credentials: {
-      username: { label: 'username', type: 'username' },
       email: { label: 'Email', type: 'email' },
       password: { label: 'Password', type: 'password' },
     },
-    async authorize(credentials, req) {
-      // Add logic here to look up the user from the credentials supplied
-      const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
+    async authorize(credentials: any, req: any) {
 
-      if (user) {
-        // Any object returned will be saved in `user` property of the JWT
-        return user
+      // Add logic here to look up the user from the credentials supplied
+      if (credentials.email === "" || credentials.password === "") {
+        throw new Error("Missing email or password")
+      }
+      
+      // First check if the user exists
+      const user = await prisma.user.findUnique({
+        where: {
+          email: credentials.email,
+        },
+      })
+
+      // If user exists, check if password matches
+      if (user && await verifyPassword(credentials.password,
+        user.hashedPassword)) {
+        // If password matches, return user
+        const { hashedPassword, ...rest } = user
+        return rest
       } else {
-        // If you return null then an error will be displayed advising the user to check their details.
+        // If password doesn't match, return null
         return null
       }
     }
   })
   ],
-  callbacks: {
-    authorized({ request, auth }) {
-      const { pathname } = request.nextUrl
-      if (pathname === "/middleware-example") return !!auth
-      return true
-    },
-  },
 } satisfies NextAuthConfig
+
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config)

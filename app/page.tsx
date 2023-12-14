@@ -1,26 +1,30 @@
-import { auth } from "@/auth"
-import { SessionProvider, signIn, signOut } from "next-auth/react"
+import { Flex } from '@chakra-ui/react';
+import { auth } from '@/auth';
+
+import DashboardPage from './dashboard/page';
+import Form from "@/app/user/Login"
 
 
 export default async function Home() {
-  const session = await auth()
+  const session = await auth();
 
   return (
-    <SessionProvider session={session}>
-      <main>
-        {!session && (
-          <>
-            <h1> Sign in to continue</h1>
-            <button onClick={signIn}>Sign In</button>
-          </>
-        )}
-        {session && (
-          <>
-            <h1>Successfully signed in as {session.user.email}</h1>
-            <button onClick={signOut}>sign out</button>
-          </>
-        )}
-      </main>
-    </SessionProvider>
+    <Flex
+      w={'100%'}
+      h={'100vh'}
+      justifyContent={'center'}
+      alignItems={'center'}
+    >
+      {!!session && <DashboardPage />}
+      {!session && (
+        <Flex
+          flexDirection="row"
+          justifyContent="center"
+          alignItems="middle"
+        >
+          <Form />
+        </Flex>
+      )}
+    </Flex>
   )
 }
