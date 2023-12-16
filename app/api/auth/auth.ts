@@ -53,5 +53,17 @@ export const auth = NextAuth({
         }
       }
     })
-  ]
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      // Add access_token to the token right after signin
+      if (user) { token.id = user.id }
+      return token
+    },
+    async session({ session, token }) {
+      // Add property to session, like an access_token from a provider.
+      if (session.user) { session.user.id = token.id }
+      return session
+    }
+  }
 })

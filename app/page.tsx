@@ -2,7 +2,7 @@ import { Flex } from '@chakra-ui/react';
 import { auth } from '@/app/api/auth/auth';
 
 import DashboardPage from './dashboard/page';
-import Login from "@/components/user/Login"
+import Login from "@/components/auth/Login"
 import { getServerSession } from 'next-auth';
 
 export default async function Home() {
