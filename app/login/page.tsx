@@ -5,10 +5,11 @@ import {
   Heading,
   Input,
   Button,
+  Center,
   Box,
-  Divider,
   useColorModeValue,
-  FormControl,
+  Image,
+  Divider,
 } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
 import { useRouter, redirect } from 'next/navigation';
@@ -21,11 +22,10 @@ interface LoginData {
   password: FormDataEntryValue | null;
 }
 
+const headerHeight = '75px';
+
 export default function Login() {
   const router = useRouter();
-
-  const formBackground = useColorModeValue('gray.100', 'gray.700');
-
   const { addToast } = CustomToast();
 
   async function handleSignInAuth(
@@ -79,15 +79,10 @@ export default function Login() {
     });
     if (response.ok) {
       addToast('User registered successfully!', null, 'success')
-      try {
         await handleSignInAuth({
           email: formData.get('registerEmail'),
           password: formData.get('registerPassword'),
         })
-      }
-      catch (error) {
-        throw new Error('Unexpected error in signin');
-      }
     }
     else {
       // Parse the response body as JSON
@@ -97,84 +92,89 @@ export default function Login() {
   };
 
   return (
-    <Flex
-      flexDirection="row"
-      justifyContent="center"
-      alignItems="middle"
-    >
-      <Flex h="50%"
-        direction="column"
-        alignItems="center" justifyContent="center"
-        bg={formBackground}
-        p={12}
-        borderRadius={12}
-        boxShadow="lg" >
-        <Heading mb={6} fontSize={'2xl'} >Welcome to Taqseem</Heading>
-        <Divider mb={6} />
-        <FormControl>
-          <Box as="form"
-            display="flex" flexDirection="column" alignItems="center"
-            onSubmit={handleLogin}>
-            <Heading fontSize={'2xl'} mb={6}>Log In</Heading>
-            <Input
-              id="loginEmail"
-              name="loginEmail"
-              placeholder="Email"
-              type="email"
-              variant="filled"
-              mb={3}
-            />
-            <Input
-              id="loginPassword"
-              name="loginPassword"
-              placeholder="Password"
-              type="password"
-              variant="filled"
-              mb={6}
-            />
-            <Button colorScheme="teal" mb={8} type='submit'>
-              Log In
-            </Button>
-          </Box>
-        </FormControl>
-        <Divider mb={6} />
-        <FormControl>
-          <Box as="form" onSubmit={handleRegister}
-            display="flex" flexDirection="column" alignItems="center">
-            <Heading mb={6} fontSize={'2xl'} >Register</Heading>
-            <Input
-              id="registerName"
-              name="registerName"
-              placeholder="Name"
-              type="name"
-              variant="filled"
-              required
-              mb={3}
-            />
-            <Input
-              id="registerEmail"
-              name="registerEmail"
-              placeholder="Email"
-              type="email"
-              variant="filled"
-              required
-              mb={3}
-            />
-            <Input
-              id="registerPassword"
-              name="registerPassword"
-              placeholder="Password"
-              type="password"
-              variant="filled"
-              required
-              mb={6}
-            />
-            <Button colorScheme="red" type='submit'>
-              Register
-            </Button>
-          </Box >
-        </FormControl>
-      </Flex >
-    </Flex>
+        <Flex w={{ base: '100vw', lg: '100vw' }} minH='100vh' direction={'column'}
+        justifyContent={'center'}>
+          <Flex direction={'row'} w='100%' h={headerHeight} maxH={headerHeight} justifyContent={'space-evenly'}>
+          <Center textAlign={'center'} fontSize={'3xl'} fontWeight={'light'}
+          alignSelf={'center'} alignItems={'center'}
+          >taqseem</Center>
+          <Divider orientation="vertical" h={'5vh'} alignSelf={'center'}/>
+          <Image src={'/logo.png'} alt={'taqseem'} h={headerHeight} />
+          </Flex>
+          <Flex
+            w={'100%'}
+            paddingX={{ base: 4, sm: 10, md: 8, lg: 6 }}
+            flexDirection={{ base: 'column', md: 'row'}}
+            alignItems="stretch">
+              <Box as="form"
+              w={'100%'} justifyContent={'flex-end'}
+              marginX={{ base: 2, md: 2 }} mb={{ base: 4}}
+              padding={{ base: 4, md: 6 }}
+              bg={useColorModeValue('white.100', 'blue.800')}
+              borderRadius={12} boxShadow="none"
+                display="flex" flexDirection="column" onSubmit={handleLogin}>
+                <Heading textAlign={'center'} fontSize={'3xl'} fontWeight={'light'} mb={6}>Log In</Heading>
+                <Input
+                  id="loginEmail"
+                  name="loginEmail"
+                  placeholder="Email"
+                  type="email"
+                  variant="filled"
+                  mb={3}
+                />
+                <Input
+                  id="loginPassword"
+                  name="loginPassword"
+                  placeholder="Password"
+                  type="password"
+                  variant="filled"
+                  mb={6}
+                />
+                <Button colorScheme="blue" mb={8} type='submit'>
+                  Log In
+                </Button>
+              </Box>
+              <Box as="form" onSubmit={handleRegister}
+                w={'100%'}
+                marginX={{ base: 2, md: 2 }} mb={{ base: 4}}
+                padding={{ base: 4, md: 6 }}
+                bg={useColorModeValue('white.100', 'green.800')}
+                borderRadius={12}
+                boxShadow="none"
+                  display="flex" flexDirection="column" >
+                <Heading mb={6} textAlign={'center'} fontSize={'3xl'} fontWeight={'light'}>Register</Heading>
+                <Input
+                  id="registerName"
+                  name="registerName"
+                  placeholder="Name"
+                  type="name"
+                  variant="filled"
+                  required
+                  mb={3}
+                />
+                <Input
+                  id="registerEmail"
+                  name="registerEmail"
+                  placeholder="Email"
+                  type="email"
+                  variant="filled"
+                  required
+                  mb={3}
+                />
+                <Input
+                  id="registerPassword"
+                  name="registerPassword"
+                  placeholder="Password"
+                  type="password"
+                  variant="filled"
+                  required
+                  mb={6}
+                />
+                <Button colorScheme="teal" type='submit' variant='outline'>
+                  Register
+                </Button>
+              </Box >
+          </Flex>
+        </Flex>
   );
 }

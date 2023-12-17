@@ -6,7 +6,11 @@ export default function Logout() {
   return (
     <button
       onClick={() => {
-        signOut();
+        signOut(
+          {
+            callbackUrl: '/',
+          }
+        );
       }}
     >
       Logout
