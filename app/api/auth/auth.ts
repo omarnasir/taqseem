@@ -14,7 +14,7 @@ export const auth = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days  
   },
   pages: {
-    signIn: "/",
+    signIn: "/login",
   },
   debug: true,
   secret: process.env.NEXTAUTH_SECRET,

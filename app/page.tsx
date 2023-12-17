@@ -2,12 +2,16 @@ import { Flex } from '@chakra-ui/react';
 import { auth } from '@/app/api/auth/auth';
 
 import DashboardPage from './dashboard/page';
-import Login from "@/components/auth/Login"
 import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 
 export default async function Home() {
   // const session = await auth();
   const session = await getServerSession(auth);
+
+  if (!session) {
+    redirect('/login')
+  }
 
   return (
     <Flex
@@ -17,15 +21,6 @@ export default async function Home() {
       alignItems={'center'}
     >
       {!!session && <DashboardPage />}
-      {!session && (
-        <Flex
-          flexDirection="row"
-          justifyContent="center"
-          alignItems="middle"
-        >
-          <Login />
-        </Flex>
-      )}
     </Flex>
   )
 }
