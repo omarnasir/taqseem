@@ -2,9 +2,9 @@ import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import prisma from "@/app/prisma"
+import prisma from "@/lib/prisma"
 
-import { verifyPassword } from "@/app/utils/hashing"
+import { verifyPassword } from "@/lib/hashing"
 
 
 export const auth = NextAuth({

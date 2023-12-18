@@ -26,6 +26,7 @@ const customTheme = extendTheme({ config, fonts },
 				'html, body': {
 					color: 'black.600',
 					lineHeight: 'tall',
+					bg: 'black',
 				},
 				'#__next': {
 					display: 'flex',

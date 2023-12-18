@@ -8,7 +8,7 @@ export function CustomToast() {
   const toast = useToast()
 
   const addToast = (title: string,
-    description: string | null,
+    description: string | null | undefined,
     status: "info" | "warning" | "success" | "error",
     duration?: number) => {
     toast({
