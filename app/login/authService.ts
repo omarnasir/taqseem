@@ -32,7 +32,7 @@ async function handleSignInAuth(
   else {
     return {
       success: false,
-      message: response?.error ? response?.error : null
+      message: null
     }
   }
 }
@@ -62,7 +62,7 @@ async function handlerRegisterAuth(
   else {
     // Parse the response body as JSON
     const body = await response.json();
-    return { success: false, message: body.error }
+    return { success: false, message: body.message }
   }
 }
 

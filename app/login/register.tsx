@@ -8,6 +8,7 @@ import {
   Heading,
 } from '@chakra-ui/react'
 import { BoxWrapper } from '@/components/auth/boxWrapper';
+import { useRouter } from 'next/navigation';
 
 import { useForm, FieldValues } from "react-hook-form"
 import { handlerRegisterAuth } from '@/app/login/authService';
@@ -15,6 +16,7 @@ import { CustomToast } from '@/components/ui/Toast';
 
 
 export function Register() {
+  const router = useRouter();
   const { addToast } = CustomToast();
 
   const {
@@ -30,12 +32,14 @@ export function Register() {
       password: values.password,
     })
     if (response.success) {
-      addToast('User registered successfully!', null, 'success')
+      router.push('/dashboard')
+      router.refresh()
+      addToast('Signup successful!', null, 'success')
     }
     else {
+      console.log(response)
       addToast('Error in Registering', response.message, 'error');
     }
-
   };
 
   return (
