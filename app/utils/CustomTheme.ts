@@ -19,7 +19,12 @@ const config: ThemeConfig = {
 const customTheme = extendTheme({ config, fonts },
 	{
 		colors: {
-			black: '#16161D',
+			black: '#141414',
+			loginbtn: {
+				50: '#ffffff',
+				100: '#ffffff',
+				500: '#ffffff',
+			},
 		},
 		styles: {
 			global: {

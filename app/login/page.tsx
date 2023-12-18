@@ -15,8 +15,7 @@ export default function Login() {
   const headerHeight = '75px';
 
   return (
-    <Container w={{ base: '100vw', md:'75vw', lg: '75vw' }}
-    minW={{ base: '100%', md:'75%', lg: '75%', xl: '50%' }}>
+    <Container maxW={'5xl'} minW={'1xl'}>
       <Flex 
         minH='100vh'
         direction={'column'}
@@ -33,7 +32,7 @@ export default function Login() {
         </Flex>
         <Flex
           w={'100%'}
-          paddingX={{ base: 4, sm: 10, md: 4, lg: 6 }}
+          paddingX={{ base: 4, sm: 0, md: 0, lg: 0 }}
           flexDirection={{ base: 'column', md: 'row' }}
           alignItems="stretch">
           <Signin />

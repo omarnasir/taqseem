@@ -11,7 +11,7 @@ import { BoxWrapper } from '@/components/auth/boxWrapper';
 
 import { useForm, FieldValues } from "react-hook-form"
 import { handlerRegisterAuth } from '@/app/login/authService';
-import { CustomToast } from '@/app/utils/Toast';
+import { CustomToast } from '@/components/ui/Toast';
 
 
 export function Register() {
@@ -46,7 +46,6 @@ export function Register() {
         <Input
           id='name'
           type='name'
-          fontSize={'sm'}
           placeholder='name'
           {...register('name', {
             required: 'This is required',
@@ -67,7 +66,6 @@ export function Register() {
         <Input
           id='email'
           type='email'
-          fontSize={'sm'}
           placeholder='email'
           {...register('email', {
             required: 'This is required',
@@ -84,7 +82,6 @@ export function Register() {
         <Input
           id='password'
           type='password'
-          fontSize={'sm'}
           placeholder='password'
           {...register('password', {
             required: 'This is required',
@@ -100,12 +97,13 @@ export function Register() {
           </FormErrorMessage>
         }
       </FormControl>
-      <Button 
-      mt={4} 
-      bg='gray.300' 
-      textColor='blue.900'
-      isLoading={isSubmitting} 
-      type='submit'>
+      <Button
+        mt={4}
+        bg={'gray.100'}
+        colorScheme='loginbtn'
+        textColor='blue.900'
+        isLoading={isSubmitting}
+        type='submit'>
         Register
       </Button>
     </BoxWrapper>
