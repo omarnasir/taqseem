@@ -20,7 +20,7 @@ export default async function RootLayout({
 	const session = await getServerSession();
 
 	return (
-		<html lang="en">
+		<html lang="en" data-theme='dark'>
 			<body className={inter.className}>
 				<SessionProvider session={session}>
 					<ChakraProvider theme={customTheme}>
