@@ -6,16 +6,19 @@ import {
   Input,
   Button,
   Heading,
+  Flex,
+  Link,
+  Divider,
 } from '@chakra-ui/react'
 import { BoxWrapper } from '@/components/auth/boxWrapper';
 import { useRouter } from 'next/navigation';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handlerRegisterAuth } from '@/app/login/authService';
+import { handlerRegisterAuth } from '@/app/auth/authService';
 import { CustomToast } from '@/components/ui/Toast';
 
 
-export function Register() {
+export default function Register(...props: any) {
   const router = useRouter();
   const { addToast } = CustomToast();
 
@@ -24,6 +27,15 @@ export function Register() {
     register,
     formState: { errors, isSubmitting },
   } = useForm()
+
+  // useEffect(() => {
+  //   if (status === 'authenticated') {
+  //     router.push('/');
+  //   }
+  // }, [status])
+  // if (status === 'loading') {
+  //   return <div>Loading...</div>
+  // }
 
   const onSubmit = async (values: FieldValues) => {
     const response = await handlerRegisterAuth({
@@ -44,7 +56,8 @@ export function Register() {
 
   return (
     <BoxWrapper as='form' onSubmit={handleSubmit(onSubmit)}>
-      <Heading textAlign={'center'} fontSize={'1xl'} fontWeight={'light'} mb={2}>Sign up Here</Heading>
+      <Heading textAlign={'left'} fontSize={'xl'} mb={4} fontWeight={'light'}>Signup</Heading>
+      <Divider mb={4} />
       <FormControl isInvalid={!!errors?.name} mb={3}>
         <FormLabel htmlFor='name'>Name</FormLabel>
         <Input
@@ -52,7 +65,7 @@ export function Register() {
           type='name'
           placeholder='name'
           {...register('name', {
-            required: 'This is required',
+            required: 'Please enter your name.',
             minLength: {
               value: 2,
               message: 'Minimum length should be 2',
@@ -69,10 +82,13 @@ export function Register() {
         <FormLabel htmlFor='email'>Email</FormLabel>
         <Input
           id='email'
-          type='email'
           placeholder='email'
           {...register('email', {
-            required: 'This is required',
+            required: 'Email is required',
+            pattern: {
+              value: /^\S+@\S+$/i,
+              message: 'Invalid email address',
+            },
           })}
         />
         {errors?.email &&
@@ -88,7 +104,7 @@ export function Register() {
           type='password'
           placeholder='password'
           {...register('password', {
-            required: 'This is required',
+            required: 'Password is required',
             minLength: {
               value: 4,
               message: 'Minimum length should be 4',
@@ -110,6 +126,9 @@ export function Register() {
         type='submit'>
         Register
       </Button>
+      <Flex direction={'row'} justifyContent={'center'} mt={4}>
+        <Link href='/auth/login' ml={2} color={'gray.300'}>Already have an account? Login here</Link>
+      </Flex>
     </BoxWrapper>
   )
 }

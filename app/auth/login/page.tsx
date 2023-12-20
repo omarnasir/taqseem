@@ -5,17 +5,20 @@ import {
   FormErrorMessage,
   Input,
   Button,
-  Heading
+  Heading,
+  Flex,
+  Link,
+  Divider
 } from '@chakra-ui/react'
 import { BoxWrapper } from '@/components/auth/boxWrapper';
 import { useRouter } from 'next/navigation';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handleSignInAuth } from '@/app/login/authService';
+import { handleSignInAuth } from '@/app/auth/authService';
 import { CustomToast } from '@/components/ui/Toast';
 
 
-export function Signin() {
+export default function Signin(...props: any) {
   const router = useRouter();
   const { addToast } = CustomToast();
 
@@ -47,7 +50,8 @@ export function Signin() {
 
   return (
     <BoxWrapper as='form' onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}>
-      <Heading textAlign={'center'} fontSize={'1xl'} fontWeight={'light'} mb={2}>Login to continue</Heading>
+      <Heading textAlign={'left'} fontSize={'xl'} mb={4} fontWeight={'light'}>Login</Heading>
+      <Divider mb={4} />
       <FormControl isInvalid={!!errors?.email} mb={3}>
         <FormLabel htmlFor='email'>Email</FormLabel>
         <Input
@@ -93,6 +97,9 @@ export function Signin() {
         type='submit'>
         Login
       </Button>
+      <Flex direction={'row'} justifyContent={'center'} mt={4}>
+        <Link href='/auth/register' ml={2} color={'gray.300'}>New User? Register here</Link>
+      </Flex>
     </BoxWrapper>
   )
 }
