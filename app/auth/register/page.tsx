@@ -86,7 +86,7 @@ export default function Register(...props: any) {
           {...register('email', {
             required: 'Email is required',
             pattern: {
-              value: /^\S+@\S+$/i,
+              value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
               message: 'Invalid email address',
             },
           })}

@@ -56,10 +56,13 @@ export default function Signin(...props: any) {
         <FormLabel htmlFor='email'>Email</FormLabel>
         <Input
           id='email'
-          type='email'
           placeholder='email'
           {...register('email', {
             required: 'This is required',
+            pattern: {
+              value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+              message: 'Invalid email address',
+            },
           })}
 
         />
