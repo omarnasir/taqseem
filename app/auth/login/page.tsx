@@ -18,7 +18,7 @@ import { handleSignInAuth } from '@/services/authService';
 import { CustomToast } from '@/components/ui/toast';
 
 
-export default function Signin(...props: any) {
+export default function Signin() {
   const router = useRouter();
   const { addToast } = CustomToast();
 
@@ -36,7 +36,7 @@ export default function Signin(...props: any) {
       password: values.password,
     })
     if (response.success) {
-      router.push('/')
+      router.push('/dashboard')
       router.refresh()
     }
     else {
