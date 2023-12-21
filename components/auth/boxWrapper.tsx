@@ -5,13 +5,13 @@ import {
   Container,
   Divider,
   Flex,
-  Image
 }
   from '@chakra-ui/react'
+import Image from 'next/image'
+import logo from '../../public/logo.png'
 
 export function BoxWrapper(props: BoxProps) {
-  const headerHeight = '75px';
-
+  const logoDims = 75;
   return (
     <Container>
       <Flex h='100vh' direction={'column'} justifyContent={'center'}>
@@ -22,7 +22,7 @@ export function BoxWrapper(props: BoxProps) {
             height={'1%'}
             borderWidth={'0.3rem'}
             borderRadius={'2rem'} />
-          <Image src={'/logo.png'} alt={'taqseem'} h={headerHeight} />
+          <Image priority={true}  src={logo} alt={'taqseem'} height={logoDims} width={0}/>
         </Flex>
         <Flex>
           <Box w={'100%'}

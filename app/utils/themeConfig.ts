@@ -21,7 +21,7 @@ const config: ThemeConfig = {
 const customTheme = extendTheme({ config, fonts },
 	{
 		colors: {
-			black: '#121212',
+			black: '#0a0a0a',
 			loginbtn: {
 				50: '#ffffff',
 				100: '#ffffff',
@@ -44,7 +44,7 @@ const customTheme = extendTheme({ config, fonts },
 					transition: 'color 0.15s',
 					transitionTimingFunction: 'ease-out',
 					_hover: {
-						color: 'gray.600',
+						color: 'gray.500',
 					},
 				},
 			},
@@ -52,8 +52,17 @@ const customTheme = extendTheme({ config, fonts },
 		components: {
 			Input:{
 				defaultProps: {
-				focusBorderColor: 'white',
+					focusBorderColor: 'white',
 				},
+				baseStyle: {
+					field: {
+            color: "gray.300",
+            _autofill: {
+              boxShadow: "0 0 0px 1000px #0a0a0a inset",
+              transition: "background-color 5000s ease-in-out 0s",
+            },
+					}
+				}
 			},
 			Menu: menuTheme,
 		}

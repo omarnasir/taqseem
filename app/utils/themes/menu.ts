@@ -9,7 +9,7 @@ const baseStyle = definePartsStyle({
    // _dark or _light
     _dark: {
       '--menu-bg': 'colors.gray.900',
-      'min-width': '150px',
+      'minWidth': '150px',
     },
   },
   item: {

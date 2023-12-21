@@ -41,5 +41,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ["/:path*", "/auth/:path*"],
+  matcher: ["/:path*", "/auth/:path*", "/((?!api|_next|static|_next/image|favicon.ico).*)"]
 }

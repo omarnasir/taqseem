@@ -56,6 +56,7 @@ export default function Signin(...props: any) {
         <FormLabel htmlFor='email'>Email</FormLabel>
         <Input
           id='email'
+          variant='outline'
           placeholder='email'
           {...register('email', {
             required: 'This is required',
