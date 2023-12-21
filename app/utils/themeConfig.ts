@@ -6,6 +6,8 @@ import {
 }
 	from "@chakra-ui/react"
 
+import {menuTheme} from "./themes/menu"
+
 const fonts = {
 	...chakraTheme.fonts,
 	body: `Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"`,
@@ -52,7 +54,8 @@ const customTheme = extendTheme({ config, fonts },
 				defaultProps: {
 				focusBorderColor: 'white',
 				},
-			}
+			},
+			Menu: menuTheme,
 		}
 	})
 

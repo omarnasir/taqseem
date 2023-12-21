@@ -11,8 +11,8 @@ datasource db {
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       String
   expires      DateTime
+  userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -22,4 +22,23 @@ model User {
   email         String  @unique
   hashedPassword String
   sessions      Session[]
+  groups       Group[]
+  memberships   Memberships[]
+}
+
+model Group {
+  id            String    @id @default(cuid())
+  name          String
+  users         Memberships[]
+  createdBy     User      @relation(fields: [createdById], references: [id])
+  createdById   String
+}
+
+model Memberships {
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String
+  group         Group     @relation(fields: [groupId], references: [id])
+  groupId       String
+
+  @@id([userId, groupId])
 }

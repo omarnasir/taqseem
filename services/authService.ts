@@ -1,4 +1,4 @@
-import { signIn } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
 
 interface LoginData {
   email: FormDataEntryValue | null;
@@ -66,7 +66,12 @@ async function handlerRegisterAuth(
   }
 }
 
+function handleSignOutAuth(): Promise<void> {
+  return signOut({ callbackUrl: '/' })
+}
+
 export {
   handleSignInAuth,
+  handleSignOutAuth,
   handlerRegisterAuth,
 }

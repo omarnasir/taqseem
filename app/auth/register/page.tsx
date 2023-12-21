@@ -14,8 +14,8 @@ import { BoxWrapper } from '@/components/auth/boxWrapper';
 import { useRouter } from 'next/navigation';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handlerRegisterAuth } from '@/app/auth/authService';
-import { CustomToast } from '@/components/ui/Toast';
+import { handlerRegisterAuth } from '@/services/authService';
+import { CustomToast } from '@/components/ui/toast';
 
 
 export default function Register(...props: any) {

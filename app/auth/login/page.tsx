@@ -14,8 +14,8 @@ import { BoxWrapper } from '@/components/auth/boxWrapper';
 import { useRouter } from 'next/navigation';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handleSignInAuth } from '@/app/auth/authService';
-import { CustomToast } from '@/components/ui/Toast';
+import { handleSignInAuth } from '@/services/authService';
+import { CustomToast } from '@/components/ui/toast';
 
 
 export default function Signin(...props: any) {
@@ -36,7 +36,7 @@ export default function Signin(...props: any) {
       password: values.password,
     })
     if (response.success) {
-      router.push('/dashboard')
+      router.push('/')
       router.refresh()
     }
     else {
