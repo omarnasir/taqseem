@@ -35,7 +35,7 @@
   "include": [
     "process.d.ts",
     "next-env.d.ts",
-    "app/*.ts",
+    "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],

@@ -18,7 +18,7 @@ import { handlerRegisterAuth } from '@/services/authService';
 import { CustomToast } from '@/components/ui/toast';
 
 
-export default function Register(...props: any) {
+export default function Register() {
   const router = useRouter();
   const { addToast } = CustomToast();
 
