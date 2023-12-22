@@ -9,14 +9,18 @@ export default withAuth(
     const isAuthPage =
       req.nextUrl.pathname.startsWith("/auth/login") ||
       req.nextUrl.pathname.startsWith("/auth/register")
+    const isHomeRoute = req.nextUrl.pathname === "/"
 
     if (isAuthPage) {
       if (isAuth) {
         return NextResponse.redirect(new URL("/dashboard", req.url))
       }
-
       return null
     }
+
+    if (isHomeRoute && isAuth) {
+        return NextResponse.redirect(new URL("/dashboard", req.url))
+      }
 
     if (!isAuth) {
       let from = req.nextUrl.pathname;
