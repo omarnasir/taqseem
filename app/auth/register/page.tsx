@@ -11,7 +11,6 @@ import {
   Divider,
 } from '@chakra-ui/react'
 import { BoxWrapper } from '@/components/auth/boxWrapper';
-import { useRouter } from 'next/navigation';
 
 import { useForm, FieldValues } from "react-hook-form"
 import { handlerRegisterAuth } from '@/services/authService';
@@ -19,7 +18,6 @@ import { CustomToast } from '@/components/ui/toast';
 
 
 export default function Register() {
-  const router = useRouter();
   const { addToast } = CustomToast();
 
   const {
@@ -28,29 +26,18 @@ export default function Register() {
     formState: { errors, isSubmitting },
   } = useForm()
 
-  // useEffect(() => {
-  //   if (status === 'authenticated') {
-  //     router.push('/');
-  //   }
-  // }, [status])
-  // if (status === 'loading') {
-  //   return <div>Loading...</div>
-  // }
-
   const onSubmit = async (values: FieldValues) => {
     const response = await handlerRegisterAuth({
       name: values.name,
       email: values.email,
       password: values.password,
     })
-    if (response.success) {
-      router.push('/dashboard')
-      router.refresh()
-      addToast('Signup successful!', null, 'success')
+    console.log(response)
+    if (!response.success) {
+      addToast('Error in Registering', response.error, 'error');
     }
     else {
-      console.log(response)
-      addToast('Error in Registering', response.message, 'error');
+      addToast('Signup successful!', null, 'success')
     }
   };
 

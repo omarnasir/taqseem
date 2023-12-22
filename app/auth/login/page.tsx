@@ -19,14 +19,13 @@ import { CustomToast } from '@/components/ui/toast';
 
 
 export default function Signin() {
-  const router = useRouter();
   const { addToast } = CustomToast();
 
   const {
     handleSubmit,
     register,
     clearErrors,
-    formState: { errors, isSubmitting},
+    formState: { errors, isSubmitting },
   } = useForm()
 
   async function onSubmit(values: FieldValues) {
@@ -35,11 +34,7 @@ export default function Signin() {
       email: values.email,
       password: values.password,
     })
-    if (response.success) {
-      router.push('/dashboard')
-      router.refresh()
-    }
-    else {
+    if (!response) {
       addToast('Login Error. Check your details.', null, 'error');
     }
   }

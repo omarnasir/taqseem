@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const { name, email, password } = await request.json();
     // validate email and password
     if (!email || !password) {
-      return NextResponse.json({ message: 'error' }, { status: 400 });
+      return NextResponse.json({ status: 400 });
     }
     // Check if user already exists
     const user = await prisma.user.findUnique({
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       }
     });
     if (user) {
-      return NextResponse.json({ message: 'User already exists' },
+      return NextResponse.json({ error: 'User already exists' },
         { status: 400 });
     }
 
@@ -30,11 +30,9 @@ export async function POST(request: Request) {
     });
     // remove hashedPassword from response
     const { hashedPassword, ...rest } = newUser;
-    return NextResponse.json({ message: 'success', user: rest },
-      { status: 200 });
+    return NextResponse.json({ user: rest }, { status: 200 });
   } catch (e) {
     console.log({ e });
-    return NextResponse.json({ message: 'error' },
-      { status: 500 });
+    return NextResponse.json({ status: 500 });
   }
 }

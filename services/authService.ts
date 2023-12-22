@@ -4,46 +4,30 @@ interface LoginData {
   email: FormDataEntryValue | null;
   password: FormDataEntryValue | null;
 }
-
 interface RegisterData {
   name: FormDataEntryValue | null;
   email: FormDataEntryValue | null;
   password: FormDataEntryValue | null;
 }
 
-interface AuthResponse {
-  success: boolean;
-  message?: string | null;
-}
-
 async function handleSignInAuth(
   { email, password }: LoginData
-): Promise<AuthResponse> {
-  // try {
+) : Promise<boolean> {
   let response = await signIn('credentials', {
     email: email,
     password: password,
-    callbackUrl: '/',
     redirect: false,
   });
   if (response?.ok) {
-    return { success: true }
+    window.location.href = '/dashboard'
+    return true
   }
-  else {
-    return {
-      success: false,
-      message: null
-    }
-  }
+  return false
 }
-// catch (error) {
-//   console.log(error)
-//   throw new Error('Unexpected error in signin');
-// }
 
 async function handlerRegisterAuth(
   { name, email, password }: RegisterData
-): Promise<AuthResponse> {
+): Promise<{ success: boolean, error?: string }> {
   const response = await fetch(`/api/auth/register`, {
     method: 'POST',
     body: JSON.stringify({
@@ -62,7 +46,7 @@ async function handlerRegisterAuth(
   else {
     // Parse the response body as JSON
     const body = await response.json();
-    return { success: false, message: body.message }
+    return { success: false, error: body.error }
   }
 }
 
