@@ -11,7 +11,6 @@ import {
   Divider
 } from '@chakra-ui/react'
 import { BoxWrapper } from '@/components/auth/boxWrapper';
-import { useRouter } from 'next/navigation';
 
 import { useForm, FieldValues } from "react-hook-form"
 import { handleSignInAuth } from '@/services/authService';
@@ -39,12 +38,8 @@ export default function Signin() {
     }
   }
 
-  function onInvalidSubmit(errors: FieldValues) {
-    console.log(errors)
-  }
-
   return (
-    <BoxWrapper as='form' onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}>
+    <BoxWrapper as='form' onSubmit={handleSubmit(onSubmit)}>
       <Heading textAlign={'left'} fontSize={'xl'} mb={4} fontWeight={'light'}>Login</Heading>
       <Divider mb={4} />
       <FormControl isInvalid={!!errors?.email} mb={3}>
