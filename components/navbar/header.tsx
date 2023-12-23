@@ -19,7 +19,7 @@ export default function NavBar(
   return (
     <Flex w="100%"
       direction='row'
-      px="6"
+      px="0"
       py="5"
       borderBottom={'1px'} borderColor={'gray.600'}
       justify="space-between">
