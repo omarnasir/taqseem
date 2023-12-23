@@ -13,31 +13,31 @@ model Session {
   sessionToken String   @unique
   expires      DateTime
   userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model User {
+model Users {
   id            String    @id @default(cuid())
   name          String
   email         String  @unique
   hashedPassword String
   sessions      Session[]
-  groups       Group[]
-  memberships   Memberships[]
+  groups        Memberships[]
+  ownedGroups   Groups[]
 }
 
-model Group {
+model Groups {
   id            String    @id @default(cuid())
   name          String
   users         Memberships[]
-  createdBy     User      @relation(fields: [createdById], references: [id])
+  createdBy     Users      @relation(fields: [createdById], references: [id])
   createdById   String
 }
 
 model Memberships {
-  user          User      @relation(fields: [userId], references: [id])
+  user          Users      @relation(fields: [userId], references: [id])
   userId        String
-  group         Group     @relation(fields: [groupId], references: [id])
+  group         Groups     @relation(fields: [groupId], references: [id])
   groupId       String
 
   @@id([userId, groupId])
