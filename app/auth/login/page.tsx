@@ -13,7 +13,7 @@ import {
 import { BoxWrapper } from '@/components/auth/boxWrapper';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handleSignInAuth } from '@/services/authService';
+import { handleSignInAuth } from '@/client/services/authService';
 import { CustomToast } from '@/components/ui/toast';
 
 

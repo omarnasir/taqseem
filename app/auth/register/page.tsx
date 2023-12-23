@@ -13,7 +13,7 @@ import {
 import { BoxWrapper } from '@/components/auth/boxWrapper';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handlerRegisterAuth } from '@/services/authService';
+import { handlerRegisterAuth } from '@/client/services/authService';
 import { CustomToast } from '@/components/ui/toast';
 
 
@@ -26,7 +26,7 @@ export default function Register() {
     formState: { errors, isSubmitting },
   } = useForm()
 
-  const onSubmit = async (values: FieldValues) => {
+  async function onSubmit (values: FieldValues) {
     const response = await handlerRegisterAuth({
       name: values.name,
       email: values.email,
