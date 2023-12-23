@@ -1,8 +1,7 @@
 export default function DashboardPage() {
-
   return (
     <>
-    yo dashboard yo
+    yo this is groups
     </>
   );
 }
