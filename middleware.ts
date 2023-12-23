@@ -17,8 +17,7 @@ export default withAuth(
       }
       return null
     }
-
-    if (isHomeRoute && isAuth) {
+    else if (isHomeRoute && isAuth) {
         return NextResponse.redirect(new URL("/dashboard", req.url))
       }
 

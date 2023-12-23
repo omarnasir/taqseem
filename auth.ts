@@ -2,9 +2,9 @@ import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import prisma from "@/lib/prisma"
+import prisma from "@/server/lib/prisma"
 
-import { verifyPassword } from "@/lib/hashing"
+import { verifyPassword } from "@/server/utils/hashing"
 
 
 export const auth = NextAuth({
@@ -34,7 +34,7 @@ export const auth = NextAuth({
           }
 
           // First check if the user exists
-          const user = await prisma.user.findUnique({
+          const user = await prisma.users.findUnique({
             where: {
               email: credentials.email,
             },
@@ -62,7 +62,7 @@ export const auth = NextAuth({
     },
     async session({ session, token }) {
       // Add property to session, like an access_token from a provider.
-      if (session.user) { session.user.id = token.id }
+      if (session.user) { session.user.id = token.id as string }
       return session
     }
   }
