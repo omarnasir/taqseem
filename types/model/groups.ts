@@ -6,7 +6,7 @@ const groupsWithOwnership = Prisma.validator<Prisma.GroupsDefaultArgs>()({
 })
 
 // 2: Define a type that includes the relation to `Group`
-const groupsWithMembers = Prisma.validator<Prisma.GroupsDefaultArgs>()({
+const groupWithMembers = Prisma.validator<Prisma.GroupsDefaultArgs>()({
   include: { users: true },
 })
 
@@ -17,5 +17,5 @@ const groupData = Prisma.validator<Prisma.GroupsDefaultArgs>()({
 
 // 3: This type will include a user and all their posts
 export type GroupWithOwnership = Prisma.GroupsGetPayload<typeof groupsWithOwnership>
-export type GroupWithMembers = Prisma.GroupsGetPayload<typeof groupsWithMembers>
+export type GroupWithMembers = Prisma.GroupsGetPayload<typeof groupWithMembers>
 export type GroupData = Prisma.GroupsGetPayload<typeof groupData>
