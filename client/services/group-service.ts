@@ -1,29 +1,25 @@
-import { type GroupData } from '@/types/groups';
+import { type GroupData } from '@/types/model/groups';
+import { type IBaseApiResponse } from '@/types/base-service-response';
 
 interface GroupFormData {
   id: FormDataEntryValue | null;
   name: FormDataEntryValue | null;
 }
 
-interface BaseGroupResponse {
-  success: boolean;
-  error?: string;
+interface IGroupResponse extends IBaseApiResponse {
+  data?: GroupData;
 }
 
-interface GroupResponse extends BaseGroupResponse {
-  group?: GroupData;
-}
-
-interface GroupsResponse extends BaseGroupResponse {
-  groups?: GroupData[];
+interface IGroupsResponse extends IBaseApiResponse {
+  data?: GroupData[];
 }
 
 async function getGroupByGroupId(id: string): 
-  Promise<GroupResponse> {
+  Promise<IGroupResponse> {
   const response = await fetch(`/api/groups/${id}`);
   if (response.ok) {
     const group = await response.json();
-    return { success: true, group: group }
+    return { success: true, data: group }
   }
   else {
     // Parse the response body as JSON
@@ -33,11 +29,11 @@ async function getGroupByGroupId(id: string):
 }
 
 async function getAllGroupsByCreatedId(userId: string):
-  Promise<GroupsResponse> {
+  Promise<IGroupsResponse> {
   const response = await fetch(`/api/groups/users/?createdById=${userId}`);
   const body = await response.json();
   if (response.ok) {
-    return { success: true, groups: body.groups }
+    return { success: true, data: body.groups }
   }
   else {
     // Parse the response body as JSON
@@ -46,11 +42,11 @@ async function getAllGroupsByCreatedId(userId: string):
 }
 
 async function getAllGroupsByUserId(userId: string):
-  Promise<GroupsResponse> {
+  Promise<IGroupsResponse> {
   const response = await fetch(`/api/groups/users/?userId=${userId}`);
   const body = await response.json();
   if (response.ok) {
-    return { success: true, groups: body.groups }
+    return { success: true, data: body.groups }
   }
   else {
     // Parse the response body as JSON
@@ -60,14 +56,14 @@ async function getAllGroupsByUserId(userId: string):
 
 async function createGroup(
   group: GroupFormData
-): Promise<GroupResponse> {
+): Promise<IGroupResponse> {
   const response = await fetch(`/api/groups`, {
     method: 'POST',
     body: JSON.stringify(group),
   });
   if (response.ok) {
     const body = await response.json();
-    return { success: true, group: body.group}
+    return { success: true, data: body.group}
   }
   else {
     // Parse the response body as JSON
