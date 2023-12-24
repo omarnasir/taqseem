@@ -1,27 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/server/lib/prisma';
-import { type GroupData } from "@/types/groups";
+import { type GroupData } from "@/types/model/groups";
+import type IBaseApiResponse from "@/types/base-api-response";
+
+
+interface IGroupsApiResponse extends IBaseApiResponse {
+  group?: GroupData,
+}
 
 /**
  * GET /api/groups route
- * This route is used to get a group by groupId or by createdById
+ * This route fetches the group details for a given group id
  * @param request - The request object
  * @returns {Promise<NextResponse>} The response object
  * 
  * @urlParam id - The groupId to search for
- * @urlParam createdById - The createdById to search for
- * @urlParam userId - The userId to search for
  * 
  * @response 200 - The group is found
  * @response 404 - The group is not found
  * @response 500 - Server error
  */
 export async function GET(request: NextRequest):
-  Promise<NextResponse<{
-    group?: any,
-  } | {
-    status: 200 | 404 | 500
-  }>> {
+  Promise<IGroupsApiResponse> {
   try {
     const searchParams = new URL(request.url).searchParams;
     const id = searchParams.get("id") as string;
@@ -52,11 +52,7 @@ export async function GET(request: NextRequest):
  * @response 500 - Server error
  */
 export async function POST(request: Request):
-  Promise<NextResponse<{
-    group?: GroupData,
-  } | {
-    status: 200 | 409 | 500
-  }>> {
+  Promise<IGroupsApiResponse> {
   try {
     const { id, name } = await request.json();
     // check if group name for this user already exists

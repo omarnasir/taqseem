@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/server/lib/prisma';
-import { type GroupData } from "@/types/groups";
+import { type GroupData } from "@/types/model/groups";
+import type IBaseApiResponse from "@/types/base-api-response";
+
+interface IGroupsApiResponse extends IBaseApiResponse {
+  groups?: GroupData[],
+}
 
 /**
  * GET /api/groups/users route
@@ -17,12 +22,7 @@ import { type GroupData } from "@/types/groups";
  * @response 500 - Server error
  */
 export async function GET(request: NextRequest):
-  Promise<NextResponse<{
-    groups?: GroupData[]
-  } | {
-    status: 200 | 404 | 500
-  }>>
-{
+  Promise<IGroupsApiResponse> {
   try {
     const searchParams = new URL(request.url).searchParams;
     if (searchParams.has("createdById")) {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest):
       });
       if (!ownedGroups) throw new Error("Groups not found");
       const filteredUserGroups = ownedGroups.map(({ createdById, ...item }) => item);
-      return NextResponse.json({ groups: filteredUserGroups }, { status: 200 });
+      return NextResponse.json({ groups: filteredUserGroups , status: 200 });
     }
     else if (searchParams.has("userId")) {
       const userId = searchParams.get("userId") as string;
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest):
       const filteredUserGroups = userGroups.map(
         (userGroup) => userGroup.group).map(({ createdById, ...item }) => item);
 
-      return NextResponse.json({ groups: filteredUserGroups }, { status: 200 });
+      return NextResponse.json({ groups: filteredUserGroups , status: 200 });
     }
   } catch (e) {
     console.log({ e });
