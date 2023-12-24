@@ -10,10 +10,10 @@ import {
   Link,
   Divider
 } from '@chakra-ui/react'
-import { BoxWrapper } from '@/components/auth/boxWrapper';
+import { BoxWrapper } from '@/components/auth/box-wrapper';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handleSignInAuth } from '@/client/services/authService';
+import { handleSignInAuth } from '@/client/services/auth-service';
 import { CustomToast } from '@/components/ui/toast';
 
 

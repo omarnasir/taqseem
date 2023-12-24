@@ -10,10 +10,10 @@ import {
   Link,
   Divider,
 } from '@chakra-ui/react'
-import { BoxWrapper } from '@/components/auth/boxWrapper';
+import { BoxWrapper } from '@/components/auth/box-wrapper';
 
 import { useForm, FieldValues } from "react-hook-form"
-import { handlerRegisterAuth } from '@/client/services/authService';
+import { handlerRegisterAuth } from '@/client/services/auth-service';
 import { CustomToast } from '@/components/ui/toast';
 
 
@@ -32,7 +32,6 @@ export default function Register() {
       email: values.email,
       password: values.password,
     })
-    console.log(response)
     if (!response.success) {
       addToast('Error in Registering', response.error, 'error');
     }

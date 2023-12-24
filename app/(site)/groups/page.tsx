@@ -4,8 +4,8 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
-  Input, 
-  HStack, 
+  Input,
+  HStack,
   Button
 } from "@chakra-ui/react";
 
@@ -13,14 +13,15 @@ import { useForm, FieldValues } from "react-hook-form"
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-import GroupsTable from "@/components/groups/table";
-import { createGroup } from "@/client/services/groupService";
-import { 
+import GroupContainer from "@/components/groups/container";
+import GroupAccordian from "@/components/groups/details";
+import { createGroup } from "@/client/services/group-service";
+import {
   getAllGroupsByCreatedId,
   getAllGroupsByUserId
- } from "@/client/services/groupService";
+} from "@/client/services/group-service";
 
-import { type GroupData } from "@/types/groups";
+import { type GroupData } from "@/types/model/groups";
 import { CustomToast } from "@/components/ui/toast";
 
 export default function GroupsPage() {
@@ -35,14 +36,14 @@ export default function GroupsPage() {
       const fetchGroups = async () => {
         await getAllGroupsByCreatedId(data.user.id).then(res => {
           if (res.success) {
-            if (res.groups) setOwnedGroups(res.groups);
+            if (res.data) setOwnedGroups(res.data);
           }
         }),
-        await getAllGroupsByUserId(data.user.id).then(res => {
+          await getAllGroupsByUserId(data.user.id).then(res => {
             if (res.success) {
-              if (res.groups) setGroups(res.groups);
+              if (res.data) setGroups(res.data);
             }
-        })
+          })
       }
       fetchGroups();
     }
@@ -60,8 +61,8 @@ export default function GroupsPage() {
       name: values.name,
     })
     if (response.success) {
-      setGroups([...groups, response.group!]);
-      setOwnedGroups([...ownedGroups, response.group!]);
+      setGroups([...groups, response.data!]);
+      setOwnedGroups([...ownedGroups, response.data!]);
     }
     else {
       addToast("Error creating group", response.error, "error")
@@ -72,10 +73,10 @@ export default function GroupsPage() {
     <Flex direction={'column'} w='inherit'>
       <Heading
         alignSelf={'flex-start'} size='md' fontWeight='light'>Your Groups</Heading>
-      <GroupsTable {...{ groups: ownedGroups }} />
+      <GroupContainer {...{ groups: ownedGroups }} />
       <Heading pt={6}
         alignSelf={'flex-start'} size='md' fontWeight='light'>Groups you are part of</Heading>
-      <GroupsTable {...{ groups: groups }} />
+      <GroupContainer {...{ groups: groups }} />
       <Heading pt={6}
         alignSelf={'flex-start'} size='md' fontWeight='light'>Create a new Group</Heading>
       <HStack mt={4}
