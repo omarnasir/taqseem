@@ -1,11 +1,11 @@
 import { signIn, signOut } from 'next-auth/react';
-import { type IBaseApiResponse } from '@/types/base-service-response';
+import { type BaseApiResponseType } from '@/types/base-service-response';
 
-interface LoginData {
+type LoginData = {
   email: FormDataEntryValue | null;
   password: FormDataEntryValue | null;
 }
-interface RegisterData {
+type RegisterData = {
   name: FormDataEntryValue | null;
   email: FormDataEntryValue | null;
   password: FormDataEntryValue | null;
@@ -28,7 +28,7 @@ async function handleSignInAuth(
 
 async function handlerRegisterAuth(
   { name, email, password }: RegisterData
-): Promise<IBaseApiResponse> {
+): Promise<BaseApiResponseType> {
   const response = await fetch(`/api/auth/register`, {
     method: 'POST',
     body: JSON.stringify({

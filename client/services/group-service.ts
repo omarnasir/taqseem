@@ -1,21 +1,21 @@
 import { type GroupData } from '@/types/model/groups';
-import { type IBaseApiResponse } from '@/types/base-service-response';
+import { type BaseApiResponseType } from '@/types/base-service-response';
 
-interface GroupFormData {
+type GroupFormDataType = {
   id: FormDataEntryValue | null;
   name: FormDataEntryValue | null;
 }
 
-interface IGroupResponse extends IBaseApiResponse {
+type GroupResponseType = BaseApiResponseType & {
   data?: GroupData;
 }
 
-interface IGroupsResponse extends IBaseApiResponse {
+type GroupsResponseType = BaseApiResponseType & {
   data?: GroupData[];
 }
 
 async function getGroupByGroupId(id: string): 
-  Promise<IGroupResponse> {
+  Promise<GroupResponseType> {
   const response = await fetch(`/api/groups/${id}`);
   if (response.ok) {
     const group = await response.json();
@@ -29,7 +29,7 @@ async function getGroupByGroupId(id: string):
 }
 
 async function getAllGroupsByCreatedId(userId: string):
-  Promise<IGroupsResponse> {
+  Promise<GroupsResponseType> {
   const response = await fetch(`/api/groups/users/?createdById=${userId}`);
   const body = await response.json();
   if (response.ok) {
@@ -42,7 +42,7 @@ async function getAllGroupsByCreatedId(userId: string):
 }
 
 async function getAllGroupsByUserId(userId: string):
-  Promise<IGroupsResponse> {
+  Promise<GroupsResponseType> {
   const response = await fetch(`/api/groups/users/?userId=${userId}`);
   const body = await response.json();
   if (response.ok) {
@@ -55,8 +55,8 @@ async function getAllGroupsByUserId(userId: string):
 }
 
 async function createGroup(
-  group: GroupFormData
-): Promise<IGroupResponse> {
+  group: GroupFormDataType
+): Promise<GroupResponseType> {
   const response = await fetch(`/api/groups`, {
     method: 'POST',
     body: JSON.stringify(group),

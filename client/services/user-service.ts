@@ -1,10 +1,10 @@
 import type { UserBelongingToGroups } from '@/types/model/users';
-import type { IBaseApiResponse } from '@/types/base-service-response';
+import type { BaseApiResponseType } from '@/types/base-service-response';
 
-interface IgetAllGroupsByUserIdResponse extends IBaseApiResponse {
+type AllGroupsByUserIdResponseType = BaseApiResponseType&  {
   data?: UserBelongingToGroups['groups'],
 }
 
 export {
-  type IgetAllGroupsByUserIdResponse
+  type AllGroupsByUserIdResponseType
 }

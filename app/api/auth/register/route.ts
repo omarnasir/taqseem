@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { hashPassword } from "@/server/utils/hashing";
 import prisma from '@/server/lib/prisma';
-import type IBaseApiResponse from "@/types/base-api-response";
+import type BaseApiResponseType from "@/types/base-api-response";
 
-interface IRegisterApiResponse extends IBaseApiResponse {
+type RegisterApiResponseType = BaseApiResponseType & {
   user?: {
     id: string,
     name: string,
@@ -12,7 +12,7 @@ interface IRegisterApiResponse extends IBaseApiResponse {
 }
 
 export async function POST(request: Request)
-  : Promise<IRegisterApiResponse> {
+  : Promise<RegisterApiResponseType> {
   try {
     const { name, email, password } = await request.json();
     // validate email and password

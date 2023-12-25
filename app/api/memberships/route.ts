@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/lib/prisma";
 
 import { type UserMembershipsByGroup } from "@/types/model/memberships";
-import type IBaseApiResponse from "@/types/base-api-response";
+import type BaseApiResponseType from "@/types/base-api-response";
 
-interface IMembershipsApiResponse extends IBaseApiResponse {
+type MembershipsApiResponseType = BaseApiResponseType & {
   users?: UserMembershipsByGroup,
 }
 
@@ -22,7 +22,7 @@ interface IMembershipsApiResponse extends IBaseApiResponse {
  * @response 500 - Server error
  */
 export async function GET(request: NextRequest):
-  Promise<IMembershipsApiResponse>
+  Promise<MembershipsApiResponseType>
 {
   try {
     const searchParams = new URL(request.url).searchParams;

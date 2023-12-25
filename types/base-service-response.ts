@@ -1,9 +1,9 @@
-interface IBaseApiResponse {
+type BaseApiResponseType = {
   success: boolean;
   error?: string;
   data?: any;
 }
 
 export {
-  type IBaseApiResponse
+  type BaseApiResponseType
 }

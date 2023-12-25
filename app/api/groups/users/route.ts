@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/server/lib/prisma';
 import { type GroupData } from "@/types/model/groups";
-import type IBaseApiResponse from "@/types/base-api-response";
+import type BaseApiResponseType from "@/types/base-api-response";
 
-interface IGroupsApiResponse extends IBaseApiResponse {
+type GroupsApiResponseType = BaseApiResponseType & {
   groups?: GroupData[],
 }
 
@@ -22,7 +22,7 @@ interface IGroupsApiResponse extends IBaseApiResponse {
  * @response 500 - Server error
  */
 export async function GET(request: NextRequest):
-  Promise<IGroupsApiResponse> {
+  Promise<GroupsApiResponseType> {
   try {
     const searchParams = new URL(request.url).searchParams;
     if (searchParams.has("createdById")) {

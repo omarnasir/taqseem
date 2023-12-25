@@ -3,7 +3,7 @@
 import { Session } from 'next-auth'
 import { SessionProvider } from 'next-auth/react'
 
-export interface AuthContextProps {
+export type AuthContextProps = {
   children: React.ReactNode
   session: Session
 }
