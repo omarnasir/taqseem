@@ -1,23 +1,38 @@
-import { type UserMembershipsByGroup } from '@/types/model/memberships';
+import { type UserMembershipByGroup } from '@/types/model/memberships';
 import { type BaseApiResponseType } from '@/types/base-service-response';
 
 type MembershipResponseType = BaseApiResponseType & {
-  data?: UserMembershipsByGroup;
+  data?: UserMembershipByGroup[];
 }
 
-async function getUsersByGroupId(id: string): Promise<MembershipResponseType> {
+async function getUsersByGroupId({ id }:
+  { id: string }): Promise<MembershipResponseType> {
   const response = await fetch(`/api/memberships/?id=${id}`);
   if (response.ok) {
-    const users = await response.json();
-    return { success: true, data: users }
+    const memberships = await response.json();
+    return { success: true, data: memberships }
   }
-  else {
-    // Parse the response body as JSON
+  return { success: false, error: response.statusText }
+}
+
+async function createMembership({ groupId, userEmail }
+  : { groupId: string, userEmail: string }
+): Promise<MembershipResponseType> {
+  const response = await fetch(`/api/memberships`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ groupId, userEmail })
+  });
+  if (response.ok) {
     const body = await response.json();
-    return { success: false, error: body.error }
+    return { success: true, data: body.user }
   }
+  return { success: false, error: response.statusText }
 }
 
 export {
-  getUsersByGroupId
+  getUsersByGroupId,
+  createMembership
 }
