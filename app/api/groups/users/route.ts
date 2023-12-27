@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/server/lib/prisma';
 import { type GroupData } from "@/types/model/groups";
-import type BaseApiResponseType from "@/types/base-api-response";
+import { sendErrorResponse } from '@/types/base-api-response';
 
-type GroupsApiResponseType = BaseApiResponseType & {
+type GroupsApiResponseType = NextResponse & {
   groups?: GroupData[],
 }
 
@@ -53,8 +53,8 @@ export async function GET(request: NextRequest):
 
       return NextResponse.json({ groups: filteredUserGroups , status: 200 });
     }
-  } catch (e) {
-    console.log({ e });
+  } catch (e: any) {
+    return sendErrorResponse({ statusText: e.message });
   }
-  return NextResponse.json({ status: 500 });
+  return sendErrorResponse({});
 }

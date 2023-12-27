@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/server/lib/prisma';
 import { type GroupData } from "@/types/model/groups";
-import type BaseApiResponseType from "@/types/base-api-response";
+import { sendErrorResponse } from "@/types/base-api-response";
 
 
-type GroupsApiResponseType = BaseApiResponseType & {
+type GroupsApiResponseType = NextResponse & {
   group?: GroupData,
 }
 
@@ -32,9 +32,8 @@ export async function GET(request: NextRequest):
     });
     if (!group) throw new Error("Group not found");
     return NextResponse.json({ group }, { status: 200 });
-  } catch (e) {
-    console.log({ e });
-    return NextResponse.json({ status: 500 });
+  } catch (e: any) {
+    return sendErrorResponse({ statusText: e.message });
   }
 }
 
@@ -51,7 +50,7 @@ export async function GET(request: NextRequest):
  * @response 409 - The group already exists
  * @response 500 - Server error
  */
-export async function POST(request: Request):
+export async function POST(request: NextRequest):
   Promise<GroupsApiResponseType> {
   try {
     const { id, name } = await request.json();
@@ -63,7 +62,7 @@ export async function POST(request: Request):
       }
     });
     if (group) {
-      return NextResponse.json({ status: 409 });
+      return sendErrorResponse({ statusText: "Group already exists" });
     }
     // create new group
     const newGroup = await prisma.groups.create({
@@ -84,8 +83,7 @@ export async function POST(request: Request):
       }
     });
     return NextResponse.json({ group: newGroup }, { status: 200 });
-  } catch (e) {
-    console.log({ e });
-    return NextResponse.json({ status: 500 });
+  } catch (e: any) {
+    return sendErrorResponse({ statusText: e.message });
   }
 }

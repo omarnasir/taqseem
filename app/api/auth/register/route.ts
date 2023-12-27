@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { hashPassword } from "@/server/utils/hashing";
 import prisma from '@/server/lib/prisma';
-import type BaseApiResponseType from "@/types/base-api-response";
+import { sendErrorResponse } from "@/types/base-api-response";
 
-type RegisterApiResponseType = BaseApiResponseType & {
+type RegisterApiResponseType = NextResponse & {
   user?: {
     id: string,
     name: string,
@@ -26,8 +26,7 @@ export async function POST(request: Request)
       }
     });
     if (user) {
-      return NextResponse.json({ error: 'User already exists' },
-        { status: 400 });
+      return sendErrorResponse({ statusText: "User already exists", status: 409 });
     }
 
     // add user to db
@@ -41,8 +40,7 @@ export async function POST(request: Request)
     // remove hashedPassword from response
     const { hashedPassword, ...rest } = newUser;
     return NextResponse.json({ user: rest }, { status: 200 });
-  } catch (e) {
-    console.log({ e });
-    return NextResponse.json({ status: 500 });
+  } catch (e: any) {
+    return sendErrorResponse({ statusText: e.message });
   }
 }
