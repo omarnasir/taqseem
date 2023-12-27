@@ -59,10 +59,10 @@ export default function GroupsPage() {
         await getAllGroupsData(data.user.id).then((data) => {
           setGroups(data.groups);
           setOwnedGroups(data.ownedGroups);
+          setLoading(false);
         });
       }
       fetchGroups();
-      setLoading(false);
     }
   }, [data]);
 
