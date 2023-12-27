@@ -17,7 +17,7 @@ export default function GroupContainer({ groups, title }:
     <Card mb={6}
       size='sm'
       variant={'outline'}
-      bg={'black'}
+      bg={'itemBgGray'} 
       borderRadius={8}>
       <CardHeader>
         <Heading

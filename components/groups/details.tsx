@@ -1,12 +1,7 @@
-import { useEffect, useState } from "react";
+'use client'
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
+  Heading,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
@@ -15,41 +10,47 @@ import {
   Tr,
 }
   from "@chakra-ui/react";
-import { getUsersByGroupId } from "@/client/services/membershipService";
-import { type UserMembershipsByGroup } from '@/types/model/memberships';
+import { type UserMembershipByGroup } from "@/types/model/memberships";
+import { GroupData } from "@/types/model/groups";
 
+type GroupDetailsProps = {
+  group: GroupData,
+  users: UserMembershipByGroup[]
+}
 
-export default function GroupAccordian({ id, name }:
-  { id: string, name: string }) {
-  const [users, setUsers] = useState<UserMembershipsByGroup>([]);
+export default function GroupDetails({ group, users }: GroupDetailsProps) {
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const res = await getUsersByGroupId(id);
-      setUsers(res.data.users!);
-    }
-    fetchUsers();
-  }, [id]);
+  async function onDeleteGroup() {
+
+  }
 
   return (
-   
-    <Accordion allowToggle borderWidth={0}>
-      <AccordionItem border={"none"}>
-        <h2>
-          <AccordionButton
-            textAlign={'left'}
-            justifyContent={'space-between'}
-            key={id}>
-            {name}
-            <AccordionIcon />
-          </AccordionButton>
-        </h2>
-        <AccordionPanel pb={4} borderBottomWidth={1}>
-          {users.length > 0 ? users.map((user) => (
-            <div key={user.id}>{user.name}</div>
-          )) : <p>No users in this group</p>}
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
+    <TableContainer mb={6} bg={'itemBgGray'} borderRadius={8}
+      borderColor={'gray.700'}
+      borderWidth={1}
+      w='100%'>
+      <Heading as='h2' size='md'
+        fontWeight='400' p={4} borderBottomWidth={1}>{group.name}</Heading>
+      <Table size='md' variant='unstyled'>
+        <Thead>
+          <Tr>
+            <Th fontSize={'sm'} fontWeight={'400'}>Member</Th>
+            <Th fontSize={'sm'} fontWeight={'400'}>Actions</Th>
+          </Tr>
+        </Thead>
+        {users.length > 0 ? users.map((user) => (
+          <Tbody key={user.id}>
+            <Tr>
+              <Td>{user.name}</Td>
+              <Td>Remove</Td>
+            </Tr>
+          </Tbody>
+        )) : <Tbody>
+          <Tr>
+            <Td>No users in this group</Td>
+          </Tr>
+        </Tbody>}
+      </Table>
+    </TableContainer>
   );
 }
