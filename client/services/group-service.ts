@@ -21,11 +21,7 @@ async function getGroupByGroupId(id: string):
     const group = await response.json();
     return { success: true, data: group }
   }
-  else {
-    // Parse the response body as JSON
-    const body = await response.json();
-    return { success: false, error: body.error }
-  }
+  return { success: false, error: response.statusText }
 }
 
 async function getAllGroupsByCreatedId(userId: string):
@@ -35,10 +31,7 @@ async function getAllGroupsByCreatedId(userId: string):
   if (response.ok) {
     return { success: true, data: body.groups }
   }
-  else {
-    // Parse the response body as JSON
-    return { success: false, error: body.error }
-  }
+  return { success: false, error: response.statusText }
 }
 
 async function getAllGroupsByUserId(userId: string):
@@ -48,10 +41,7 @@ async function getAllGroupsByUserId(userId: string):
   if (response.ok) {
     return { success: true, data: body.groups }
   }
-  else {
-    // Parse the response body as JSON
-    return { success: false, error: body.error }
-  }
+  return { success: false, error: response.statusText }
 }
 
 async function createGroup(
@@ -65,12 +55,11 @@ async function createGroup(
     const body = await response.json();
     return { success: true, data: body.group}
   }
-  else {
-    // Parse the response body as JSON
-    const body = await response.json();
-    return { success: false, error: body.error }
-  }
+  return { success: false, error: response.statusText }
 }
+
+
+
 export {
   getGroupByGroupId,
   getAllGroupsByCreatedId,

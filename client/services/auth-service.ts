@@ -44,11 +44,7 @@ async function handlerRegisterAuth(
     })
     return { success: true }
   }
-  else {
-    // Parse the response body as JSON
-    const body = await response.json();
-    return { success: false, error: body.error }
-  }
+  return { success: false, error: response.statusText }
 }
 
 function handleSignOutAuth(): Promise<void> {

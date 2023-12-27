@@ -1,8 +1,17 @@
-import { type NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-type BaseApiResponseType = NextResponse & {
-  status: number,
-  message?: string,
+function sendErrorResponse(
+  { status, statusText }: {
+    status?: number,
+    statusText?: string
+  }
+): NextResponse {
+  return new NextResponse(null, {
+    status: status ? status : 500,
+    statusText: statusText ? statusText : "Server error"
+  });
 }
 
-export default BaseApiResponseType;
+export {
+  sendErrorResponse
+}
