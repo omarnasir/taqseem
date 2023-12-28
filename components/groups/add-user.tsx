@@ -2,21 +2,24 @@
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   HStack,
   Heading,
   Input,
+  VStack,
 }
   from "@chakra-ui/react";
 import { type UserMembershipByGroup } from "@/types/model/memberships";
 import { FieldValues, useForm } from "react-hook-form";
 import { createMembership } from "@/client/services/membershipService";
 import { CustomToast } from '@/components/ui/toast';
+import { GroupData } from "@/types/model/groups";
 
 export default function GroupAddUser(
-  { groupId, users, setUsers }: {
-    groupId: string,
+  { group, users, setUsers }: {
+    group: GroupData,
     users: UserMembershipByGroup[],
     setUsers: React.Dispatch<React.SetStateAction<UserMembershipByGroup[]>>
   }
@@ -25,18 +28,19 @@ export default function GroupAddUser(
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm()
 
   async function onSubmit(values: FieldValues) {
     const response = await createMembership({
-      groupId: groupId,
+      groupId: group.id,
       userEmail: values.email
     });
-    console.log(response)
     if (response.success) {
-      setUsers([...users, response.data.membership!])
-      addToast("User added", `User ${values.email} was added to the group`, "success")
+      setUsers([...users, response.data])
+      addToast("User added", `${values.email} was added to group ${group.name}`, "success")
+      reset()
     }
     else {
       addToast("Error creating group", response.error, "error")
@@ -45,43 +49,43 @@ export default function GroupAddUser(
 
   return (
     <Box p={1}>
-      <Heading marginX={4} size='md' fontWeight='light'>Add a new User</Heading>
-      <HStack mt={4}
-        as='form'
-        flexDirection={'row'}
-        alignContent={'center'}
-        justifyContent={'center'}
-        onSubmit={handleSubmit(onSubmit)}>
-        <FormControl isInvalid={!!errors?.group}>
-          <Input
-            id='email'
-            variant='outline'
-            placeholder='Enter user email'
-            {...register('email', {
-              required: 'This is required',
-              pattern: {
-                value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-                message: 'Invalid email address',
-              },
-            })}
-
-          />
-          {errors?.group &&
-            <FormErrorMessage >
-              {errors.group.message?.toString()}
+      <Heading marginX={2} size='md' fontWeight='light'>Add a new User</Heading>
+      <FormControl isInvalid={!!errors?.email}>
+        <VStack>
+          <HStack mt={4}
+            as='form' w='100%'
+            flexDirection={'row'}
+            alignContent={'center'}
+            onSubmit={handleSubmit(onSubmit)}>
+            <Input
+              id='email'
+              variant='outline'
+              placeholder='Enter user email'
+              {...register('email', {
+                required: 'This is required',
+                pattern: {
+                  value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                  message: 'Invalid email address',
+                },
+              })}
+            />
+            <Button
+              w='50%'
+              bg={'gray.100'}
+              colorScheme='loginbtn'
+              textColor='green.900'
+              isLoading={isSubmitting}
+              type='submit'>
+              Add User
+            </Button>
+          </HStack>
+          {errors?.email &&
+            <FormErrorMessage alignSelf={'flex-start'}>
+              {errors.email.message?.toString()}
             </FormErrorMessage>
           }
-        </FormControl>
-        <Button
-          w='50%'
-          bg={'gray.100'}
-          colorScheme='loginbtn'
-          textColor='green.900'
-          isLoading={isSubmitting}
-          type='submit'>
-          Add User
-        </Button>
-      </HStack>
+        </VStack>
+      </FormControl>
     </Box>
   );
 }

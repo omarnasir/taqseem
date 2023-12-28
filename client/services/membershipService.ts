@@ -32,7 +32,24 @@ async function createMembership({ groupId, userEmail }
   return { success: false, error: response.statusText }
 }
 
+async function deleteMembership({ groupId, userId }
+  : { groupId: string, userId: string }
+): Promise<MembershipResponseType> {
+  const response = await fetch(`/api/memberships`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ groupId, userId })
+  });
+  if (response.ok) {
+    return { success: true }
+  }
+  return { success: false, error: response.statusText }
+}
+
 export {
   getUsersByGroupId,
-  createMembership
+  createMembership,
+  deleteMembership
 }

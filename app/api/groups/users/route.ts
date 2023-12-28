@@ -48,13 +48,12 @@ export async function GET(request: NextRequest):
       });
       if (!userGroups) throw new Error("User Groups not found");
       // strip out the createdById from the group
-      const filteredUserGroups = userGroups.map(
-        (userGroup) => userGroup.group).map(({ createdById, ...item }) => item);
+      const filteredUserGroups = userGroups.map((userGroup) => userGroup.group);
 
       return NextResponse.json({ groups: filteredUserGroups , status: 200 });
     }
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
-  return sendErrorResponse({});
+  return sendErrorResponse({ statusText: "Invalid request" });
 }

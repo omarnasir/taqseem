@@ -87,3 +87,53 @@ export async function POST(request: NextRequest):
     return sendErrorResponse({ statusText: e.message });
   }
 }
+
+/**
+ * DELETE /api/groups route
+ * This route is used to delete a group
+ * @param request - The request object
+ * @returns {Promise<NextResponse>} The response object
+ * 
+ * @bodyParam id - The id of the group
+ * 
+ * @response 200 - The group is deleted
+ * @response 404 - The group is not found
+ * @response 500 - Server error
+ */
+export async function DELETE(request: NextRequest):
+  Promise<GroupsApiResponseType> {
+  try {
+    const { groupId, userId } = await request.json();
+    const members = await prisma.memberships.findMany({
+      select: {
+        userId: true
+      },
+      where: {
+        groupId: groupId,
+        NOT: {
+          userId: userId
+        }
+      }
+    });
+    if (members.length > 0) {
+      return sendErrorResponse({ 
+        statusText: "Group contains other users. Please remove those users from the group first." 
+      });
+    }
+    const deleteRelation = prisma.memberships.deleteMany({
+      where: {
+        groupId: groupId
+      }
+    });
+    const deleteGroup = prisma.groups.delete({
+      where: {
+        id: groupId
+      }
+    });
+    await prisma.$transaction([deleteRelation, deleteGroup]);
+    return NextResponse.json({ status: 200 });
+  } catch (e: any) {
+    console.log(e);
+    return sendErrorResponse({ statusText: e.message });
+  }
+}

@@ -12,7 +12,7 @@ const groupWithMembers = Prisma.validator<Prisma.GroupsDefaultArgs>()({
 
 // 3: Define a type that only contains a subset of the scalar fields
 const groupData = Prisma.validator<Prisma.GroupsDefaultArgs>()({
-  select: { id: true, name: true }
+  select: { id: true, name: true, createdById: true }
 })
 
 // 3: This type will include a user and all their posts

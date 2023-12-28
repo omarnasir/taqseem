@@ -27,8 +27,8 @@ async function getGroupByGroupId(id: string):
 async function getAllGroupsByCreatedId(userId: string):
   Promise<GroupsResponseType> {
   const response = await fetch(`/api/groups/users/?createdById=${userId}`);
-  const body = await response.json();
   if (response.ok) {
+    const body = await response.json();
     return { success: true, data: body.groups }
   }
   return { success: false, error: response.statusText }
@@ -37,8 +37,8 @@ async function getAllGroupsByCreatedId(userId: string):
 async function getAllGroupsByUserId(userId: string):
   Promise<GroupsResponseType> {
   const response = await fetch(`/api/groups/users/?userId=${userId}`);
-  const body = await response.json();
   if (response.ok) {
+    const body = await response.json();
     return { success: true, data: body.groups }
   }
   return { success: false, error: response.statusText }
@@ -53,16 +53,28 @@ async function createGroup(
   });
   if (response.ok) {
     const body = await response.json();
-    return { success: true, data: body.group}
+    return { success: true, data: body.group }
   }
   return { success: false, error: response.statusText }
 }
 
-
+async function deleteGroup({groupId, userId}:
+  {groupId: string, userId: string}
+): Promise<GroupResponseType> {
+  const response = await fetch(`/api/groups`, {
+    method: 'DELETE',
+    body: JSON.stringify({ groupId, userId }),
+  });
+  if (response.ok) {
+    return { success: true}
+  }
+  return { success: false, error: response.statusText }
+}
 
 export {
   getGroupByGroupId,
   getAllGroupsByCreatedId,
   getAllGroupsByUserId,
-  createGroup
+  createGroup,
+  deleteGroup
 }

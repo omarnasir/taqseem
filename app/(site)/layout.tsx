@@ -13,7 +13,7 @@ export default function SiteLayout({
   const { data } = useSession();
 
   return (
-    <Container h='100vh' w={{base: '100%', md: '80%'}} maxW='container.lg'>
+    <Container h='100vh' w={{base: '100%', md: '70%', lg: '50%'}} maxW='container.lg'>
       <Header {...{ userName: data?.user?.name as string }} />
       <Flex 
         w='100%'

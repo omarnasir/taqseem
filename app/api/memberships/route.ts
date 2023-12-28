@@ -101,3 +101,44 @@ export async function POST(request: NextRequest):
     return sendErrorResponse({ statusText: e.message });
   }
 }
+
+/**
+ * DELETE /api/memberships route
+ * This route is used to delete a membership
+ * @param request - The request object
+ * @returns {Promise<NextResponse>} The response object
+ * 
+ * @bodyParam groupId - The id of the group
+ * @bodyParam userId - The id of the user
+ * 
+ * @response 200 - The membership is deleted
+ * @response 400 - Bad request
+ * @response 500 - Server error
+ */
+export async function DELETE(request: NextRequest):
+  Promise<NextResponse>
+{
+  try {
+    const { groupId, userId } = await request.json();
+    // Check if user is the owner
+    const isOwner = await prisma.groups.findFirst({
+      where: {
+        id: groupId,
+        createdById: userId
+      }
+    });
+    if (isOwner) throw new Error("Owner cannot be deleted");
+    await prisma.memberships.delete({
+      where: {
+        userId_groupId: {
+          groupId: groupId,
+          userId: userId
+        }
+      }
+    });
+    return NextResponse.json({ status: 200 });
+  } catch (e: any) {
+    console.log({ e });
+    return sendErrorResponse({ statusText: e.message });
+  }
+}
