@@ -27,7 +27,7 @@ async function createMembership({ groupId, userEmail }
   });
   if (response.ok) {
     const body = await response.json();
-    return { success: true, data: body.user }
+    return { success: true, data: body }
   }
   return { success: false, error: response.statusText }
 }

@@ -94,7 +94,7 @@ export async function POST(request: NextRequest):
         userId: user.id
       }
     });
-    return NextResponse.json({ status: 200 , user: user });
+    return NextResponse.json(user, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }

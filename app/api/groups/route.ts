@@ -100,7 +100,7 @@ export async function POST(request: NextRequest):
         }
       }
     });
-    return NextResponse.json({ group: newGroup }, { status: 200 });
+    return NextResponse.json(newGroup, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }

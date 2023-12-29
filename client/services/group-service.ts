@@ -29,7 +29,7 @@ async function createGroup(
   });
   if (response.ok) {
     const body = await response.json();
-    return { success: true, data: body.group }
+    return { success: true, data: body }
   }
   return { success: false, error: response.statusText }
 }
