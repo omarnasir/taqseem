@@ -53,6 +53,7 @@ export default function GroupMembers({ group, users, setUsers
   return (
     <Stack direction={'column'} spacing={4} w='inherit'>
       <Card mb={6}
+        p={1}
         size='sm'
         variant={'outline'}
         bg={'itemBgGray'}
@@ -61,11 +62,11 @@ export default function GroupMembers({ group, users, setUsers
           <Heading
             alignSelf={'flex-start'}
             size='md'
-            mb={1}
+            mb={2}
             fontWeight='400'>{group.name}</Heading>
           <Text size='sm' fontWeight='300'>Add or remove members.</Text>
         </CardHeader>
-        <CardBody marginX={2}>
+        <CardBody marginX={1}>
           <Stack divider={<StackDivider />} spacing='3'>
             {users.length > 0 ? users.map((user) => (
               <Flex flexDirection={'row'} key={user.id} alignItems={'center'}

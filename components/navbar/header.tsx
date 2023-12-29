@@ -1,5 +1,5 @@
 import {
-  Box,
+  Image,
   Flex,
   HStack,
   Link,
@@ -20,12 +20,15 @@ export default function NavBar(
     <Flex w="100%"
       direction='row'
       px="0"
-      py="5"
+      py="4"
       borderBottom={'1px'} borderColor={'gray.600'}
       justify="space-between">
-      <Link href='/'
-        textAlign={'center'} fontSize={'lg'} fontWeight={'light'}
-        alignSelf={'center'} alignItems={'center'}>taqseem</Link>
+      <Link href='/'>
+        <Image
+          width={{base: 90, sm: 115}}
+          src='/logo.png'
+          alt={'taqseem'}/>
+      </Link>
       <Flex display={{ base: 'none', md: 'flex' }} ml={6}>
         <HStack as="nav" spacing="5">
           {linkItems.map((linkItem, index) => (

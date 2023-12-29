@@ -22,7 +22,7 @@ const customTheme = extendTheme({ config, fonts },
 	{
 		colors: {
 			black: '#0a0a0a',
-			itemBgGray: '#121212',
+			itemBgGray: '#101010',
 			loginbtn: {
 				50: '#ffffff',
 				100: '#ffffff',
