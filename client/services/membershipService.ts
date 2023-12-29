@@ -5,12 +5,12 @@ type MembershipResponseType = BaseApiResponseType & {
   data?: UserMembershipByGroup[];
 }
 
-async function getUsersByGroupId({ id }:
-  { id: string }): Promise<MembershipResponseType> {
-  const response = await fetch(`/api/memberships/?id=${id}`);
+async function getMembershipsByGroupId(groupId: string): 
+  Promise<MembershipResponseType> {
+  const response = await fetch(`/api/memberships/?groupId=${groupId}`);
   if (response.ok) {
-    const memberships = await response.json();
-    return { success: true, data: memberships }
+    const body = await response.json();
+    return { success: true, data: body }
   }
   return { success: false, error: response.statusText }
 }
@@ -49,7 +49,7 @@ async function deleteMembership({ groupId, userId }
 }
 
 export {
-  getUsersByGroupId,
+  getMembershipsByGroupId,
   createMembership,
   deleteMembership
 }
