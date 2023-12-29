@@ -7,19 +7,10 @@ import GroupList from "@/components/groups/list";
 import AddGroup from "@/components/groups/add-group";
 import {
   getAllGroupsByUserId
-} from "@/client/services/group-service";
+} from "@/client/services/user-service";
 
 import { type GroupData} from "@/types/model/groups";
 import Loading from "../loading";
-
-async function getAllGroupsData(id: string)
-  : Promise<GroupData[]> {
-  const res = await getAllGroupsByUserId(id)
-  if (res.success) {
-    return res.data!;
-  }
-  else return [];
-}
 
 export default function GroupsPage() {
   const { data: sessionData } = useSession();
@@ -29,15 +20,14 @@ export default function GroupsPage() {
   useEffect(() => {
     if (sessionData) {
       const fetchGroups = async () => {
-        await getAllGroupsData(sessionData.user.id).then((data) => {
-          setGroups(data!);
+        await getAllGroupsByUserId(sessionData.user.id).then((res) => {
+          setGroups(res.data);
           setLoading(false);
         });
       }
       fetchGroups();
     }
   }, [sessionData]);
-
 
   return (
     loading ? <Loading /> :
