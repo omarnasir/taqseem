@@ -30,7 +30,7 @@ export async function GET(request: NextRequest):
   Promise<MembershipsApiResponseType> {
   try {
     const searchParams = new URL(request.url).searchParams;
-    const id = searchParams.get("id") as string;
+    const id = searchParams.get("groupId") as string;
     const memberships = await prisma.memberships.findMany({
       select: {
         user: {
@@ -46,9 +46,8 @@ export async function GET(request: NextRequest):
     });
       if (!memberships) throw new Error("No users found");
       const membershipsArray = memberships.map((user) => user.user);
-      return NextResponse.json({ memberships: membershipsArray , status: 200 });
+      return NextResponse.json(membershipsArray, { status: 200 });
   } catch (e: any) {
-    console.log({ e });
     return sendErrorResponse({ statusText: e.message });
   }
 }
@@ -97,7 +96,6 @@ export async function POST(request: NextRequest):
     });
     return NextResponse.json({ status: 200 , user: user });
   } catch (e: any) {
-    console.log({ e });
     return sendErrorResponse({ statusText: e.message });
   }
 }
@@ -138,7 +136,6 @@ export async function DELETE(request: NextRequest):
     });
     return NextResponse.json({ status: 200 });
   } catch (e: any) {
-    console.log({ e });
     return sendErrorResponse({ statusText: e.message });
   }
 }
