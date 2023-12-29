@@ -26,12 +26,30 @@ export async function GET(request: NextRequest):
     const searchParams = new URL(request.url).searchParams;
     const id = searchParams.get("id") as string;
     const group = await prisma.groups.findUnique({
+      include: {
+        users: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
+          }
+        }
+      },
       where: {
         id: id
       }
     });
     if (!group) throw new Error("Group not found");
-    return NextResponse.json({ group }, { status: 200 });
+    const formattedGroup = {
+      id: group.id,
+      name: group.name,
+      createdById: group.createdById,
+      users: group.users.map(user => user.user)
+    };
+    return NextResponse.json(formattedGroup, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
