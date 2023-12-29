@@ -23,7 +23,7 @@ export default async function RootLayout({
 	return (
 		<html lang="en" data-theme='dark'>
 			<body className={inter.className}>
-				<AuthProvider session={session}>
+				<AuthProvider session={session!}>
 					<Providers>{children}</Providers>
 				</AuthProvider>
 			</body>
