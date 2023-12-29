@@ -8,7 +8,8 @@ import {
 } from '@chakra-ui/react'
 
 import NextLink from 'next/link'
-import { MdGroup, MdPersonRemove } from "react-icons/md"
+import { useRouter } from 'next/navigation'
+import { MdGroup, MdPersonRemove, MdManageAccounts } from "react-icons/md"
 
 import { type GroupData } from "@/types/model/groups";
 import { deleteGroup } from '@/client/services/group-service';
@@ -23,6 +24,7 @@ export default function GroupList(
       setGroups: React.Dispatch<React.SetStateAction<GroupData[]>>
     }) {
   const { data: sessionData } = useSession();
+  const router = useRouter();
   const { addToast } = CustomToast();
 
   async function onRemoveGroup(groupId: string) {
@@ -40,6 +42,7 @@ export default function GroupList(
   return (
     <Stack direction={'column'} spacing={4} w='inherit'>
       <Card mb={6}
+        p={1}
         size='sm'
         variant={'outline'}
         bg={'itemBgGray'}
@@ -48,11 +51,11 @@ export default function GroupList(
           <Heading
             alignSelf={'flex-start'}
             size='md'
-            mb={1}
+            mb={2}
             fontWeight='400'>Your Groups</Heading>
           <Text size='sm' fontWeight='300'>Create or manage groups.</Text>
         </CardHeader>
-        <CardBody marginX={2}>
+        <CardBody marginX={1}>
           <Stack divider={<StackDivider />} spacing='3'>
             {!!groups &&
               groups.map((group) => (
@@ -70,11 +73,19 @@ export default function GroupList(
                     </Link>
                   </Flex>
                   {group.createdById === sessionData!.user.id &&
-                    <Button leftIcon={<MdPersonRemove />} size='sm'
-                      variant={'outline'} colorScheme={'red'}
-                      onClick={() => onRemoveGroup(group.id)}>
-                      Remove
-                    </Button>}
+                    <>
+                      <Button leftIcon={<MdManageAccounts />} size='sm'
+                        variant={'outline'} colorScheme={'blue'}
+                        onClick={() => router.push(
+                          `/memberships?data=${JSON.stringify(group)}`,)}>
+                        Manage Users
+                      </Button>
+                      <Button leftIcon={<MdPersonRemove />} size='sm'
+                        variant={'outline'} colorScheme={'red'}
+                        onClick={() => onRemoveGroup(group.id)}>
+                        Remove
+                      </Button>
+                    </>}
                 </Flex>
               ))}
           </Stack>
