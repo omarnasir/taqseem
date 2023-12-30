@@ -7,8 +7,9 @@ import {
 import NavBarDrawer from './drawer-menu';
 
 export default function NavBar(
-  props: { userName: string }
+  props: { userName: string, containerWidth: Record<string, string> }
 ) {
+  const { userName, containerWidth } = props;
 
   const linkItems = [
     { name: 'Groups', href: '/groups' },
@@ -17,13 +18,9 @@ export default function NavBar(
   ]
 
   return (
-    <Flex w="100%"
-      direction='row'
+    <Flex maxW='container.lg' w={containerWidth} direction='row'
       px="0"
-      py="3"
-      bg="itemBgGray"
-      borderBottom={'1px'} borderColor={'gray.600'}
-      justify="space-between">
+      py="3">
       <Link href='/' alignSelf='center'>
         <Image
           w={{ md: '100px', sm: '150px', lg: '100px' }}
@@ -41,7 +38,7 @@ export default function NavBar(
         </HStack>
       </Flex>
       <Flex w='100%' direction={'column'} alignItems={'flex-end'}>
-        <NavBarDrawer {...{ userName: props.userName, linkItems: linkItems }} />
+        <NavBarDrawer {...{ userName: userName, linkItems: linkItems }} />
       </Flex>
     </Flex>
   );

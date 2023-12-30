@@ -3,14 +3,15 @@ import { useRouter } from 'next/navigation';
 import { Flex, Button } from "@chakra-ui/react";
 import { MdArrowBackIosNew, MdOutlineArrowForwardIos } from "react-icons/md";
 
-export default function NavButtons() {
+export default function NavButtons(
+  props: { containerWidth: Record<string, string> }
+) {
   const router = useRouter();
-
+  const { containerWidth } = props;
   return (
     <Flex direction={'row'}
-      justifyContent={'space-between'} w='100%'>
+      justifyContent={'space-between'} w={containerWidth}>
       <Button marginY={2}
-        ml={{ base: 0, md: 2, lg: 4 }}
         alignSelf={'flex-start'}
         leftIcon={<MdArrowBackIosNew size={15} />}
         size='xs'
@@ -18,7 +19,6 @@ export default function NavButtons() {
         variant='ghost'
         borderRadius={5}>prev</Button>
       <Button marginY={2}
-        mr={{ base: 0, md: 2, lg: 4 }}
         alignSelf={'flex-end'}
         rightIcon={<MdOutlineArrowForwardIos size={15} />}
         size='xs'
