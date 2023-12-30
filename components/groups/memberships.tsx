@@ -23,7 +23,7 @@ import {
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
 import { deleteMembership } from "@/client/services/membershipService";
-import { CustomToast } from "@/components/ui/toast";
+import { CustomToast } from "@/components/toast";
 import { type UserMembershipByGroup } from "@/types/model/memberships";
 import { GroupData } from "@/types/model/groups";
 import { useSession } from "next-auth/react";

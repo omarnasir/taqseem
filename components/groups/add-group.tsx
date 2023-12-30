@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react";
 
 import { createGroup } from "@/client/services/group-service";
 import { type GroupData } from "@/types/model/groups";
-import { CustomToast } from "@/components/ui/toast";
+import { CustomToast } from "@/components/toast";
 
 
 export default function AddGroup({ groups, setGroups }: {

@@ -13,7 +13,7 @@ import { MdGroup, MdPersonRemove, MdManageAccounts } from "react-icons/md"
 
 import { type GroupData } from "@/types/model/groups";
 import { deleteGroup } from '@/client/services/group-service';
-import { CustomToast } from '@/components/ui/toast';
+import { CustomToast } from '@/components/toast';
 import { useSession } from 'next-auth/react';
 
 
@@ -61,29 +61,28 @@ export default function GroupList(
               groups.map((group) => (
                 <Flex flexDirection={'row'} key={group.id} alignItems={'center'}
                   justifyContent={'space-between'}>
-                  <Flex flexDirection={'row'} w={{ base: '35%', md: '50%', sm:'60%'}}
-                  alignItems={'center'}>
+                  <Flex flexDirection={'row'} alignItems={'center'}>
                     <MdGroup />
                     <Link as={NextLink}
                       href={`/groups/details?data=${JSON.stringify(group)}`}
-                      ml={4} lineHeight={2}>
+                      ml={3} lineHeight={2}>
                       {group.name}
                     </Link>
                   </Flex>
                   {group.createdById === sessionData!.user.id &&
-                    <>
-                      <Button leftIcon={<MdManageAccounts />} size='sm'
+                    <Flex>
+                      <Button leftIcon={<MdManageAccounts />} size='sm' mr={1}
                         variant={'outline'} colorScheme={'blue'}
                         onClick={() => router.push(
                           `/memberships?data=${JSON.stringify(group)}`,)}>
                         Manage
                       </Button>
-                      <Button leftIcon={<MdPersonRemove />} size='sm'
+                      <Button leftIcon={<MdPersonRemove />} size='sm' ml={1}
                         variant={'outline'} colorScheme={'red'}
                         onClick={() => onRemoveGroup(group.id)}>
                         Remove
                       </Button>
-                    </>}
+                    </Flex>}
                 </Flex>
               ))}
           </Stack>

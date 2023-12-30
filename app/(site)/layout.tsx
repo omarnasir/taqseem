@@ -1,8 +1,9 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import Header from '@/components/navbar/header';
-import NavButtons from '@/components/ui/nav-buttons';
+import NavButtons from '@/components/nav-buttons';
 import { Container, Flex } from '@chakra-ui/react';
+import Footer from '@/components/footer';
 
 export default function SiteLayout({
   children,
@@ -17,7 +18,8 @@ export default function SiteLayout({
       display={'flex'}>
       <Header {...{ userName: data?.user?.name as string }} />
       <NavButtons/>
-      <Flex w={{
+      <Flex mt={1}
+      w={{
         base: '92vw',
         md: '75vw',
         lg: '50vw',
@@ -25,6 +27,7 @@ export default function SiteLayout({
       }} display='flex'>
         {children}
       </Flex>
+      <Footer />
     </Container>
   );
 }

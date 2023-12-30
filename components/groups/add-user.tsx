@@ -14,7 +14,7 @@ import {
 import { type UserMembershipByGroup } from "@/types/model/memberships";
 import { FieldValues, useForm } from "react-hook-form";
 import { createMembership } from "@/client/services/membershipService";
-import { CustomToast } from '@/components/ui/toast';
+import { CustomToast } from '@/components/toast';
 import { GroupData } from "@/types/model/groups";
 
 export default function GroupAddUser(
