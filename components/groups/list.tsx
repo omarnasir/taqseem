@@ -61,13 +61,11 @@ export default function GroupList(
               groups.map((group) => (
                 <Flex flexDirection={'row'} key={group.id} alignItems={'center'}
                   justifyContent={'space-between'}>
-                  <Flex flexDirection={'row'} alignItems={'center'}>
+                  <Flex flexDirection={'row'} w={{ base: '35%', md: '50%', sm:'60%'}}
+                  alignItems={'center'}>
                     <MdGroup />
                     <Link as={NextLink}
-                      href={{
-                        pathname: `/groups/details`,
-                        query: { data: JSON.stringify(group) }
-                      }}
+                      href={`/groups/details?data=${JSON.stringify(group)}`}
                       ml={4} lineHeight={2}>
                       {group.name}
                     </Link>
@@ -78,7 +76,7 @@ export default function GroupList(
                         variant={'outline'} colorScheme={'blue'}
                         onClick={() => router.push(
                           `/memberships?data=${JSON.stringify(group)}`,)}>
-                        Manage Users
+                        Manage
                       </Button>
                       <Button leftIcon={<MdPersonRemove />} size='sm'
                         variant={'outline'} colorScheme={'red'}

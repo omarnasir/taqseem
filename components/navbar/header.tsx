@@ -20,16 +20,18 @@ export default function NavBar(
     <Flex w="100%"
       direction='row'
       px="0"
-      py="4"
+      py="3"
+      bg="itemBgGray"
       borderBottom={'1px'} borderColor={'gray.600'}
       justify="space-between">
-      <Link href='/'>
+      <Link href='/' alignSelf='center'>
         <Image
-          width={{base: 90, sm: 115}}
+          w={{ md: '100px', sm: '150px', lg: '100px' }}
+          objectFit='fill'
           src='/logo.png'
           alt={'taqseem'}/>
       </Link>
-      <Flex display={{ base: 'none', md: 'flex' }} ml={6}>
+      <Flex display={{ base: 'flex', md: 'flex' }} ml={6}>
         <HStack as="nav" spacing="5">
           {linkItems.map((linkItem, index) => (
             <Link key={index} href={linkItem.href}
