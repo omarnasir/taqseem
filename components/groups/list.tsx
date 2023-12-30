@@ -27,12 +27,12 @@ export default function GroupList(
   const router = useRouter();
   const { addToast } = CustomToast();
 
-  async function onRemoveGroup(groupId: string) {
-    const res = await deleteGroup({ groupId: groupId, userId: sessionData!.user.id })
+  async function onRemoveGroup(id: string) {
+    const res = await deleteGroup({ id: id, createdById: sessionData!.user.id })
     if (res.success) {
-      const groupName = groups.find(g => g.id === groupId)?.name
+      const groupName = groups.find(g => g.id === id)?.name
       addToast(`Group ${groupName} removed`, null, 'success')
-      setGroups(groups.filter(group => group.id !== groupId))
+      setGroups(groups.filter(group => group.id !== id))
     }
     else {
       addToast('Cannot delete group.', res.error, 'error')
@@ -64,7 +64,7 @@ export default function GroupList(
                   <Flex flexDirection={'row'} alignItems={'center'}>
                     <MdGroup />
                     <Link as={NextLink}
-                      href={`/groups/details?data=${JSON.stringify(group)}`}
+                      href={`/groups/${group.id}?name=${group.name}`}
                       ml={3} lineHeight={2}>
                       {group.name}
                     </Link>
