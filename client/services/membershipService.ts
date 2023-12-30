@@ -1,4 +1,5 @@
 import { type UserMembershipByGroup } from '@/types/model/memberships';
+import { type CreateMembership } from '@/app/api/memberships/route';
 import { type BaseApiResponseType } from '@/types/base-service-response';
 
 type MembershipResponseType = BaseApiResponseType & {
@@ -15,15 +16,14 @@ async function getMembershipsByGroupId(groupId: string):
   return { success: false, error: response.statusText }
 }
 
-async function createMembership({ groupId, userEmail }
-  : { groupId: string, userEmail: string }
+async function createMembership(membership: CreateMembership
 ): Promise<MembershipResponseType> {
   const response = await fetch(`/api/memberships`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ groupId, userEmail })
+    body: JSON.stringify(membership)
   });
   if (response.ok) {
     const body = await response.json();

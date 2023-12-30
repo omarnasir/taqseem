@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/server/lib/prisma";
 
-import { type UserMembershipByGroup } from "@/types/model/memberships";
+import { type UserMembershipByGroup, type MembershipDefaultArgs } from "@/types/model/memberships";
 import { sendErrorResponse } from "@/types/base-api-response";
 
+type CreateMembership = {
+  groupId: string,
+  userEmail: string,
+}
 
 type MembershipsApiResponseType = NextResponse & {
   memberships?: UserMembershipByGroup[],
@@ -26,7 +30,7 @@ type MembershipsApiPostResponseType = NextResponse & {
  * @response 404 - No groups found
  * @response 500 - Server error
  */
-export async function GET(request: NextRequest):
+async function GET(request: NextRequest):
   Promise<MembershipsApiResponseType> {
   try {
     const searchParams = new URL(request.url).searchParams;
@@ -65,24 +69,24 @@ export async function GET(request: NextRequest):
  * @response 400 - Bad request
  * @response 500 - Server error
  */
-export async function POST(request: NextRequest):
+async function POST(request: NextRequest):
   Promise<MembershipsApiPostResponseType>
 {
   try {
-    const { groupId, userEmail } = await request.json();
+    const body : CreateMembership = await request.json();
     const user = await prisma.users.findUnique({
       select: {
         id: true,
         name: true,
       },
       where: {
-        email: userEmail
+        email: body.userEmail
       }
     });
     if (!user) throw new Error("User not found");
     const isMemberAlready = await prisma.memberships.findFirst({
       where: {
-        groupId: groupId,
+        groupId: body.groupId,
         userId: user.id
       }
     });
@@ -90,7 +94,7 @@ export async function POST(request: NextRequest):
     // create new membership
     await prisma.memberships.create({
       data: {
-        groupId: groupId,
+        groupId: body.groupId,
         userId: user.id
       }
     });
@@ -113,24 +117,24 @@ export async function POST(request: NextRequest):
  * @response 400 - Bad request
  * @response 500 - Server error
  */
-export async function DELETE(request: NextRequest):
+async function DELETE(request: NextRequest):
   Promise<NextResponse>
 {
   try {
-    const { groupId, userId } = await request.json();
+    const body: MembershipDefaultArgs = await request.json();
     // Check if user is the owner
     const isOwner = await prisma.groups.findFirst({
       where: {
-        id: groupId,
-        createdById: userId
+        id: body.groupId,
+        createdById: body.userId
       }
     });
     if (isOwner) throw new Error("Owner cannot be deleted");
     await prisma.memberships.delete({
       where: {
         userId_groupId: {
-          groupId: groupId,
-          userId: userId
+          groupId: body.groupId,
+          userId: body.userId
         }
       }
     });
@@ -138,4 +142,11 @@ export async function DELETE(request: NextRequest):
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
+}
+
+export {
+  type CreateMembership,
+  GET,
+  POST,
+  DELETE
 }

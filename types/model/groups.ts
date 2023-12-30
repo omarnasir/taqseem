@@ -15,7 +15,13 @@ const groupData = Prisma.validator<Prisma.GroupsDefaultArgs>()({
   select: { id: true, name: true, createdById: true }
 })
 
+const groupDeleteArgs = Prisma.validator<Prisma.GroupsDefaultArgs>()({
+  select: { id: true, createdById: true }
+})
+
 // 3: This type will include a user and all their posts
 export type GroupWithOwnership = Prisma.GroupsGetPayload<typeof groupsWithOwnership>
 export type GroupWithMembers = Prisma.GroupsGetPayload<typeof groupWithMembers>
 export type GroupData = Prisma.GroupsGetPayload<typeof groupData>
+export type CreateGroup = Prisma.GroupsCreateArgs['data']
+export type GroupDeleteArgs = Prisma.GroupsGetPayload<typeof groupDeleteArgs>

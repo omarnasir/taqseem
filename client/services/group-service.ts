@@ -1,10 +1,10 @@
-import { type GroupData } from '@/types/model/groups';
+import { 
+  type GroupData, 
+  type CreateGroup,
+  type GroupDeleteArgs
+} from '@/types/model/groups';
 import { type BaseApiResponseType } from '@/types/base-service-response';
 
-type GroupFormDataType = {
-  id: FormDataEntryValue | null;
-  name: FormDataEntryValue | null;
-}
 
 type GroupResponseType = BaseApiResponseType & {
   data?: GroupData;
@@ -21,7 +21,7 @@ async function getGroupByGroupId(id: string):
 }
 
 async function createGroup(
-  group: GroupFormDataType
+  group: CreateGroup
 ): Promise<GroupResponseType> {
   const response = await fetch(`/api/groups`, {
     method: 'POST',
@@ -34,12 +34,12 @@ async function createGroup(
   return { success: false, error: response.statusText }
 }
 
-async function deleteGroup({groupId, userId}:
-  {groupId: string, userId: string}
+async function deleteGroup({id, createdById}:
+  GroupDeleteArgs
 ): Promise<GroupResponseType> {
   const response = await fetch(`/api/groups`, {
     method: 'DELETE',
-    body: JSON.stringify({ groupId, userId }),
+    body: JSON.stringify({ id, createdById }),
   });
   if (response.ok) {
     return { success: true}
