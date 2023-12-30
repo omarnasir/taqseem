@@ -31,8 +31,7 @@ export default function SiteLayout({
       <Container maxW='container.lg'
         flexDirection={'column'} alignItems={'center'}
         display={'flex'}>
-        <NavButtons containerWidth={containerWidth} />
-        <Flex mt={1} w={containerWidth} display='flex'>
+        <Flex mt={4} w={containerWidth} display='flex'>
           {children}
         </Flex>
         <WrapperBar as='footer'>

@@ -7,24 +7,38 @@ export default function WrapperBar({
   as: 'header' | 'footer';
 }) {
 
-  const props = as === 'header' ? {
-    borderBottom: '1px',
-  } : as === 'footer' ? {
-    borderTop: '1px',
-    position: 'absolute' as const,
-    bottom: 0,
-  } : {}
+  const commonProps = {
+    bg: "itemBgGray",
+    justify: "space-between",
+    w: '100%',
+    justifyContent: 'center'
+  }
 
-  return (
-    <Flex
-      {...props}
-      bg="itemBgGray"
-      borderColor={'gray.800'}
-      justify="space-between" 
-      w='100%' 
-      justifyContent={'center'}
-    >
-      {children}
-    </Flex>
-  )
+  if (as === 'header') {
+    return (
+      <Flex
+        {...commonProps}
+        borderBottom='1px'
+        borderColor='gray.800'
+      >
+        {children}
+      </Flex>
+    )
+  }
+  else if (as === 'footer') {
+    return (
+      <Flex
+        {...commonProps}
+        borderTop='1px'
+        borderColor='gray.800'
+        position='absolute'
+        bottom={0}
+      >
+        {children}
+      </Flex>
+    )
+  }
+  else {
+    throw new Error('WrapperBar: invalid "as" prop')
+  }
 }
