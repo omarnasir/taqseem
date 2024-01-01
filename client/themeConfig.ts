@@ -6,7 +6,8 @@ import {
 }
 	from "@chakra-ui/react"
 
-import {menuTheme} from "./themes/menu"
+import { menuTheme } from "./themes/menu"
+import { modalTheme } from "./themes/modal"
 
 const fonts = {
 	...chakraTheme.fonts,
@@ -66,6 +67,7 @@ const customTheme = extendTheme({ config, fonts },
 				}
 			},
 			Menu: menuTheme,
+			Modal: modalTheme,
 		}
 	})
 
