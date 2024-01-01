@@ -6,27 +6,23 @@ import {
   MenuGroup,
   MenuItem,
 } from "@chakra-ui/react";
-import { MdMenu, MdLogout } from 'react-icons/md'
+import { MdLogout, MdSettings } from 'react-icons/md'
 
 import { handleSignOutAuth } from '@/client/services/auth-service';
 
 export default function NavBarDrawer(props: { 
-  userName: string,
-  linkItems: { name: string, href: string }[]
+  userName: string
  }) {
   return (
-    <Menu closeOnBlur={true} gutter={0}>
+    <Menu closeOnBlur={true} gutter={20}>
       <MenuButton
+        size={'lg'}
         as={IconButton}
         aria-label='Options'
-        icon={<MdMenu />}
-        variant='outline' />
+        icon={<MdSettings />}
+        variant='none' />
       <MenuList>
         <MenuGroup title={`Hello, ${props.userName}!`} fontSize={'lg'}>
-          {props.linkItems.map((linkItem, index) => (
-            <MenuItem key={index} as='a' href={linkItem.href} 
-            color={'gray.200'}>{linkItem.name}</MenuItem>
-          ))}
           <MenuItem as='button' icon={<MdLogout />} onClick={handleSignOutAuth}>Logout</MenuItem>
         </MenuGroup>
       </MenuList>
