@@ -28,7 +28,7 @@ export default function Header(
         borderRadius={5}></Button>
       <Link href='/' alignSelf='center'>
         <Image
-          w={{ md: '80px', sm: '125px', lg: '80px' }}
+          w={{ md: '80px', sm: '125px', lg: '80px', base: '50px'}}
           objectFit='fill'
           src='/logo.png'
           alt={'taqseem'}/>

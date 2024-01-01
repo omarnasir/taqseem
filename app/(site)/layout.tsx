@@ -15,7 +15,7 @@ export default function SiteLayout({
 
   const containerWidth = {
     base: '92vw',
-    md: '75vw',
+    md: '70vw',
     lg: '50vw',
     xl: '40vw',
   }

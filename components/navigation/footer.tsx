@@ -2,6 +2,7 @@ import {
   Flex,
   Link,
   Button,
+  Text,
 } from '@chakra-ui/react';
 import {
   MdHomeFilled,
@@ -25,16 +26,17 @@ export default function Footer(
       justifyContent={'space-evenly'}>
       {linkItems.map((linkItem, index) => (
         <Button key={index} href={linkItem.href} as={Link} w='100%'
-          size={'lg'} h='10vh'
+          size={'lg'} h='9vh'
           alignSelf={'center'}
           variant='none'
           borderRadius={0}
-          borderLeftWidth={index === 0 ? '1px' : '0px'}
-          borderRightWidth={'1px'}
+          borderLeftWidth={index === 0 ? 0 : 1}
           borderColor={'gray.700'}
           colorScheme='loginbtn'
-          leftIcon={<linkItem.icon size={18} />}
-          >{linkItem.name}</Button>
+          flexDirection={'column'}>
+          <linkItem.icon size={20} />
+          <Text mt={2} fontSize={'sm'} fontWeight={300}>{linkItem.name}</Text>
+        </Button>
       ))}
     </Flex>
   );
