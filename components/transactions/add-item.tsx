@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react"
 import { FieldValues, useForm } from "react-hook-form";
 
-import FormItem from "@/components/transactions/form-item";
+import FormItem, { FormItemAmount, FormItemCategory, FormItemDateTime, FormItemName } from "@/components/transactions/form-item";
 
 export function AddItem(
   { isOpen, onClose, }: { isOpen: boolean, onClose: () => void }
@@ -51,31 +51,10 @@ export function AddItem(
           fontWeight={'light'}>New transaction</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <FormItem {...{
-            errors,
-            register,
-            title: 'Name',
-            id: 'name',
-            placeholder: 'Give a name to the transaction',
-            isRequired: true
-          }} />
-          <FormItem {...{
-            errors,
-            register,
-            title: 'Amount',
-            id: 'amount',
-            placeholder: 'Enter the amount',
-            isRequired: true
-          }} />
-          <FormItem {...{
-            errors,
-            register,
-            title: 'Category',
-            id: 'category',
-            placeholder: 'Select a category',
-            isRequired: true
-          }} />
-          
+          <FormItemName {...{ errors, register }} />
+          <FormItemCategory {...{ errors, register }} />
+          <FormItemAmount {...{ errors, register }} />
+          <FormItemDateTime {...{ errors, register }} />
         </ModalBody>
         <ModalFooter>
           <Button
