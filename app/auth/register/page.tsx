@@ -11,7 +11,7 @@ import {
   NameFormItem,
   EmailFormItem,
   PasswordFormItem
-} from '@/components/auth/form-item';
+} from '@/components/auth/form-items';
 
 import { useForm, FieldValues } from "react-hook-form"
 import { handlerRegisterAuth } from '@/client/services/auth-service';

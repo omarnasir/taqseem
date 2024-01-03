@@ -7,21 +7,28 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
+  Divider,
+  Flex,
 } from "@chakra-ui/react"
 import { FieldValues, useForm } from "react-hook-form";
 
-import FormItem, { FormItemAmount, FormItemCategory, FormItemDateTime, FormItemName } from "@/components/transactions/form-item";
+import { 
+  FormItemAmount, FormItemCategory, FormItemDateTime, FormItemName
+} from "@/components/transactions/form-items";
 
 export function AddItem(
-  { isOpen, onClose, }: { isOpen: boolean, onClose: () => void }
+  { isOpen, onClose }: { isOpen: boolean, onClose: () => void } 
 ) {
+
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm()
 
   async function onSubmit(values: FieldValues) {
+    console.log(values)
     // const response = await handlerRegisterAuth({
     //   name: values.name,
     //   email: values.email,
@@ -49,6 +56,7 @@ export function AddItem(
           textAlign={'left'}
           fontSize={'lg'}
           fontWeight={'light'}>New transaction</ModalHeader>
+        <Divider mb={4} />
         <ModalCloseButton />
         <ModalBody>
           <FormItemName {...{ errors, register }} />
@@ -56,18 +64,24 @@ export function AddItem(
           <FormItemAmount {...{ errors, register }} />
           <FormItemDateTime {...{ errors, register }} />
         </ModalBody>
-        <ModalFooter>
-          <Button
-            mt={1}
-            size={'sm'}
-            w={'5rem'}
-            bg={'gray.100'}
-            colorScheme='loginbtn'
-            textColor='blue.900'
-            isLoading={isSubmitting}
-            type='submit'>
+        <ModalFooter mt={-3}>
+          <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
+          <Button mt={1} size={'md'} fontWeight={'light'}
+            textAlign={'center'} variant={'none'} textColor='gray.500' 
+            onClick={() => reset({
+              name: null,
+              category: null,
+              amount: null,
+              datetime: null,
+            })}>
+            Clear
+          </Button>
+          <Button mt={1} size={'md'} w={'7rem'}
+            bg={'gray.100'} colorScheme='loginbtn' textColor='blue.900'
+            isLoading={isSubmitting} type='submit'>
             Add
           </Button>
+          </Flex>
         </ModalFooter>
       </ModalContent>
     </Modal>

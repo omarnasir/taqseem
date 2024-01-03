@@ -10,7 +10,7 @@ import { BoxWrapper } from '@/components/auth/box-wrapper';
 import {
   EmailFormItem,
   PasswordFormItem
-} from '@/components/auth/form-item';
+} from '@/components/auth/form-items';
 
 import { useForm, FieldValues } from "react-hook-form"
 import { handleSignInAuth } from '@/client/services/auth-service';
