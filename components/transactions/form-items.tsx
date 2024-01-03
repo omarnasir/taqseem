@@ -1,55 +1,26 @@
 import {
-  FormControl,
-  Grid,
-  GridItem,
-  Text,
   Input,
+  Select,
   NumberInput,
   NumberInputField,
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
 import {
-  MdEuroSymbol, MdDriveFileRenameOutline, MdCategory
+  MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
+  MdCalendarMonth
 } from "react-icons/md"
+
+import {
+  FormItemWrapper, createRegisterOptions
+} from '@/components/base-form-item';
 
 import { type FormItemProps } from "@/types/form-item";
 import React from "react";
 
-
-function createRegisterOptions({ register, id, registerParams }:
-  {
-    register: FormItemProps['register'], id: FormItemProps['id'],
-    registerParams: FormItemProps['registerParams']
-  }) {
-  return {
-    ...register(id, {
-      required: registerParams?.isRequired ? registerParams.isRequired : false,
-      pattern: registerParams?.pattern ? registerParams.pattern : undefined,
-      minLength: registerParams?.minLength ? registerParams.minLength : undefined,
-    })
-  }
-}
-
-function FormItemWrapper({ errors, id, title, children }:
-  {
-    errors: FormItemProps['errors'],
-    id: FormItemProps['id'],
-    title: string, children: React.ReactNode
-  }) {
-  return (
-    <FormControl isInvalid={!!errors?.[id]}>
-      <Grid mb={3}
-        templateRows='repeat(1, 1fr)'
-        templateColumns='repeat(7, 1fr)'>
-        <GridItem rowSpan={1} colSpan={2} mb={1}>
-          <Text mt={1} alignSelf={'center'}>{title}</Text>
-        </GridItem>
-        <GridItem colSpan={5} flexDirection={'row'}>
-          {children}
-        </GridItem>
-      </Grid>
-    </FormControl>)
+const InputLeftElementStyleProps = {
+  borderRightWidth: 1,
+  borderColor: 'gray.700'
 }
 
 function FormItemName(
@@ -69,12 +40,13 @@ function FormItemName(
     }
   })
   return (
-    < FormItemWrapper {...{ errors, id, title }}>
+    <FormItemWrapper {...{ errors, id, title }}>
       <InputGroup >
-        <InputLeftElement pointerEvents='none'>
-          <MdDriveFileRenameOutline />
+        <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
+          <MdDriveFileRenameOutline/>
         </InputLeftElement>
-        <Input {...registerOptions} placeholder={placeholder} />
+        <Input {...registerOptions} placeholder={placeholder} 
+        textIndent={'7px'}/>
       </InputGroup>
     </FormItemWrapper >)
 }
@@ -98,11 +70,11 @@ function FormItemAmount(
   return (
     <FormItemWrapper {...{ errors, id, title }}>
       <InputGroup >
-        <InputLeftElement pointerEvents='none'>
+       <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
           <MdEuroSymbol />
         </InputLeftElement>
         <NumberInput w='100%'>
-          <NumberInputField textIndent={'25px'} placeholder={placeholder} {...registerOptions} />
+          <NumberInputField textIndent={'32px'} placeholder={placeholder} {...registerOptions} />
         </NumberInput>
       </InputGroup>
     </FormItemWrapper >)
@@ -124,13 +96,29 @@ function FormItemCategory(
       isRequired: true
     }
   })
+
+  const options = [
+    { value: 'food', label: 'Food' },
+    { value: 'transport', label: 'Transport' },
+    { value: 'house', label: 'House' },
+    { value: 'fun', label: 'Fun' },
+    { value: 'other', label: 'Other' },
+  ]
+
   return (
     <FormItemWrapper {...{ errors, id, title }}>
       <InputGroup>
-        <InputLeftElement pointerEvents='none'>
+        <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
           <MdCategory />
         </InputLeftElement>
-        <Input {...registerOptions} placeholder={placeholder} />
+        <Select {...registerOptions} placeholder={placeholder}
+        sx={{ paddingLeft: '3rem' }}>
+          {options.map((option, index) => (
+            <option key={index} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+          </Select>
       </InputGroup>
     </FormItemWrapper >)
 }
@@ -153,8 +141,15 @@ function FormItemDateTime(
   })
   return (
     <FormItemWrapper {...{ errors, id, title }}>
+      <InputGroup>
+        <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
+          <MdCalendarMonth />
+        </InputLeftElement>
       <Input {...registerOptions} placeholder={placeholder} 
+      fontWeight={'light'}
+      textIndent={'3px'}
       type='datetime-local' />
+      </InputGroup>
     </FormItemWrapper >)
 }
 
