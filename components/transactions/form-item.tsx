@@ -6,10 +6,14 @@ import {
   Input,
   NumberInput,
   NumberInputField,
+  InputGroup,
+  InputLeftElement,
 } from "@chakra-ui/react";
+import {
+  MdEuroSymbol, MdDriveFileRenameOutline, MdCategory
+} from "react-icons/md"
 
 import { type FormItemProps } from "@/types/form-item";
-import { useState } from "react";
 import React from "react";
 
 
@@ -41,7 +45,7 @@ function FormItemWrapper({ errors, id, title, children }:
         <GridItem rowSpan={1} colSpan={2} mb={1}>
           <Text mt={1} alignSelf={'center'}>{title}</Text>
         </GridItem>
-        <GridItem colSpan={5}>
+        <GridItem colSpan={5} flexDirection={'row'}>
           {children}
         </GridItem>
       </Grid>
@@ -66,7 +70,12 @@ function FormItemName(
   })
   return (
     < FormItemWrapper {...{ errors, id, title }}>
-      <Input {...registerOptions} placeholder={placeholder} />
+      <InputGroup >
+        <InputLeftElement pointerEvents='none'>
+          <MdDriveFileRenameOutline />
+        </InputLeftElement>
+        <Input {...registerOptions} placeholder={placeholder} />
+      </InputGroup>
     </FormItemWrapper >)
 }
 
@@ -86,16 +95,16 @@ function FormItemAmount(
       isRequired: true
     }
   })
-  const format = (val: string) => `€` + val
-  const parse = (val: string) => val.replace(/^\€/, '')
-
-  const [value, setValue] = useState('0')
   return (
     <FormItemWrapper {...{ errors, id, title }}>
-      <NumberInput id={id} onChange={(valueString) => setValue(parse(valueString))}
-          value={format(value)}>
-        <NumberInputField placeholder={placeholder} {...registerOptions}/>
-      </NumberInput>
+      <InputGroup >
+        <InputLeftElement pointerEvents='none'>
+          <MdEuroSymbol />
+        </InputLeftElement>
+        <NumberInput w='100%'>
+          <NumberInputField textIndent={'25px'} placeholder={placeholder} {...registerOptions} />
+        </NumberInput>
+      </InputGroup>
     </FormItemWrapper >)
 }
 
@@ -117,7 +126,12 @@ function FormItemCategory(
   })
   return (
     <FormItemWrapper {...{ errors, id, title }}>
-      <Input {...registerOptions} placeholder={placeholder} />
+      <InputGroup>
+        <InputLeftElement pointerEvents='none'>
+          <MdCategory />
+        </InputLeftElement>
+        <Input {...registerOptions} placeholder={placeholder} />
+      </InputGroup>
     </FormItemWrapper >)
 }
 
@@ -139,7 +153,8 @@ function FormItemDateTime(
   })
   return (
     <FormItemWrapper {...{ errors, id, title }}>
-      <Input {...registerOptions} placeholder={placeholder} type='datetime-local' />
+      <Input {...registerOptions} placeholder={placeholder} 
+      type='datetime-local' />
     </FormItemWrapper >)
 }
 
