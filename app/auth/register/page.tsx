@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react'
 import { BoxWrapper } from '@/components/auth/box-wrapper';
 import {
-  AuthFormItem,
+  NameFormItem,
   EmailFormItem,
   PasswordFormItem
 } from '@/components/auth/form-item';
@@ -45,20 +45,7 @@ export default function Register() {
     <BoxWrapper as='form' onSubmit={handleSubmit(onSubmit)}>
       <Heading textAlign={'left'} fontSize={'xl'} mb={4} fontWeight={'light'}>Signup</Heading>
       <Divider mb={4} />
-      <AuthFormItem {...{
-        errors,
-        register,
-        title: 'Name',
-        id: 'name',
-        type: 'name',
-        registerParams: {
-          requiredErrorMessage: 'Please enter your name.',
-          minLength: {
-            value: 2,
-            message: 'Minimum length should be 2',
-          },
-        }
-      }} />
+      <NameFormItem {...{ errors, register }} />
       <EmailFormItem {...{ errors, register }} />
       <PasswordFormItem {...{ errors, register }} />
       <Button
