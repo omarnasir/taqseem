@@ -1,51 +1,44 @@
-import { type UserMembershipByGroup } from '@/types/model/memberships';
-import { type CreateMembership } from '@/app/api/memberships/route';
-import { type BaseApiResponseType } from '@/types/base-service-response';
+import { 
+  type MembershipDefaultArgs,
+  type CreateMembershipArgs
+} from '@/types/model/memberships';
+import { type UserBasicData } from '@/types/model/users';
+import { type ServiceResponseType } from '@/client/services/types';
+import { responseHandler } from '@/client/services/base';
 
-type MembershipResponseType = BaseApiResponseType & {
-  data?: UserMembershipByGroup[];
+
+type MembershipResponseType = ServiceResponseType & {
+  data?: UserBasicData[];
 }
 
 async function getMembershipsByGroupId(groupId: string): 
   Promise<MembershipResponseType> {
   const response = await fetch(`/api/memberships/?groupId=${groupId}`);
-  if (response.ok) {
-    const body = await response.json();
-    return { success: true, data: body }
-  }
-  return { success: false, error: response.statusText }
+  return await responseHandler(response);
 }
 
-async function createMembership(membership: CreateMembership
+async function createMembership(reqData: CreateMembershipArgs
 ): Promise<MembershipResponseType> {
   const response = await fetch(`/api/memberships`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(membership)
+    body: JSON.stringify(reqData)
   });
-  if (response.ok) {
-    const body = await response.json();
-    return { success: true, data: body }
-  }
-  return { success: false, error: response.statusText }
+  return await responseHandler(response);
 }
 
-async function deleteMembership({ groupId, userId }
-  : { groupId: string, userId: string }
+async function deleteMembership(reqData : MembershipDefaultArgs
 ): Promise<MembershipResponseType> {
   const response = await fetch(`/api/memberships`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ groupId, userId })
+    body: JSON.stringify(reqData)
   });
-  if (response.ok) {
-    return { success: true }
-  }
-  return { success: false, error: response.statusText }
+  return await responseHandler(response);
 }
 
 export {

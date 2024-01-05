@@ -1,18 +1,15 @@
-import type { BaseApiResponseType } from '@/types/base-service-response';
+import type { ServiceResponseType } from '@/client/services/types';
 import { GroupData } from '@/types/model/groups';
+import { responseHandler } from '@/client/services/base';
 
-type GroupByUserIdResponseType = BaseApiResponseType & {
+type GroupByUserIdResponseType = ServiceResponseType & {
   data?: GroupData;
 }
 
 async function getAllGroupsByUserId(userId: string):
   Promise<GroupByUserIdResponseType> {
   const response = await fetch(`/api/users/groups/?id=${userId}`);
-  if (response.ok) {
-    const body = await response.json();
-    return { success: true, data: body }
-  }
-  return { success: false, error: response.statusText }
+  return await responseHandler(response);
 }
 
 export {

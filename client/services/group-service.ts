@@ -1,54 +1,45 @@
 import { 
   type GroupData, 
   type CreateGroup,
-  type GroupDeleteArgs
+  type GroupDeleteArgs,
+  type GroupWithMembers
 } from '@/types/model/groups';
-import { type BaseApiResponseType } from '@/types/base-service-response';
+import { type ServiceResponseType } from '@/client/services/types';
+import { responseHandler } from '@/client/services/base';
 
-
-type GroupResponseType = BaseApiResponseType & {
+type CreateOrDeleteResponseType = ServiceResponseType & {
   data?: GroupData;
 }
-
-async function getGroupByGroupId(id: string): 
-  Promise<GroupResponseType> {
-  const response = await fetch(`/api/groups/${id}`);
-  if (response.ok) {
-    const group = await response.json();
-    return { success: true, data: group }
-  }
-  return { success: false, error: response.statusText }
+type GETResponseType = ServiceResponseType & {
+  data?: GroupWithMembers
 }
 
-async function createGroup(
-  group: CreateGroup
-): Promise<GroupResponseType> {
+async function getGroupDetails(id: string): 
+  Promise<GETResponseType> {
+  const response = await fetch(`/api/groups/?id=${id}`);
+  return await responseHandler(response);
+}
+
+async function createGroup(reqData: CreateGroup
+): Promise<CreateOrDeleteResponseType> {
   const response = await fetch(`/api/groups`, {
     method: 'POST',
-    body: JSON.stringify(group),
+    body: JSON.stringify(reqData),
   });
-  if (response.ok) {
-    const body = await response.json();
-    return { success: true, data: body }
-  }
-  return { success: false, error: response.statusText }
+  return await responseHandler(response);
 }
 
-async function deleteGroup({id, createdById}:
-  GroupDeleteArgs
-): Promise<GroupResponseType> {
+async function deleteGroup(reqData: GroupDeleteArgs
+): Promise<CreateOrDeleteResponseType> {
   const response = await fetch(`/api/groups`, {
     method: 'DELETE',
-    body: JSON.stringify({ id, createdById }),
+    body: JSON.stringify(reqData),
   });
-  if (response.ok) {
-    return { success: true}
-  }
-  return { success: false, error: response.statusText }
+  return await responseHandler(response);
 }
 
 export {
-  getGroupByGroupId,
+  getGroupDetails,
   createGroup,
   deleteGroup
 }
