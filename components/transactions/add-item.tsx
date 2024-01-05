@@ -12,12 +12,15 @@ import {
 } from "@chakra-ui/react"
 import { FieldValues, useForm } from "react-hook-form";
 
+import { GroupWithMembers } from "@/types/model/groups"
 import { 
-  FormItemAmount, FormItemCategory, FormItemDateTime, FormItemName
+  FormItemAmount, FormItemCategory, FormItemDateTime, FormItemName,
+  FormItemPaidBy
 } from "@/components/transactions/form-items";
 
 export function AddItem(
-  { isOpen, onClose }: { isOpen: boolean, onClose: () => void } 
+  { isOpen, onClose, groupDetail }:
+  { isOpen: boolean, onClose: () => void, groupDetail: GroupWithMembers }
 ) {
 
   const {
@@ -63,6 +66,7 @@ export function AddItem(
           <FormItemCategory {...{ errors, register }} />
           <FormItemAmount {...{ errors, register }} />
           <FormItemDateTime {...{ errors, register }} />
+          <FormItemPaidBy {...{errors, register, users: groupDetail.users!}} />
         </ModalBody>
         <ModalFooter mt={-3}>
           <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
