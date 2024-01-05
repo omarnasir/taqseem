@@ -5,11 +5,12 @@ function sendErrorResponse(
     status?: number,
     statusText?: string
   }
-): NextResponse {
-  return new NextResponse(null, {
+): NextResponse<any> {
+  const response = new NextResponse(null, {
     status: status ? status : 500,
     statusText: statusText ? statusText : "Server error"
   });
+  return response;
 }
 
 export {
