@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/server/lib/prisma';
 import { 
+  GroupWithMembers,
   type CreateGroup, 
   type GroupData,
   type GroupDeleteArgs
 } from "@/types/model/groups";
-import { sendErrorResponse } from "@/types/base-api-response";
+import { sendErrorResponse } from "@/app/api/error-response";
 
-type GroupsApiResponseType = NextResponse & {
-  group?: GroupData,
-}
+type GETResponseType = NextResponse<{data: GroupWithMembers} | undefined | null>
+type POSTResponseType = NextResponse<{ data: GroupData } | undefined | null>
 
 /**
  * GET /api/groups route
@@ -24,7 +24,7 @@ type GroupsApiResponseType = NextResponse & {
  * @response 500 - Server error
  */
 export async function GET(request: NextRequest):
-  Promise<GroupsApiResponseType> {
+  Promise<GETResponseType> {
   try {
     const searchParams = new URL(request.url).searchParams;
     const id = searchParams.get("id") as string;
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest):
       createdById: group.createdById,
       users: group.users.map(user => user.user)
     };
-    return NextResponse.json(formattedGroup, { status: 200 });
+    return NextResponse.json({ data: formattedGroup }, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest):
  * @response 500 - Server error
  */
 export async function POST(request: NextRequest):
-  Promise<GroupsApiResponseType> {
+  Promise<POSTResponseType> {
   try {
     const body: CreateGroup = await request.json();
     // check if group name for this user already exists
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest):
         }
       }
     });
-    return NextResponse.json(newGroup, { status: 200 });
+    return NextResponse.json({ data: newGroup }, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
@@ -122,8 +122,7 @@ export async function POST(request: NextRequest):
  * @response 404 - The group is not found
  * @response 500 - Server error
  */
-export async function DELETE(request: NextRequest):
-  Promise<GroupsApiResponseType> {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     const body: GroupDeleteArgs = await request.json();
     const members = await prisma.memberships.findMany({

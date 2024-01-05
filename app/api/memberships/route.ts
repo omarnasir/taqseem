@@ -2,21 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/server/lib/prisma";
 
-import { type UserMembershipByGroup, type MembershipDefaultArgs } from "@/types/model/memberships";
-import { sendErrorResponse } from "@/types/base-api-response";
+import { type CreateMembershipArgs, type MembershipDefaultArgs } from "@/types/model/memberships";
+import { type UserBasicData } from "@/types/model/users";
+import { sendErrorResponse } from "@/app/api/error-response";
 
-type CreateMembership = {
-  groupId: string,
-  userEmail: string,
-}
-
-type MembershipsApiResponseType = NextResponse & {
-  memberships?: UserMembershipByGroup[],
-}
-
-type MembershipsApiPostResponseType = NextResponse & {
-  newMembership?: UserMembershipByGroup,
-}
+type GETResponseType = NextResponse<{ data: UserBasicData[] } | undefined | null>
+type POSTResponseType = NextResponse<{ data: UserBasicData } | undefined | null>
 
 /**
  * GET /api/memberships route
@@ -31,7 +22,7 @@ type MembershipsApiPostResponseType = NextResponse & {
  * @response 500 - Server error
  */
 async function GET(request: NextRequest):
-  Promise<MembershipsApiResponseType> {
+  Promise<GETResponseType> {
   try {
     const searchParams = new URL(request.url).searchParams;
     const id = searchParams.get("groupId") as string;
@@ -50,7 +41,7 @@ async function GET(request: NextRequest):
     });
       if (!memberships) throw new Error("No users found");
       const membershipsArray = memberships.map((user) => user.user);
-      return NextResponse.json(membershipsArray, { status: 200 });
+    return NextResponse.json({ data: membershipsArray }, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
@@ -70,10 +61,10 @@ async function GET(request: NextRequest):
  * @response 500 - Server error
  */
 async function POST(request: NextRequest):
-  Promise<MembershipsApiPostResponseType>
+  Promise<POSTResponseType>
 {
   try {
-    const body : CreateMembership = await request.json();
+    const body : CreateMembershipArgs = await request.json();
     const user = await prisma.users.findUnique({
       select: {
         id: true,
@@ -98,7 +89,7 @@ async function POST(request: NextRequest):
         userId: user.id
       }
     });
-    return NextResponse.json(user, { status: 200 });
+    return NextResponse.json({ data: user }, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
@@ -145,7 +136,6 @@ async function DELETE(request: NextRequest):
 }
 
 export {
-  type CreateMembership,
   GET,
   POST,
   DELETE

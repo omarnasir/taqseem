@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/server/lib/prisma';
 import { type GroupData } from "@/types/model/groups";
-import { sendErrorResponse } from '@/types/base-api-response';
+import { sendErrorResponse } from '@/app/api/error-response';
 
-type UsersApiResponseType = NextResponse & {
-  users?: GroupData[],
-}
+type GETResponseType = NextResponse<{ data: GroupData[] } | undefined | null>
 
 /**
  * GET /api/users/groups route
@@ -20,7 +18,7 @@ type UsersApiResponseType = NextResponse & {
  * @response 500 - Server error
  */
 export async function GET(request: NextRequest):
-  Promise<UsersApiResponseType> {
+  Promise<GETResponseType> {
   try {
     const searchParams = new URL(request.url).searchParams;
     const userId = searchParams.get("id") as string;
@@ -34,8 +32,7 @@ export async function GET(request: NextRequest):
     });
     if (!userGroups) throw new Error("User Groups not found");
     const filteredUserGroups = userGroups.map((userGroup) => userGroup.group);
-
-    return NextResponse.json(filteredUserGroups, { status: 200 });
+    return NextResponse.json({ data: filteredUserGroups }, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }
