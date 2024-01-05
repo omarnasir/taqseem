@@ -15,8 +15,8 @@ import {
   FormItemWrapper, createRegisterOptions
 } from '@/components/base-form-item';
 
-import { type FormItemProps } from "@/types/form-item";
-import React from "react";
+import { type FormItemBaseProps } from "@/types/form-item";
+import { GroupWithMembers } from "@/types/model/groups";
 
 const InputLeftElementStyleProps = {
   borderRightWidth: 1,
@@ -24,10 +24,7 @@ const InputLeftElementStyleProps = {
 }
 
 function FormItemName(
-  { errors, register }: {
-    errors: FormItemProps['errors'],
-    register: FormItemProps['register']
-  }
+  { errors, register }: FormItemBaseProps
 ) {
   const id = 'name'
   const placeholder = 'Give a name to the transaction'
@@ -52,10 +49,7 @@ function FormItemName(
 }
 
 function FormItemAmount(
-  { errors, register }: {
-    errors: FormItemProps['errors'],
-    register: FormItemProps['register']
-  }
+  { errors, register }: FormItemBaseProps
 ) {
   const id = 'amount'
   const placeholder = 'Enter the amount'
@@ -81,10 +75,7 @@ function FormItemAmount(
 }
 
 function FormItemCategory(
-  { errors, register }: {
-    errors: FormItemProps['errors'],
-    register: FormItemProps['register']
-  }
+  { errors, register }: FormItemBaseProps
 ) {
   const id = 'category'
   const placeholder = 'Select a category'
@@ -124,11 +115,8 @@ function FormItemCategory(
 }
 
 function FormItemDateTime(
-  { errors, register }: {
-    errors: FormItemProps['errors'],
-    register: FormItemProps['register']
-  }
-) {
+  { errors, register }: FormItemBaseProps
+) { 
   const id = 'datetime'
   const placeholder = 'Select a date and time'
   const title = 'Date and time'
@@ -139,23 +127,66 @@ function FormItemDateTime(
       isRequired: true
     }
   })
+  const currentDate = new Date()
+  const formatter = new Intl.DateTimeFormat('en-ca', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+
+  })
+  const formattedDate = formatter.format(currentDate)
   return (
     <FormItemWrapper {...{ errors, id, title }}>
       <InputGroup>
         <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
           <MdCalendarMonth />
         </InputLeftElement>
-      <Input {...registerOptions} placeholder={placeholder} 
-      fontWeight={'light'}
-      textIndent={'3px'}
-      type='datetime-local' />
+        <Input {...registerOptions} placeholder={placeholder}
+          fontWeight={'light'}
+          textIndent={'3px'}
+          type='date'
+          defaultValue={formattedDate} />
       </InputGroup>
-    </FormItemWrapper >)
+    </FormItemWrapper >
+  )
+}
+
+function FormItemPaidBy(
+  { errors, register, users }: FormItemBaseProps & { users: GroupWithMembers['users'] }
+) {
+  const id = 'paidBy'
+  const placeholder = 'Select a member'
+  const title = 'Paid by'
+  const registerOptions = createRegisterOptions({
+    register: register,
+    id: id,
+    registerParams: {
+      isRequired: true
+    }
+  })
+  return (
+      <FormItemWrapper {...{ errors, id, title }}>
+        <InputGroup>
+          <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
+            <MdCategory />
+          </InputLeftElement>
+          <Select {...registerOptions} placeholder={placeholder}
+          sx={{ paddingLeft: '3rem' }}>
+            {users.map(user => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+            </Select>
+        </InputGroup>
+      </FormItemWrapper >
+  )
 }
 
 export {
   FormItemName,
   FormItemAmount,
   FormItemCategory,
-  FormItemDateTime
+  FormItemDateTime,
+  FormItemPaidBy
 }
