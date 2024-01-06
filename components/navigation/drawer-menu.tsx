@@ -14,7 +14,7 @@ export default function NavBarDrawer(props: {
   userName: string
  }) {
   return (
-    <Menu closeOnBlur={true} gutter={20}>
+    <Menu closeOnBlur={true} gutter={0}>
       <MenuButton
         size={'lg'}
         as={IconButton}

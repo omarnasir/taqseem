@@ -18,7 +18,7 @@ export default function Header(
     <Flex direction={'row'}
       justifyContent={'space-between'}
       alignItems={'center'}
-      marginY={2}
+      mt={2}
       w={containerWidth}>
       <Button
         leftIcon={<MdArrowBackIosNew size={18} />}
@@ -26,9 +26,9 @@ export default function Header(
         onClick={() => router.back()}
         variant='ghost'
         borderRadius={5}></Button>
-      <Link href='/' alignSelf='center'>
+      <Link href='/' alignSelf='center' w='70%'>
         <Image
-          w={{ md: '80px', sm: '125px', lg: '80px', base: '50px'}}
+          w='50px'
           objectFit='fill'
           src='/logo.png'
           alt={'taqseem'}/>
