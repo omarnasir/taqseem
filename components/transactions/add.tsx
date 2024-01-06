@@ -14,11 +14,15 @@ import { FieldValues, useForm } from "react-hook-form";
 
 import { GroupWithMembers } from "@/types/model/groups"
 import { 
-  FormItemAmount, FormItemCategory, FormItemDateTime, FormItemName,
-  FormItemPaidBy
+  FormItemAmount, 
+  FormItemCategory, 
+  FormItemDateTime,
+  FormItemName,
+  FormItemPaidBy,
+  getCurrentDate
 } from "@/components/transactions/form-items";
 
-export function AddItem(
+export function Add(
   { isOpen, onClose, groupDetail }:
   { isOpen: boolean, onClose: () => void, groupDetail: GroupWithMembers }
 ) {
@@ -27,6 +31,8 @@ export function AddItem(
     handleSubmit,
     register,
     reset,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm()
 
@@ -53,35 +59,37 @@ export function AddItem(
       size={{ xl: '2xl', base: 'xl' }}
     >
       <ModalOverlay />
-      <ModalContent marginX={2} mt={'5rem'}
+      <ModalContent marginX={2} 
         as='form' onSubmit={handleSubmit(onSubmit)}>
         <ModalHeader
           textAlign={'left'}
           fontSize={'lg'}
           fontWeight={'light'}>New transaction</ModalHeader>
-        <Divider mb={4} />
+        <Divider />
         <ModalCloseButton />
         <ModalBody>
           <FormItemName {...{ errors, register }} />
           <FormItemCategory {...{ errors, register }} />
-          <FormItemAmount {...{ errors, register }} />
           <FormItemDateTime {...{ errors, register }} />
           <FormItemPaidBy {...{errors, register, users: groupDetail.users!}} />
+          <FormItemAmount {...{ errors, register, getValues, setValue,
+            users: groupDetail.users! }} />
         </ModalBody>
-        <ModalFooter mt={-3}>
+        <ModalFooter mt={-4}>
           <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-          <Button mt={1} size={'md'} fontWeight={'light'}
+          <Button size={'md'} fontWeight={'light'}
             textAlign={'center'} variant={'none'} textColor='gray.500' 
             onClick={() => reset({
               name: null,
               category: null,
               amount: null,
-              datetime: null,
+              datetime: getCurrentDate(),
+              amountDetails: null
             })}>
             Clear
           </Button>
-          <Button mt={1} size={'md'} w={'7rem'}
-            bg={'gray.100'} colorScheme='loginbtn' textColor='blue.900'
+          <Button size={'md'} w={'7rem'} fontWeight={'500'}
+            bg={'gray.100'} colorScheme='loginbtn' textColor='black'
             isLoading={isSubmitting} type='submit'>
             Add
           </Button>
