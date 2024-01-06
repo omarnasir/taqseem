@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button, useDisclosure } from "@chakra-ui/react"
 
-import { AddItem } from "@/components/transactions/add-item"
+import { Add } from "@/components/transactions/add"
 import { GroupWithMembers } from "@/types/model/groups"
 import { getGroupDetails } from "@/client/services/group-service"
 import Loading from "@/app/(site)/loading"
@@ -31,7 +31,7 @@ export default function GroupDetail({ params }:
     loading ? <Loading /> :
     <div>
       <Button onClick={onOpen}>Open Modal</Button>
-      <AddItem isOpen={isOpen} onClose={onClose} groupDetail={groupDetail!} />
+      <Add isOpen={isOpen} onClose={onClose} groupDetail={groupDetail!} />
       <h1>Group Detail: {name}</h1>
     </div>
   )

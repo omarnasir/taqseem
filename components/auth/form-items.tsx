@@ -1,82 +1,65 @@
 import { Input } from "@chakra-ui/react";
 
-import { FormItemWrapper, createRegisterOptions } from "@/components/base-form-item";
-import { type FormItemBaseProps } from "@/types/form-item";
+import { FormItemWrapper } from "@/components/base-form-item";
+import { type FormItemProps } from "@/types/form-item";
 
 
-function EmailFormItem({ errors, register }: FormItemBaseProps) {
+function EmailFormItem({ errors, register }: FormItemProps) {
   const id = 'email'
-  const placeholder = 'Enter your email'
-  const title = 'Email'
-  const registerOptions = createRegisterOptions({
-    register: register,
-    id: id,
-    registerParams: {
-      isRequired: true,
-      requiredErrorMessage: 'Email is required',
-        pattern: {
-          value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-          message: 'Invalid email address',
-        },
-      }
-  })
+
   return (
-    <FormItemWrapper {...{ errors, id, title, styleProps: {mb:3}}}>
-        <Input {...registerOptions} 
+    <FormItemWrapper {...{ errors, id, title: 'Email', styleProps: {mb:3}}}>
+        <Input 
+        {...register(id, {
+          required: "Email is required",
+          pattern: {
+            value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+            message: 'Invalid email address',
+          },
+        })}
         type="email"
-        placeholder={placeholder} />
+        placeholder='Enter your email' />
     </FormItemWrapper >
   )
 }
 
 function PasswordFormItem(
-  { errors, register }: FormItemBaseProps
+  { errors, register }: FormItemProps
 ) {
   const id = 'password'
-  const placeholder = 'Enter your password'
-  const title = 'Password'
-  const registerOptions = createRegisterOptions({
-    register: register,
-    id: id,
-    registerParams: {
-      isRequired: true,
-      requiredErrorMessage: 'Password is required',
-      minLength: {
-        value: 4,
-        message: 'Minimum length should be 4',
-      },
-    }
-  })
+
   return (
-    <FormItemWrapper {...{ errors, id, title, styleProps: {mb:3} }}>
-      <Input {...registerOptions} 
+    <FormItemWrapper {...{ errors, id, title: 'Password', styleProps: {mb:3} }}>
+      <Input 
+      {...register(id, {
+          required: "Password is required",
+          minLength: {
+            value: 4,
+            message: 'Minimum length should be 4',
+          },
+        })}
         type="password"
-        placeholder={placeholder} />
+        placeholder='Enter your password' />
     </FormItemWrapper >
   )
 }
 
 function NameFormItem(
-  { errors, register }: FormItemBaseProps
+  { errors, register }: FormItemProps
 ) {
   const id = 'name'
-  const placeholder = 'Enter your name'
-  const title = 'Name'
-  const registerOptions = createRegisterOptions({
-    register: register,
-    id: id,
-    registerParams: {
-      isRequired: true,
-      requiredErrorMessage: 'Please enter your name.',
-      minLength: {
-        value: 2,
-        message: 'Minimum length should be 2',
-      },
-    }
-  })
+
   return (
-    <FormItemWrapper {...{ errors, id, title, styleProps: {mb:3} }}>
-      <Input {...registerOptions} placeholder={placeholder} />
+    <FormItemWrapper {...{ errors, id, title: 'Name', styleProps: {mb:3} }}>
+      <Input
+      {...register(id, {
+        required: "Please enter your name.",
+        minLength: {
+          value: 2,
+          message: 'Minimum length should be 2',
+        },
+      })}
+      placeholder='Enter your name' />
     </FormItemWrapper >
   )
 }
