@@ -6,8 +6,9 @@ import {
 
 type FormItemProps = {
   errors: FieldErrors<FieldValues>,
-  register: UseFormRegister<FieldValues>,
-  id: string,
+  register: UseFormRegister<FieldValues>
+  id?: string,
+  getValues?: any,
 }
 
 export {

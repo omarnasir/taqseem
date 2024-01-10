@@ -64,7 +64,7 @@ export default function GroupList(
                   <Flex flexDirection={'row'} alignItems={'center'}>
                     <MdGroup />
                     <Link as={NextLink}
-                      href={`/groups/${group.id}?name=${group.name}`}
+                      href={`/groups/${group.id}`}
                       ml={3} lineHeight={2}>
                       {group.name}
                     </Link>

@@ -32,7 +32,6 @@ export function Add(
     register,
     reset,
     getValues,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm()
 
@@ -72,8 +71,7 @@ export function Add(
           <FormItemCategory {...{ errors, register }} />
           <FormItemDateTime {...{ errors, register }} />
           <FormItemPaidBy {...{errors, register, users: groupDetail.users!}} />
-          <FormItemAmount {...{ errors, register, getValues, setValue,
-            users: groupDetail.users! }} />
+          <FormItemAmount {...{ errors, register, getValues, users: groupDetail.users! }} />
         </ModalBody>
         <ModalFooter mt={-4}>
           <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
