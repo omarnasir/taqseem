@@ -1,26 +1,29 @@
 import {
   Input,
+  Text,
   Select,
   NumberInput,
   NumberInputField,
   InputGroup,
   InputLeftElement,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Tr,
+  VStack,
+  HStack,
+  Checkbox,
+  Button,
+  FormLabel,
+  Box,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
-  MdCalendarMonth
+  MdCalendarMonth, MdDone
 } from "react-icons/md"
 
 import { FormItemWrapper } from '@/components/base-form-item';
 
 import { type FormItemProps } from "@/types/form-item";
-import { GroupWithMembers } from "@/types/model/groups";
+
 import { UserBasicData } from "@/types/model/users";
+import { useState } from "react";
 
 const InputLeftElementStyleProps = {
   borderRightWidth: 1,
@@ -39,7 +42,7 @@ function FormItemName(
           <MdDriveFileRenameOutline/>
         </InputLeftElement>
         <Input {...register(id, {
-          required: true,
+          required: 'You must enter a name'
         })}
         placeholder='Give a name to the transaction' 
         textIndent={'7px'}/>
@@ -48,49 +51,89 @@ function FormItemName(
 }
 
 function FormItemAmount(
-  {errors, register, users} : 
+  {errors, register, getValues, users} : 
   FormItemProps & { users: UserBasicData[] }
 ) {
-  const amountId = 'amount'
+  const [everyone, setEveryone] = useState<boolean>(true)
 
+  const amountId = 'amount'
   return (
-    <FormItemWrapper {...{ errors, id: amountId, title: 'Amount' }}>
-      <InputGroup >
-        <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
-          <MdEuroSymbol />
-        </InputLeftElement>
-        <NumberInput w='100%'>
-          <NumberInputField textIndent={'32px'} 
-            placeholder='Enter the amount'
-            {...register(amountId, {
-              required: true,
-            })} />
-        </NumberInput>
-      </InputGroup>
-      <TableContainer>
-        <Table variant='simple'>
-          <Tbody>
-            {users.map((user: UserBasicData) => (
-              <Tr key={user.id}>
-                <Td>{user.name}</Td>
-                <Td>
-                  <NumberInput w='50%'>
-                    <NumberInputField
-                    {...register(user.id, {
-                      required: true,
-                      validate: (
-                        value, formValues
-                      ) => value === (formValues.amount
-                        - formValues.)
-                    })}/>
-                  </NumberInput>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+    <>
+      <FormItemWrapper {...{ errors, id: amountId, title: 'Amount' }}>
+        <InputGroup >
+          <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
+            <MdEuroSymbol />
+          </InputLeftElement>
+          <NumberInput w='100%'>
+            <NumberInputField textIndent={'32px'}
+              placeholder='Enter the amount'
+              {...register(amountId, {
+                required: 'No amount specified',
+                valueAsNumber: true
+              })} />
+          </NumberInput>
+        </InputGroup>
       </FormItemWrapper>
+      <FormItemWrapper {...{ errors, id: 'everyone' }}>
+        <FormLabel mt={'3'}
+          fontSize={'sm'}
+          fontWeight={'light'}>Split</FormLabel>
+        <Box borderColor={'white.100'} borderWidth={1}
+          borderRadius={6}
+          p={2}>
+          <Button size={'sm'} variant={'solid'}
+            onClick={() => setEveryone(!everyone)}
+            colorScheme="loginbtn"
+            bg={everyone ? 'gray.100' : 'gray.800'}
+            color={everyone ? 'gray.800' : 'gray.600'}
+            leftIcon={everyone ? <MdDone color="black" size={20} /> : <div />}
+            {...register('everyone', {
+              required: false,
+              value: everyone,
+              validate: value => {
+                if (!everyone) {
+                  // Check if at least one user is selected
+                  for (const user of users) {
+                    if (getValues(`amountDetails.${user.id}.checked`)) {
+                      return true
+                    }
+                  }
+                  return 'You must select at least one user'
+                }
+                return true
+              }
+            })}
+          >Everyone</Button>
+          {!everyone &&
+            <VStack mt={4}>
+              {users.map((user: UserBasicData) => (
+                <HStack key={user.id} w='100%' paddingX={2} justifyContent={'flex-start'}>
+                  <HStack w='50%'>
+                    <Checkbox size={'md'} pr={2} colorScheme={'gray'} defaultChecked={false}
+                      {...register(`amountDetails.${user.id}.checked`)}
+                    />
+                    <Text fontSize={'sm'} fontWeight={'light'}>{user.name}</Text>
+                  </HStack>
+                  <FormItemWrapper {...{ errors, id: `amountDetails.${user.id}.amount` }}>
+                    <InputGroup size={'sm'} w='50%'>
+                      <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
+                        <MdEuroSymbol size={14} />
+                      </InputLeftElement>
+                      <NumberInput size={'sm'}>
+                        <NumberInputField borderRadius={5} textIndent={'32px'}
+                          {...register(`amountDetails.${user.id}.amount`, {
+                            valueAsNumber: true,
+                            max: { value: getValues(amountId), message: 'Amount greater than maximum', }
+                          })} />
+                      </NumberInput>
+                    </InputGroup>
+                  </FormItemWrapper>
+                </HStack>
+              ))}
+            </VStack>}
+        </Box>
+      </FormItemWrapper>
+    </>
   )
 }
 
@@ -116,6 +159,7 @@ function FormItemCategory(
         <Select {...register(id, {
           required: true,
         })}
+        title="Select a category"
         sx={{ paddingLeft: '3rem' }}>
           {options.map((option, index) => (
             <option key={index} value={option.value}>
@@ -152,7 +196,7 @@ function FormItemDateTime(
 }
 
 function FormItemPaidBy(
-  { errors, register, users }: FormItemProps & { users: GroupWithMembers['users'] }
+  { errors, register, users }: FormItemProps & { users: UserBasicData[] }
 ) {
   const id = 'paidBy'
 
@@ -165,6 +209,7 @@ function FormItemPaidBy(
           <Select {...register(id, {
           required: true,
         })}
+            title="Select a user"
           sx={{ paddingLeft: '3rem' }}>
             {users.map(user => (
               <option key={user.id} value={user.id}>
