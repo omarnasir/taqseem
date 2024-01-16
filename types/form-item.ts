@@ -5,8 +5,8 @@ import {
 } from "react-hook-form"
 
 type FormItemProps = {
-  errors: FieldErrors<FieldValues>,
   register: UseFormRegister<FieldValues>
+  errors?: FieldErrors<FieldValues>,
   id?: string,
   getValues?: any,
 }

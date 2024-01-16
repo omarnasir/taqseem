@@ -58,13 +58,24 @@ const customTheme = extendTheme({ config, fonts },
 				},
 				baseStyle: {
 					field: {
-            color: "gray.300",
+            color: "gray.100",
             _autofill: {
               boxShadow: "0 0 0px 1000px #0a0a0a inset",
               transition: "background-color 5000s ease-in-out 0s",
             },
 					}
 				}
+			},
+			NumberInput: {
+				defaultProps: {
+					focusBorderColor: 'white',
+					color: 'white',
+				},
+			},
+			Select: {
+				defaultProps: {
+					focusBorderColor: 'white',
+				},
 			},
 			Menu: menuTheme,
 			Modal: modalTheme,

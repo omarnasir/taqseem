@@ -15,7 +15,9 @@ import { FieldValues, useForm } from "react-hook-form";
 import { GroupWithMembers } from "@/types/model/groups"
 import { 
   FormItemAmount, 
+  FormItemAmountDetails, 
   FormItemCategory, 
+  FormItemSubCategory,
   FormItemDateTime,
   FormItemName,
   FormItemPaidBy,
@@ -55,27 +57,28 @@ export function Add(
       blockScrollOnMount={false}
       isOpen={isOpen}
       onClose={onClose}
-      size={{ xl: '2xl', base: 'xl' }}
-    >
+      size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
       <ModalOverlay />
       <ModalContent marginX={2} 
         as='form' onSubmit={handleSubmit(onSubmit)}>
         <ModalHeader
           textAlign={'left'}
           fontSize={'lg'}
-          fontWeight={'light'}>New transaction</ModalHeader>
+          fontWeight={'bold'}>New transaction</ModalHeader>
         <Divider />
         <ModalCloseButton />
         <ModalBody>
           <FormItemName {...{ errors, register }} />
           <FormItemCategory {...{ errors, register }} />
+          <FormItemSubCategory {...{ errors, register }} />
           <FormItemDateTime {...{ errors, register }} />
           <FormItemPaidBy {...{errors, register, users: groupDetail.users!}} />
-          <FormItemAmount {...{ errors, register, getValues, users: groupDetail.users! }} />
+          <FormItemAmount {...{ errors, register }} />
+          <FormItemAmountDetails {...{ errors, register, getValues, users: groupDetail.users! }} />
         </ModalBody>
         <ModalFooter mt={-4}>
           <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-          <Button size={'md'} fontWeight={'light'}
+          <Button size={'sm'} fontWeight={'400'}
             textAlign={'center'} variant={'none'} textColor='gray.500' 
             onClick={() => reset({
               name: null,
@@ -86,7 +89,7 @@ export function Add(
             })}>
             Clear
           </Button>
-          <Button size={'md'} w={'7rem'} fontWeight={'500'}
+          <Button size={'sm'} w={'7rem'} fontWeight={'600'}
             bg={'gray.100'} colorScheme='loginbtn' textColor='black'
             isLoading={isSubmitting} type='submit'>
             Add

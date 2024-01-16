@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Input,
   Text,
@@ -10,184 +11,241 @@ import {
   HStack,
   Checkbox,
   Button,
-  FormLabel,
   Box,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
-  MdCalendarMonth, MdDone
+  MdCalendarMonth, MdOutlineCategory
 } from "react-icons/md"
 
 import { FormItemWrapper } from '@/components/base-form-item';
 
 import { type FormItemProps } from "@/types/form-item";
-
 import { UserBasicData } from "@/types/model/users";
-import { useState } from "react";
+import { TransactionCategory, TransactionSubCategory } from "@/types/constants";
 
-const InputLeftElementStyleProps = {
-  borderRightWidth: 1,
-  borderColor: 'gray.700'
+const FormIds : Record<string, string> = {
+  name: 'name',
+  amount: 'amount',
+  amountDetails: 'amountDetails',
+  category: 'category',
+  subcategory: 'subcategory',
+  datetime: 'datetime',
+  paidBy: 'paidBy',
+  everyone: 'everyone'
+}
+
+function LeftIconWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <InputLeftElement 
+      pointerEvents='none' 
+      height='95%'
+      mt={'1.2px'} ml={'1.2px'}
+      borderLeftRadius={5}
+      bg={'gray.900'}
+      borderColor='gray.800'>
+      {children}
+    </InputLeftElement>
+  )
 }
 
 function FormItemName(
   { errors, register }: FormItemProps
 ) {
-  const id = 'name'
-
   return (
-    <FormItemWrapper {...{ errors, id, title: 'Name' }}>
+    <FormItemWrapper {...{ errors, id: FormIds.name, title: 'Name' }}>
       <InputGroup >
-        <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
-          <MdDriveFileRenameOutline/>
-        </InputLeftElement>
-        <Input {...register(id, {
+        <LeftIconWrapper>
+          <MdDriveFileRenameOutline />
+        </LeftIconWrapper>
+        <Input {...register(FormIds.name, {
           required: 'You must enter a name'
         })}
-        placeholder='Give a name to the transaction' 
-        textIndent={'7px'}/>
+          placeholder='Give a name to the transaction'
+          textIndent={'32px'} />
       </InputGroup>
     </FormItemWrapper >)
 }
 
-function FormItemAmount(
-  {errors, register, getValues, users} : 
-  FormItemProps & { users: UserBasicData[] }
+function FormItemAmountDetails(
+  { errors, register, getValues, users }:
+    FormItemProps & { users: UserBasicData[] }
 ) {
   const [everyone, setEveryone] = useState<boolean>(true)
-
-  const amountId = 'amount'
   return (
-    <>
-      <FormItemWrapper {...{ errors, id: amountId, title: 'Amount' }}>
-        <InputGroup >
-          <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
-            <MdEuroSymbol />
-          </InputLeftElement>
-          <NumberInput w='100%'>
-            <NumberInputField textIndent={'32px'}
-              placeholder='Enter the amount'
-              {...register(amountId, {
-                required: 'No amount specified',
-                valueAsNumber: true
-              })} />
-          </NumberInput>
-        </InputGroup>
-      </FormItemWrapper>
-      <FormItemWrapper {...{ errors, id: 'everyone' }}>
-        <FormLabel mt={'3'}
-          fontSize={'sm'}
-          fontWeight={'light'}>Split</FormLabel>
-        <Box borderColor={'white.100'} borderWidth={1}
-          borderRadius={6}
-          p={2}>
-          <Button size={'sm'} variant={'solid'}
-            onClick={() => setEveryone(!everyone)}
-            colorScheme="loginbtn"
-            bg={everyone ? 'gray.100' : 'gray.800'}
-            color={everyone ? 'gray.800' : 'gray.600'}
-            leftIcon={everyone ? <MdDone color="black" size={20} /> : <div />}
-            {...register('everyone', {
-              required: false,
-              value: everyone,
-              validate: value => {
-                if (!everyone) {
-                  // Check if at least one user is selected
-                  for (const user of users) {
-                    if (getValues(`amountDetails.${user.id}.checked`)) {
-                      return true
-                    }
-                  }
-                  return 'You must select at least one user'
+    <FormItemWrapper {...{ errors, id: FormIds.everyone, title: 'Split' }}>
+      <Button size={'sm'} variant={'solid'}
+        width={'6rem'}
+        colorScheme="loginbtn"
+        bg={everyone ? 'gray.100' : 'gray.800'}
+        color={everyone ? 'gray.800' : 'gray.600'}
+        onClick={() => setEveryone(!everyone)}
+        {...register('everyone', {
+          required: false,
+          value: everyone,
+          validate: () => {
+            if (!everyone) {
+              let isUserSelected = false
+              // Check if at least one user is selected
+              for (const user of users) {
+                if (getValues(`amountDetails.${user.id}.checked`)) {
+                  isUserSelected = true;
+                  break;
                 }
-                return true
               }
-            })}
-          >Everyone</Button>
-          {!everyone &&
-            <VStack mt={4}>
-              {users.map((user: UserBasicData) => (
-                <HStack key={user.id} w='100%' paddingX={2} justifyContent={'flex-start'}>
-                  <HStack w='50%'>
-                    <Checkbox size={'md'} pr={2} colorScheme={'gray'} defaultChecked={false}
-                      {...register(`amountDetails.${user.id}.checked`)}
-                    />
-                    <Text fontSize={'sm'} fontWeight={'light'}>{user.name}</Text>
-                  </HStack>
-                  <FormItemWrapper {...{ errors, id: `amountDetails.${user.id}.amount` }}>
-                    <InputGroup size={'sm'} w='50%'>
-                      <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
-                        <MdEuroSymbol size={14} />
-                      </InputLeftElement>
-                      <NumberInput size={'sm'}>
-                        <NumberInputField borderRadius={5} textIndent={'32px'}
-                          {...register(`amountDetails.${user.id}.amount`, {
-                            valueAsNumber: true,
-                            max: { value: getValues(amountId), message: 'Amount greater than maximum', }
-                          })} />
-                      </NumberInput>
-                    </InputGroup>
-                  </FormItemWrapper>
-                </HStack>
-              ))}
-            </VStack>}
-        </Box>
-      </FormItemWrapper>
-    </>
+              if (!isUserSelected) return 'You must select at least one user'
+              // Check if the sum of the amounts is equal to the total amount
+              let sum = 0
+              for (const user of users) {
+                sum += getValues(`amountDetails.${user.id}.amount`)
+              }
+              if (sum > getValues('amount')) return 'The sum of the amounts is greater than the total amount'
+            }
+            return true
+          }
+        })}>Everyone</Button>
+      {!everyone &&
+        <VStack marginY={2} alignItems={'center'}>
+          {users.map((user: UserBasicData) => (
+            <FormItemAmountDetailsUser key={user.id} {...{ register, user, getValues }} />
+          ))}
+        </VStack>}
+    </FormItemWrapper>
   )
 }
 
+function FormItemAmountDetailsUser(
+  { register, user, getValues }: 
+  FormItemProps & { user: UserBasicData }
+) {
+  const id = `${FormIds.amountDetails}.${user.id}.checked`
+  return (
+    <HStack key={user.id} paddingLeft={2} w='100%'
+      borderColor={'gray.900'}
+      borderWidth={1}
+      borderRadius={'sm'}>
+      <Checkbox {...register(id, {
+        required: false,
+      })}
+        colorScheme={'gray'}
+        size={'lg'}
+        defaultChecked={false}
+        w={'50%'}
+        fontWeight={'light'}>
+        <Text paddingLeft={2}
+          fontSize={'md'}
+          fontWeight={'light'}>{user.name}</Text>
+      </Checkbox>
+      <InputGroup size={'md'} w='50%'>
+        <LeftIconWrapper>
+          <MdEuroSymbol size={14} />
+        </LeftIconWrapper>
+        <NumberInput size={'md'}>
+          <NumberInputField borderWidth={1} textIndent={'32px'}
+            value={0}
+            {...register(`amountDetails.${user.id}.amount`, {
+              required: true,
+              valueAsNumber: true,
+              value: 0,
+              max: {
+                value: getValues('amount'),
+                message: 'Amount greater than maximum',
+              },
+            })} />
+        </NumberInput>
+      </InputGroup>
+    </HStack>
+  )
+}
+
+function FormItemAmount(
+  { errors, register }: FormItemProps
+) {
+  return (
+    <FormItemWrapper {...{ errors, id: FormIds.amount, title: 'Amount' }}>
+      <InputGroup >
+        <LeftIconWrapper>
+          <MdEuroSymbol />
+        </LeftIconWrapper>
+        <NumberInput w='100%'>
+          <NumberInputField textIndent={'32px'}
+            placeholder='Enter the amount'
+            {...register(FormIds.amount, {
+              required: 'No amount specified',
+              valueAsNumber: true
+            })} />
+        </NumberInput>
+      </InputGroup>
+    </FormItemWrapper>
+  )
+}
+
+function FormItemSubCategory(
+  { errors, register }: FormItemProps
+) {
+  return (
+    <FormItemWrapper {...{ errors, id: FormIds.subcategory, title: 'SubCategory' }}>
+      <InputGroup>
+        <LeftIconWrapper>
+          <MdOutlineCategory />
+        </LeftIconWrapper>
+        <Select {...register(FormIds.subcategory, {
+          required: true,
+          valueAsNumber: true
+        })}
+          title="Select a category"
+          sx={{ paddingLeft: '3rem' }}>
+            {Object.entries(TransactionSubCategory).map(([key, value]) => (
+              <option key={key} value={value.id}>
+                {value.name}
+              </option>
+            ))}
+          
+        </Select>
+      </InputGroup>
+    </FormItemWrapper >)
+}
 function FormItemCategory(
   { errors, register }: FormItemProps
 ) {
-  const id = 'category'
-
-  const options = [
-    { value: 'food', label: 'Food' },
-    { value: 'transport', label: 'Transport' },
-    { value: 'house', label: 'House' },
-    { value: 'fun', label: 'Fun' },
-    { value: 'other', label: 'Other' },
-  ]
-
   return (
-    <FormItemWrapper {...{ errors, id, title: 'Category' }}>
+    <FormItemWrapper {...{ errors, id: FormIds.category, title: 'Category' }}>
       <InputGroup>
-        <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
+        <LeftIconWrapper>
           <MdCategory />
-        </InputLeftElement>
-        <Select {...register(id, {
+        </LeftIconWrapper>
+        <Select {...register(FormIds.category, {
           required: true,
+          valueAsNumber: true
         })}
-        title="Select a category"
-        sx={{ paddingLeft: '3rem' }}>
-          {options.map((option, index) => (
-            <option key={index} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-          </Select>
+          title="Select a sub-category"
+          sx={{ paddingLeft: '3rem' }}>
+            {Object.entries(TransactionCategory).map(([key, value]) => (
+              <option key={key} value={value.id}>
+                {value.name}
+              </option>
+            ))}
+          
+        </Select>
       </InputGroup>
     </FormItemWrapper >)
 }
 
 function FormItemDateTime(
   { errors, register }: FormItemProps
-) { 
-  const id = 'datetime'
- 
+) {
   return (
-    <FormItemWrapper {...{ errors, id, title: 'Date' }}>
+    <FormItemWrapper {...{ errors, id: FormIds.datetime, title: 'Date' }}>
       <InputGroup>
-        <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
+        <LeftIconWrapper>
           <MdCalendarMonth />
-        </InputLeftElement>
-        <Input {...register(id, {
+        </LeftIconWrapper>
+        <Input {...register(FormIds.datetime, {
           required: true,
-        })} 
-        placeholder='Select a date and time'
+        })}
+          placeholder='Select a date and time'
           fontWeight={'light'}
-          textIndent={'3px'}
+          textIndent={'15px'}
           type='date'
           defaultValue={getCurrentDate()} />
       </InputGroup>
@@ -198,27 +256,25 @@ function FormItemDateTime(
 function FormItemPaidBy(
   { errors, register, users }: FormItemProps & { users: UserBasicData[] }
 ) {
-  const id = 'paidBy'
-
   return (
-      <FormItemWrapper {...{ errors, id, title:'Paid by' }}>
-        <InputGroup>
-          <InputLeftElement pointerEvents='none' {...InputLeftElementStyleProps}>
-            <MdCategory />
-          </InputLeftElement>
-          <Select {...register(id, {
+    <FormItemWrapper {...{ errors, id: FormIds.paidBy, title: 'Paid by' }}>
+      <InputGroup>
+        <LeftIconWrapper>
+          <MdCategory />
+        </LeftIconWrapper>
+        <Select {...register(FormIds.paidBy, {
           required: true,
         })}
-            title="Select a user"
+          title="Select a user"
           sx={{ paddingLeft: '3rem' }}>
-            {users.map(user => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-            </Select>
-        </InputGroup>
-      </FormItemWrapper >
+          {users.map(user => (
+            <option key={user.id} value={user.id}>
+              {user.name}
+            </option>
+          ))}
+        </Select>
+      </InputGroup>
+    </FormItemWrapper >
   )
 }
 
@@ -237,7 +293,9 @@ function getCurrentDate() {
 export {
   FormItemName,
   FormItemAmount,
+  FormItemAmountDetails,
   FormItemCategory,
+  FormItemSubCategory,
   FormItemDateTime,
   FormItemPaidBy,
   getCurrentDate

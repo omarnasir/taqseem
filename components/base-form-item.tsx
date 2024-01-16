@@ -20,7 +20,7 @@ function FormItemWrapper({ errors, id, title, children, styleProps }:
       {title && <FormLabel
         mb={'1'}
         fontSize={'sm'}
-        fontWeight={'light'}
+        fontWeight={400}
         htmlFor={id}>{title}</FormLabel>}
       {children}
       {errors?.[id!] &&
