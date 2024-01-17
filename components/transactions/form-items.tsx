@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import React, { useState } from "react";
 import {
   Input,
   Text,
@@ -11,37 +11,31 @@ import {
   HStack,
   Checkbox,
   Button,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
   MdCalendarMonth, MdOutlineCategory
 } from "react-icons/md"
 
-import { FormItemWrapper } from '@/components/base-form-item';
-
-import { type FormItemProps } from "@/types/form-item";
 import { UserBasicData } from "@/types/model/users";
 import { TransactionCategory, TransactionSubCategory } from "@/types/constants";
+import { useFormContext } from "react-hook-form";
+
 
 type TFormIds = {
   name: string,
-  amount: string,
-  amountDetails: {
-    [key: string]: {
-      checked: string,
-      amount: number
-    }
-  },
+  amount: number,
+  amountDetails: Record<string, {
+    checked: string,
+    amount: number
+  } | {}>,
   category: string,
   subcategory: string,
   datetime: string,
   paidBy: string,
-  everyone: string
 }
 
 enum FormIds {
@@ -52,7 +46,6 @@ enum FormIds {
   subcategory = 'subcategory',
   datetime = 'datetime',
   paidBy = 'paidBy',
-  everyone = 'everyone'
 }
 
 function LeftIconWrapper({ children }: { children: React.ReactNode }) {
@@ -69,11 +62,11 @@ function LeftIconWrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-function FormItemName(
-  { errors, register }: FormItemProps
-) {
+function FormItemName() {
+  const { formState: { errors }, register } = useFormContext()
   return (
-    <FormItemWrapper {...{ errors, id: FormIds.name, title: 'Name' }}>
+    <FormControl id={FormIds.name} isInvalid={Boolean(errors[FormIds.name])} mb={3}>
+      <FormLabel htmlFor={FormIds.name}>Name</FormLabel>
       <InputGroup >
         <LeftIconWrapper>
           <MdDriveFileRenameOutline />
@@ -84,27 +77,32 @@ function FormItemName(
           placeholder='Give a name to the transaction'
           textIndent={'32px'} />
       </InputGroup>
-    </FormItemWrapper >)
+      <FormErrorMessage>{errors[FormIds.name]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
+  )
 }
 
-function FormItemAmountDetails(
-  { errors, register, getValues, users }:
-    FormItemProps & { users: UserBasicData[] }
-) {
+function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
+  const { formState: { errors }, register, getValues } = useFormContext()
   const [everyone, setEveryone] = useState<boolean>(true)
 
   return (
-      <FormItemWrapper {...{ errors, id: FormIds.everyone, title: 'Split' }}>
-        <Input size={'sm'} variant={'solid'} as={Button}
-          width={'6rem'}
-          colorScheme="loginbtn"
-          bg={everyone ? 'gray.100' : 'gray.800'}
-          color={everyone ? 'gray.800' : 'gray.600'}
-          onClick={() => setEveryone(!everyone)}
-          value={everyone.toString()}
-          {...register('everyone', {
+    <>
+      <FormLabel>Split</FormLabel>
+      <Button size={'sm'} width={'6rem'}
+        bg={everyone ? 'gray.100' : 'gray.800'}
+        color={everyone ? 'gray.800' : 'gray.600'}
+        onClick={() => setEveryone(!everyone)}>Everyone</Button>
+      <FormControl id={FormIds.amountDetails}
+        isInvalid={Boolean(errors[FormIds.amountDetails])}>
+        <FormErrorMessage>{errors[FormIds.amountDetails]?.message?.toString()}</FormErrorMessage>
+        <VStack marginY={2} alignItems={'center'}
+          {...register(FormIds.amountDetails, {
             required: false,
-            setValueAs: (value) => value === 'true' ? true : false,
+            setValueAs: (value: any) => {
+              everyone ? value = {} : value
+              return value
+            },
             validate: () => {
               if (!everyone) {
                 let isUserSelected = false
@@ -119,76 +117,91 @@ function FormItemAmountDetails(
                 // Check if the sum of the amounts is equal to the total amount
                 let sum = 0
                 for (const user of users) {
-                  sum += getValues(`${FormIds.amountDetails}.${user.id}.amount`)
+                  if (getValues(`${FormIds.amountDetails}.${user.id}.checked`)) {
+                    sum += getValues(`${FormIds.amountDetails}.${user.id}.amount`)
+                  }
                 }
                 if (sum > getValues('amount')) return 'The sum of the amounts is greater than the total amount'
               }
-              return true
             }
-          })}>Everyone</Input>
-      {!everyone &&
-        <VStack marginY={2} alignItems={'center'}>
-          {users.map((user: UserBasicData) => (
-            <FormItemAmountDetailsUser key={user.id} {...{ errors, register, user, getValues }} />
-          ))}
-        </VStack>}
-      </FormItemWrapper>
+          })}>
+          {!everyone &&
+            users.map((user: UserBasicData) => (
+              <FormItemAmountDetailsUser key={user.id} user={user} />))}
+        </VStack>
+      </FormControl>
+    </>
   )
 }
 
-function FormItemAmountDetailsUser(
-  { errors, register, user, getValues }: 
-  FormItemProps & { user: UserBasicData }
-) {
+function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
+  const { register, formState: { errors } } = useFormContext()
+
+  function extractNestedErrors(errors: any, user: UserBasicData) {
+    if (errors[FormIds.amountDetails]?.[user.id]?.amount) {
+      return errors[FormIds.amountDetails]?.[user.id]?.amount?.message?.toString()
+    }
+    return ''
+  }
+
+  function checkIsFormAmountInvalid(errors: any) {
+  if (errors[FormIds.amountDetails]?.[user.id]?.amount) {
+      return true
+    }
+    return false
+  }
+
   return (
+    <FormControl id={`${FormIds.amountDetails}.${user.id}.amount`}
+      isInvalid={Boolean(checkIsFormAmountInvalid(errors))}>
     <HStack paddingLeft={2} w='100%'
-      borderColor={'gray.900'}
-      borderWidth={1}
-      borderRadius={'sm'}>
-      <Checkbox {...register(`${FormIds.amountDetails}.${user.id}.checked`, {
-        required: false
-      })}
-        colorScheme={'gray'}
-        size={'lg'}
-        defaultChecked={false}
-        w={'50%'}
-        fontWeight={'light'}>
-        <Text paddingLeft={2}
-          fontSize={'md'}
-          fontWeight={'light'}>{user.name}</Text>
-      </Checkbox>
-      <FormItemWrapper {...{ errors, id: `${FormIds.amountDetails}`,
-    styleProps:{w:'50%', mb:0}}}>
-        <InputGroup size={'md'}>
+        borderColor={'gray.900'}
+        borderWidth={1}
+        borderRadius={'sm'}>
+        <Checkbox {...register(`${FormIds.amountDetails}.${user.id}.checked`, {
+          required: false
+        })}
+          colorScheme={'gray'}
+          size={'lg'}
+          w='50%'
+          defaultChecked={false}
+          fontWeight={'light'}>
+          <Text paddingLeft={2}
+            fontSize={'md'}
+            fontWeight={'light'}>{user.name}</Text>
+        </Checkbox>
+        <InputGroup size={'md'} w='50%'>
           <LeftIconWrapper>
             <MdEuroSymbol size={14} />
           </LeftIconWrapper>
-          <NumberInput size={'md'}>
-            <NumberInputField borderWidth={1} textIndent={'32px'}
+          <NumberInput defaultValue={0}>
+            <NumberInputField
               {...register(`${FormIds.amountDetails}.${user.id}.amount`, {
                 required: false,
                 valueAsNumber: true,
-                max: {
-                  value: getValues('amount'),
-                  message: 'Amount greater than maximum',
-                },
                 min: {
                   value: 0,
                   message: 'Amount less than minimum',
                 }
-              })} />
+              })}
+              borderWidth={1} fontWeight={'light'}
+              textIndent={'32px'} />
           </NumberInput>
         </InputGroup>
-      </FormItemWrapper>
-    </HStack>
+      </HStack >
+      <FormErrorMessage>
+        {extractNestedErrors(errors, user)}
+      </FormErrorMessage>
+    </FormControl>
   )
 }
 
-function FormItemAmount(
-  { errors, register }: FormItemProps
-) {
+function FormItemAmount() {
+  const { formState: { errors }, register } = useFormContext()
+
   return (
-    <FormItemWrapper {...{ errors, id: FormIds.amount, title: 'Amount' }}>
+    <FormControl id={FormIds.amount} isInvalid={Boolean(errors[FormIds.amount])} mb={3}>
+      <FormLabel htmlFor={FormIds.amount}>Amount</FormLabel>
       <InputGroup >
         <LeftIconWrapper>
           <MdEuroSymbol />
@@ -206,15 +219,16 @@ function FormItemAmount(
             })} />
         </NumberInput>
       </InputGroup>
-    </FormItemWrapper>
+      <FormErrorMessage>{errors[FormIds.amount]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
   )
 }
 
-function FormItemSubCategory(
-  { errors, register }: FormItemProps
-) {
+function FormItemSubCategory() {
+  const { formState: { errors }, register } = useFormContext()
   return (
-    <FormItemWrapper {...{ errors, id: FormIds.subcategory, title: 'SubCategory' }}>
+    <FormControl id={FormIds.subcategory} isInvalid={Boolean(errors[FormIds.subcategory])} mb={3}>
+      <FormLabel htmlFor={FormIds.subcategory}>Sub-category</FormLabel>
       <InputGroup>
         <LeftIconWrapper>
           <MdOutlineCategory />
@@ -233,13 +247,16 @@ function FormItemSubCategory(
           
         </Select>
       </InputGroup>
-    </FormItemWrapper >)
+      <FormErrorMessage>{errors[FormIds.subcategory]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
+  )
 }
-function FormItemCategory(
-  { errors, register }: FormItemProps
-) {
+
+function FormItemCategory() {
+  const { formState: { errors }, register } = useFormContext()
   return (
-    <FormItemWrapper {...{ errors, id: FormIds.category, title: 'Category' }}>
+    <FormControl id={FormIds.category} isInvalid={Boolean(errors[FormIds.category])} mb={3}>
+      <FormLabel htmlFor={FormIds.category}>Category</FormLabel>
       <InputGroup>
         <LeftIconWrapper>
           <MdCategory />
@@ -258,14 +275,16 @@ function FormItemCategory(
           
         </Select>
       </InputGroup>
-    </FormItemWrapper >)
+      <FormErrorMessage>{errors[FormIds.category]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
+  )
 }
 
-function FormItemDateTime(
-  { errors, register }: FormItemProps
-) {
+function FormItemDateTime() {
+  const { formState: { errors }, register } = useFormContext()
   return (
-    <FormItemWrapper {...{ errors, id: FormIds.datetime, title: 'Date' }}>
+    <FormControl id={FormIds.datetime} isInvalid={Boolean(errors[FormIds.datetime])} mb={3}>
+      <FormLabel htmlFor={FormIds.datetime}>Date and time</FormLabel>
       <InputGroup>
         <LeftIconWrapper>
           <MdCalendarMonth />
@@ -279,15 +298,16 @@ function FormItemDateTime(
           type='date'
           defaultValue={getCurrentDate()} />
       </InputGroup>
-    </FormItemWrapper >
+      <FormErrorMessage>{errors[FormIds.datetime]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
   )
 }
 
-function FormItemPaidBy(
-  { errors, register, users }: FormItemProps & { users: UserBasicData[] }
-) {
+function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
+  const { formState: { errors }, register } = useFormContext()
   return (
-    <FormItemWrapper {...{ errors, id: FormIds.paidBy, title: 'Paid by' }}>
+    <FormControl id={FormIds.paidBy} isInvalid={Boolean(errors[FormIds.paidBy])} mb={3}>
+      <FormLabel htmlFor={FormIds.paidBy}>Paid by</FormLabel>
       <InputGroup>
         <LeftIconWrapper>
           <MdCategory />
@@ -304,7 +324,8 @@ function FormItemPaidBy(
           ))}
         </Select>
       </InputGroup>
-    </FormItemWrapper >
+      <FormErrorMessage>{errors[FormIds.paidBy]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
   )
 }
 
