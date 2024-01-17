@@ -8,6 +8,9 @@ import {
 
 import { menuTheme } from "./themes/menu"
 import { modalTheme } from "./themes/modal"
+import { inputTheme } from "./themes/input"
+import { formLabelTheme } from "./themes/formLabel"
+import { buttonTheme } from "./themes/button"
 
 const fonts = {
 	...chakraTheme.fonts,
@@ -52,20 +55,14 @@ const customTheme = extendTheme({ config, fonts },
 			},
 		},
 		components: {
-			Input:{
+			Input: {
+				...inputTheme,
 				defaultProps: {
 					focusBorderColor: 'white',
+					color: 'white',
 				},
-				baseStyle: {
-					field: {
-            color: "gray.100",
-            _autofill: {
-              boxShadow: "0 0 0px 1000px #0a0a0a inset",
-              transition: "background-color 5000s ease-in-out 0s",
-            },
-					}
-				}
 			},
+			FormLabel: formLabelTheme,
 			NumberInput: {
 				defaultProps: {
 					focusBorderColor: 'white',
@@ -79,6 +76,7 @@ const customTheme = extendTheme({ config, fonts },
 			},
 			Menu: menuTheme,
 			Modal: modalTheme,
+			Button: buttonTheme,
 		}
 	})
 
