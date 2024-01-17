@@ -2,16 +2,7 @@
 import {
   Button,
   Heading,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
   Text,
-  Box,
-  Link,
   CardBody,
   Card,
   CardHeader,
@@ -24,14 +15,14 @@ import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
 import { deleteMembership } from "@/client/services/membershipService";
 import { CustomToast } from "@/components/toast";
-import { type UserMembershipByGroup } from "@/types/model/memberships";
+import { type UserBasicData } from "@/types/model/users";
 import { GroupData } from "@/types/model/groups";
 import { useSession } from "next-auth/react";
 
 type GroupDetailsProps = {
   group: GroupData,
-  users: UserMembershipByGroup[],
-  setUsers: React.Dispatch<React.SetStateAction<UserMembershipByGroup[]>>
+  users: UserBasicData[],
+  setUsers: React.Dispatch<React.SetStateAction<UserBasicData[]>>
 }
 
 export default function GroupMembers({ group, users, setUsers

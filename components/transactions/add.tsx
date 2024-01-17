@@ -38,96 +38,54 @@ export function Add(
     setError,
   } = methods
 
-  function onSubmit(values: FieldValues) {
+  function onSubmit(values: TFormIds) {
     console.log('Original: ', values)
     // Compute what each user owes
     // Case 1: Paid by everyone
     // Case 2: Paid by multiple users
-    // if (values[FormIds.everyone]) {
-    //   const userOwes = values[FormIds.amount] / groupDetail.users!.length
-    //   const userDetails = groupDetail.users!.map(user => {
-    //     return {
-    //       id: user.id,
-    //       owes: userOwes
-    //     }
-    //   })
-    //   console.log('Case 1: ', userDetails)
-    // }
-    // else {
-    //   let usersWithoutOwedAmount = 0;
-    //   let remainingAmount = values[FormIds.amount];
-    //   Object.entries(values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails]).map(
-    //     ([userId, details]) => {
-    //       {
-    //         if (details.checked) {
-    //           if (details.amount === 0 || isNaN(details.amount)) {
-    //             usersWithoutOwedAmount += 1
-    //           }
-    //           else if (details.amount !== 0) {
-    //             remainingAmount -= details.amount
-    //           }
-    //         }
-    //       }
-    //     }) 
-    //   if (usersWithoutOwedAmount > groupDetail.users!.length) {
-    //     setError(FormIds.amountDetails, {
-    //       type: 'custom',
-    //       message: 'Amount details are incorrect'
-    //     })
-    //     return
-    //   }
-    //   if (remainingAmount < 0) {
-    //     setError(FormIds.amountDetails, {
-    //       type: 'custom',
-    //       message: 'Amount details are incorrect'
-    //     })
-    //     return
-    //   }
-    //   let totalOwedAmount = 0;
-    //   const owedAmountPerRemainingUser = remainingAmount / usersWithoutOwedAmount;
-    //   const userDetails = Object.entries(values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails]).map(
-    //     ([userId, details]) => {
-    //       {
-    //         if (details.checked){
-    //           if (details.amount === 0 || isNaN(details.amount)) {
-    //             totalOwedAmount += owedAmountPerRemainingUser
-    //             return {
-    //               id: userId,
-    //               owes: owedAmountPerRemainingUser
-    //             }
-    //           }
-    //           else {
-    //             totalOwedAmount += details.amount
-    //             return {
-    //               id: userId,
-    //               owes: details.amount
-    //             }
-    //           }
-    //         }
-    //       }
-    //     })
-    //     if (totalOwedAmount !== values[FormIds.amount]) {
-    //       setError(FormIds.everyone, {
-    //         type: 'manual',
-    //         message: 'Exact user amounts must add up to total amount'
-    //       })
-    //       return
-    //     }
-    //   console.log('Case 2: ', {...userDetails})
-    // }
-
-    // const response = await handlerRegisterAuth({
-    //   name: values.name,
-    //   email: values.email,
-    //   password: values.password,
-    // })
-    // if (!response.success) {
-    //   addToast('Error in Registering', response.error, 'error');
-    // }
-    // else {
-    //   addToast('Signup successful!', null, 'success')
-    // }
-  };
+    const amountDetails = values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails];
+    if (amountDetails === undefined) {
+      const userOwes = values[FormIds.amount] / groupDetail.users!.length
+      const userDetails = groupDetail.users!.map(user => {
+        return {
+          id: user.id,
+          owes: userOwes
+        }
+      })
+      console.log('Case 1: ', { ...userDetails })
+    }
+    else {
+      const selectedUsers = Object.keys(amountDetails).filter((userId) => amountDetails[userId].checked) 
+      const usersWithoutInputAmount = Object.keys(amountDetails).filter((userId) => 
+        amountDetails[userId].checked && (amountDetails[userId].amount === 0 || isNaN(amountDetails[userId].amount)))
+      const remainingAmount = values[FormIds.amount] - Object.values(amountDetails).filter(
+        (details) => details.checked && details.amount !== 0).reduce(
+          (acc, details) => acc + details.amount, 0)
+      if (usersWithoutInputAmount.length === 0 && remainingAmount > 0) {
+        setError(FormIds.amountDetails, {
+          type: 'manual',
+          message: 'Exact user amounts must add up to total amount'
+        })
+        return
+      }
+      const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
+      const userDetails = selectedUsers.map((userId) => {
+        if (usersWithoutInputAmount.includes(userId)) {
+          return {
+            id: userId,
+            owes: owedAmountPerRemainingUser
+          }
+        }
+        else {
+          return {
+            id: userId,
+            owes: amountDetails[userId].amount
+          }
+        }
+      })
+      console.log('Case 2: ', { ...userDetails })
+    }
+  }
 
   return (
     <Modal

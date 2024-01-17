@@ -10,7 +10,7 @@ import {
   VStack,
 }
   from "@chakra-ui/react";
-import { type UserMembershipByGroup } from "@/types/model/memberships";
+import { type UserBasicData } from "@/types/model/users";
 import { FieldValues, useForm } from "react-hook-form";
 import { createMembership } from "@/client/services/membershipService";
 import { CustomToast } from '@/components/toast';
@@ -19,8 +19,8 @@ import { GroupData } from "@/types/model/groups";
 export default function GroupAddUser(
   { group, users, setUsers }: {
     group: GroupData,
-    users: UserMembershipByGroup[],
-    setUsers: React.Dispatch<React.SetStateAction<UserMembershipByGroup[]>>
+    users: UserBasicData[],
+    setUsers: React.Dispatch<React.SetStateAction<UserBasicData[]>>
   }
 ) {
   const { addToast } = CustomToast();

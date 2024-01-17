@@ -22,16 +22,18 @@ import {
 
 import { UserBasicData } from "@/types/model/users";
 import { TransactionCategory, TransactionSubCategory } from "@/types/constants";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, FieldErrors  } from "react-hook-form";
 
 
 type TFormIds = {
   name: string,
   amount: number,
-  amountDetails: Record<string, {
-    checked: string,
-    amount: number
-  } | {}>,
+  amountDetails?: {
+    [key: string]: {
+      checked: boolean,
+      amount: number
+    },
+  },
   category: string,
   subcategory: string,
   datetime: string,
@@ -99,29 +101,36 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
         <VStack marginY={2} alignItems={'center'}
           {...register(FormIds.amountDetails, {
             required: false,
-            setValueAs: (value: any) => {
-              everyone ? value = {} : value
-              return value
+            setValueAs(value) {
+              if (!everyone){
+                const amountDetails = value as TFormIds[FormIds.amountDetails]
+                if (amountDetails) {
+                  let newValue : TFormIds[FormIds.amountDetails] = {}
+                  for (const user of users) {
+                    if (amountDetails[user.id].checked) {
+                      newValue[user.id] = {
+                        checked: true,
+                        amount: amountDetails[user.id].amount
+                      }
+                    }
+                  }
+                  console.log('setValueAs: ', newValue)
+                  return newValue
+                }
+              }
+              return undefined
             },
-            validate: () => {
+            validate: (value) => {
               if (!everyone) {
-                let isUserSelected = false
-                // Check if at least one user is selected
-                for (const user of users) {
-                  if (getValues(`${FormIds.amountDetails}.${user.id}.checked`)) {
-                    isUserSelected = true;
-                    break;
-                  }
+                const amountDetails = value as TFormIds[FormIds.amountDetails]
+                if (amountDetails) {
+                  const anyUserSelected = Object.values(amountDetails).some((details) => details.checked)
+                  if (!anyUserSelected) return 'You must select at least one user'
+                  const sum = Object.values(amountDetails).filter(
+                    (details) => details.checked && details.amount !== 0).reduce(
+                      (acc, details) => acc + details.amount, 0)
+                  if (sum > getValues('amount')) return 'The sum of the amounts is greater than the total amount'
                 }
-                if (!isUserSelected) return 'You must select at least one user'
-                // Check if the sum of the amounts is equal to the total amount
-                let sum = 0
-                for (const user of users) {
-                  if (getValues(`${FormIds.amountDetails}.${user.id}.checked`)) {
-                    sum += getValues(`${FormIds.amountDetails}.${user.id}.amount`)
-                  }
-                }
-                if (sum > getValues('amount')) return 'The sum of the amounts is greater than the total amount'
               }
             }
           })}>
@@ -137,14 +146,17 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
 function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
   const { register, formState: { errors } } = useFormContext()
 
-  function extractNestedErrors(errors: any, user: UserBasicData) {
-    if (errors[FormIds.amountDetails]?.[user.id]?.amount) {
-      return errors[FormIds.amountDetails]?.[user.id]?.amount?.message?.toString()
+
+  function extractNestedErrors(errors: FieldErrors<TFormIds>, user: UserBasicData) {
+    const nestedErrors = errors[FormIds.amountDetails]?.[user.id]?.amount
+    if (nestedErrors) {
+      return nestedErrors?.message?.toString()
     }
     return ''
   }
 
-  function checkIsFormAmountInvalid(errors: any) {
+  function checkIsFormAmountInvalid(errors: FieldErrors<TFormIds>) {
+    
   if (errors[FormIds.amountDetails]?.[user.id]?.amount) {
       return true
     }
@@ -159,7 +171,7 @@ function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
         borderWidth={1}
         borderRadius={'sm'}>
         <Checkbox {...register(`${FormIds.amountDetails}.${user.id}.checked`, {
-          required: false
+          required: false,
         })}
           colorScheme={'gray'}
           size={'lg'}
@@ -178,7 +190,10 @@ function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
             <NumberInputField
               {...register(`${FormIds.amountDetails}.${user.id}.amount`, {
                 required: false,
-                valueAsNumber: true,
+                setValueAs: (value: any) => {
+                  if (isNaN(value) || value === '') return 0
+                  return parseFloat(value)
+                },
                 min: {
                   value: 0,
                   message: 'Amount less than minimum',
