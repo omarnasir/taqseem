@@ -12,7 +12,7 @@ import {
   PasswordFormItem
 } from '@/components/auth/form-items';
 
-import { useForm, FieldValues } from "react-hook-form"
+import { useForm, FieldValues, FormProvider } from "react-hook-form"
 import { handleSignInAuth } from '@/client/services/auth-service';
 import { CustomToast } from '@/components/toast';
 
@@ -20,12 +20,8 @@ import { CustomToast } from '@/components/toast';
 export default function Signin() {
   const { addToast } = CustomToast();
 
-  const {
-    handleSubmit,
-    register,
-    clearErrors,
-    formState: { errors, isSubmitting },
-  } = useForm()
+  const methods = useForm()
+  const { handleSubmit, formState, clearErrors } = methods
 
   async function onSubmit(values: FieldValues) {
     clearErrors()
@@ -42,16 +38,13 @@ export default function Signin() {
     <BoxWrapper as='form' onSubmit={handleSubmit(onSubmit)}>
       <Heading textAlign={'left'} fontSize={'xl'} mb={4} fontWeight={'light'}>Login</Heading>
       <Divider mb={4} />
-      <EmailFormItem {...{errors, register,}} />
-      <PasswordFormItem {...{errors, register,}} />
-      <Button mt={4}
-        bg={'gray.100'}
-        colorScheme='loginbtn'
-        textColor='green.900'
-        isLoading={isSubmitting}
-        type='submit'>
-        Login
-      </Button>
+      <FormProvider {...methods}>
+        <EmailFormItem />
+        <PasswordFormItem />
+        <Button mt={4} isLoading={formState.isSubmitting} type='submit'>
+          Login
+        </Button>
+      </FormProvider>
       <Flex direction={'row'} justifyContent={'center'} mt={4}>
         <Link href='/auth/register' ml={2} color={'gray.300'}>New User? Register here</Link>
       </Flex>

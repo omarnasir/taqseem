@@ -1,15 +1,21 @@
-import { Input } from "@chakra-ui/react";
+import { 
+  FormControl, 
+  FormErrorMessage, 
+  FormLabel, 
+  Input
+} from "@chakra-ui/react";
 
-import { FormItemWrapper } from "@/components/base-form-item";
-import { type FormItemProps } from "@/types/form-item";
+import { useFormContext } from "react-hook-form";
 
 
-function EmailFormItem({ errors, register }: FormItemProps) {
+function EmailFormItem() {
+  const { formState: { errors }, register } = useFormContext()
   const id = 'email'
 
   return (
-    <FormItemWrapper {...{ errors, id, title: 'Email', styleProps: {mb:3}}}>
-        <Input 
+    <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
+      <FormLabel htmlFor={id}>Email</FormLabel>
+      <Input
         {...register(id, {
           required: "Email is required",
           pattern: {
@@ -19,19 +25,21 @@ function EmailFormItem({ errors, register }: FormItemProps) {
         })}
         type="email"
         placeholder='Enter your email' />
-    </FormItemWrapper >
+
+      <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
   )
 }
 
-function PasswordFormItem(
-  { errors, register }: FormItemProps
-) {
+function PasswordFormItem() {
+  const { formState: { errors }, register } = useFormContext()
   const id = 'password'
 
   return (
-    <FormItemWrapper {...{ errors, id, title: 'Password', styleProps: {mb:3} }}>
-      <Input 
-      {...register(id, {
+    <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
+      <FormLabel htmlFor={id}>Password</FormLabel>
+      <Input
+        {...register(id, {
           required: "Password is required",
           minLength: {
             value: 4,
@@ -40,27 +48,29 @@ function PasswordFormItem(
         })}
         type="password"
         placeholder='Enter your password' />
-    </FormItemWrapper >
+      <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
   )
 }
 
-function NameFormItem(
-  { errors, register }: FormItemProps
-) {
+function NameFormItem() {
+  const { formState: { errors }, register } = useFormContext()
   const id = 'name'
 
   return (
-    <FormItemWrapper {...{ errors, id, title: 'Name', styleProps: {mb:3} }}>
+    <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
+      <FormLabel htmlFor={id}>Name</FormLabel>
       <Input
-      {...register(id, {
-        required: "Please enter your name.",
-        minLength: {
-          value: 2,
-          message: 'Minimum length should be 2',
-        },
-      })}
-      placeholder='Enter your name' />
-    </FormItemWrapper >
+        {...register(id, {
+          required: "Please enter your name.",
+          minLength: {
+            value: 2,
+            message: 'Minimum length should be 2',
+          },
+        })}
+        placeholder='Enter your name' />
+      <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
   )
 }
 
