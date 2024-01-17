@@ -16,7 +16,7 @@ function FormItemWrapper({ errors, id, title, children, styleProps }:
     styleProps?: any
   }) {
   return (
-    <FormControl isInvalid={!!errors?.[id!]} mb={3} {...styleProps}>
+    <FormControl isInvalid={errors?.[id!]} mb={3} {...styleProps}>
       {title && <FormLabel
         mb={'1'}
         fontSize={'sm'}

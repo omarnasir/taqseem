@@ -14,6 +14,8 @@ import { FieldValues, useForm } from "react-hook-form";
 
 import { GroupWithMembers } from "@/types/model/groups"
 import { 
+  type TFormIds,
+  FormIds,
   FormItemAmount, 
   FormItemAmountDetails, 
   FormItemCategory, 
@@ -33,12 +35,90 @@ export function Add(
     handleSubmit,
     register,
     reset,
+    setError,
+    clearErrors,
     getValues,
     formState: { errors, isSubmitting },
   } = useForm()
 
-  async function onSubmit(values: FieldValues) {
-    console.log(values)
+  function onSubmit(values: FieldValues) {
+    console.log('Original: ', values)
+    // Compute what each user owes
+    // Case 1: Paid by everyone
+    // Case 2: Paid by multiple users
+    if (values[FormIds.everyone]) {
+      const userOwes = values[FormIds.amount] / groupDetail.users!.length
+      const userDetails = groupDetail.users!.map(user => {
+        return {
+          id: user.id,
+          owes: userOwes
+        }
+      })
+      console.log('Case 1: ', userDetails)
+    }
+    else {
+      let usersWithoutOwedAmount = 0;
+      let remainingAmount = values[FormIds.amount];
+      Object.entries(values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails]).map(
+        ([userId, details]) => {
+          {
+            if (details.checked) {
+              if (details.amount === 0 || isNaN(details.amount)) {
+                usersWithoutOwedAmount += 1
+              }
+              else if (details.amount !== 0) {
+                remainingAmount -= details.amount
+              }
+            }
+          }
+        }) 
+      if (usersWithoutOwedAmount > groupDetail.users!.length) {
+        setError(FormIds.amountDetails, {
+          type: 'custom',
+          message: 'Amount details are incorrect'
+        })
+        return
+      }
+      if (remainingAmount < 0) {
+        setError(FormIds.amountDetails, {
+          type: 'custom',
+          message: 'Amount details are incorrect'
+        })
+        return
+      }
+      let totalOwedAmount = 0;
+      const owedAmountPerRemainingUser = remainingAmount / usersWithoutOwedAmount;
+      const userDetails = Object.entries(values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails]).map(
+        ([userId, details]) => {
+          {
+            if (details.checked){
+              if (details.amount === 0 || isNaN(details.amount)) {
+                totalOwedAmount += owedAmountPerRemainingUser
+                return {
+                  id: userId,
+                  owes: owedAmountPerRemainingUser
+                }
+              }
+              else {
+                totalOwedAmount += details.amount
+                return {
+                  id: userId,
+                  owes: details.amount
+                }
+              }
+            }
+          }
+        })
+        if (totalOwedAmount !== values[FormIds.amount]) {
+          setError(FormIds.everyone, {
+            type: 'manual',
+            message: 'Exact user amounts must add up to total amount'
+          })
+          return
+        }
+      console.log('Case 2: ', {...userDetails})
+    }
+
     // const response = await handlerRegisterAuth({
     //   name: values.name,
     //   email: values.email,
@@ -85,7 +165,7 @@ export function Add(
               category: null,
               amount: null,
               datetime: getCurrentDate(),
-              amountDetails: null
+              amountDetails: null,
             })}>
             Clear
           </Button>

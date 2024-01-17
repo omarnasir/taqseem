@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import {
   Input,
   Text,
@@ -11,7 +11,11 @@ import {
   HStack,
   Checkbox,
   Button,
-  Box,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
@@ -24,15 +28,31 @@ import { type FormItemProps } from "@/types/form-item";
 import { UserBasicData } from "@/types/model/users";
 import { TransactionCategory, TransactionSubCategory } from "@/types/constants";
 
-const FormIds : Record<string, string> = {
-  name: 'name',
-  amount: 'amount',
-  amountDetails: 'amountDetails',
-  category: 'category',
-  subcategory: 'subcategory',
-  datetime: 'datetime',
-  paidBy: 'paidBy',
-  everyone: 'everyone'
+type TFormIds = {
+  name: string,
+  amount: string,
+  amountDetails: {
+    [key: string]: {
+      checked: string,
+      amount: number
+    }
+  },
+  category: string,
+  subcategory: string,
+  datetime: string,
+  paidBy: string,
+  everyone: string
+}
+
+enum FormIds {
+  name = 'name',
+  amount = 'amount',
+  amountDetails = 'amountDetails',
+  category = 'category',
+  subcategory = 'subcategory',
+  datetime = 'datetime',
+  paidBy = 'paidBy',
+  everyone = 'everyone'
 }
 
 function LeftIconWrapper({ children }: { children: React.ReactNode }) {
@@ -72,60 +92,61 @@ function FormItemAmountDetails(
     FormItemProps & { users: UserBasicData[] }
 ) {
   const [everyone, setEveryone] = useState<boolean>(true)
+
   return (
-    <FormItemWrapper {...{ errors, id: FormIds.everyone, title: 'Split' }}>
-      <Button size={'sm'} variant={'solid'}
-        width={'6rem'}
-        colorScheme="loginbtn"
-        bg={everyone ? 'gray.100' : 'gray.800'}
-        color={everyone ? 'gray.800' : 'gray.600'}
-        onClick={() => setEveryone(!everyone)}
-        {...register('everyone', {
-          required: false,
-          value: everyone,
-          validate: () => {
-            if (!everyone) {
-              let isUserSelected = false
-              // Check if at least one user is selected
-              for (const user of users) {
-                if (getValues(`amountDetails.${user.id}.checked`)) {
-                  isUserSelected = true;
-                  break;
+      <FormItemWrapper {...{ errors, id: FormIds.everyone, title: 'Split' }}>
+        <Input size={'sm'} variant={'solid'} as={Button}
+          width={'6rem'}
+          colorScheme="loginbtn"
+          bg={everyone ? 'gray.100' : 'gray.800'}
+          color={everyone ? 'gray.800' : 'gray.600'}
+          onClick={() => setEveryone(!everyone)}
+          value={everyone.toString()}
+          {...register('everyone', {
+            required: false,
+            setValueAs: (value) => value === 'true' ? true : false,
+            validate: () => {
+              if (!everyone) {
+                let isUserSelected = false
+                // Check if at least one user is selected
+                for (const user of users) {
+                  if (getValues(`${FormIds.amountDetails}.${user.id}.checked`)) {
+                    isUserSelected = true;
+                    break;
+                  }
                 }
+                if (!isUserSelected) return 'You must select at least one user'
+                // Check if the sum of the amounts is equal to the total amount
+                let sum = 0
+                for (const user of users) {
+                  sum += getValues(`${FormIds.amountDetails}.${user.id}.amount`)
+                }
+                if (sum > getValues('amount')) return 'The sum of the amounts is greater than the total amount'
               }
-              if (!isUserSelected) return 'You must select at least one user'
-              // Check if the sum of the amounts is equal to the total amount
-              let sum = 0
-              for (const user of users) {
-                sum += getValues(`amountDetails.${user.id}.amount`)
-              }
-              if (sum > getValues('amount')) return 'The sum of the amounts is greater than the total amount'
+              return true
             }
-            return true
-          }
-        })}>Everyone</Button>
+          })}>Everyone</Input>
       {!everyone &&
         <VStack marginY={2} alignItems={'center'}>
           {users.map((user: UserBasicData) => (
-            <FormItemAmountDetailsUser key={user.id} {...{ register, user, getValues }} />
+            <FormItemAmountDetailsUser key={user.id} {...{ errors, register, user, getValues }} />
           ))}
         </VStack>}
-    </FormItemWrapper>
+      </FormItemWrapper>
   )
 }
 
 function FormItemAmountDetailsUser(
-  { register, user, getValues }: 
+  { errors, register, user, getValues }: 
   FormItemProps & { user: UserBasicData }
 ) {
-  const id = `${FormIds.amountDetails}.${user.id}.checked`
   return (
-    <HStack key={user.id} paddingLeft={2} w='100%'
+    <HStack paddingLeft={2} w='100%'
       borderColor={'gray.900'}
       borderWidth={1}
       borderRadius={'sm'}>
-      <Checkbox {...register(id, {
-        required: false,
+      <Checkbox {...register(`${FormIds.amountDetails}.${user.id}.checked`, {
+        required: false
       })}
         colorScheme={'gray'}
         size={'lg'}
@@ -136,24 +157,29 @@ function FormItemAmountDetailsUser(
           fontSize={'md'}
           fontWeight={'light'}>{user.name}</Text>
       </Checkbox>
-      <InputGroup size={'md'} w='50%'>
-        <LeftIconWrapper>
-          <MdEuroSymbol size={14} />
-        </LeftIconWrapper>
-        <NumberInput size={'md'}>
-          <NumberInputField borderWidth={1} textIndent={'32px'}
-            value={0}
-            {...register(`amountDetails.${user.id}.amount`, {
-              required: true,
-              valueAsNumber: true,
-              value: 0,
-              max: {
-                value: getValues('amount'),
-                message: 'Amount greater than maximum',
-              },
-            })} />
-        </NumberInput>
-      </InputGroup>
+      <FormItemWrapper {...{ errors, id: `${FormIds.amountDetails}`,
+    styleProps:{w:'50%', mb:0}}}>
+        <InputGroup size={'md'}>
+          <LeftIconWrapper>
+            <MdEuroSymbol size={14} />
+          </LeftIconWrapper>
+          <NumberInput size={'md'}>
+            <NumberInputField borderWidth={1} textIndent={'32px'}
+              {...register(`${FormIds.amountDetails}.${user.id}.amount`, {
+                required: false,
+                valueAsNumber: true,
+                max: {
+                  value: getValues('amount'),
+                  message: 'Amount greater than maximum',
+                },
+                min: {
+                  value: 0,
+                  message: 'Amount less than minimum',
+                }
+              })} />
+          </NumberInput>
+        </InputGroup>
+      </FormItemWrapper>
     </HStack>
   )
 }
@@ -172,7 +198,11 @@ function FormItemAmount(
             placeholder='Enter the amount'
             {...register(FormIds.amount, {
               required: 'No amount specified',
-              valueAsNumber: true
+              valueAsNumber: true,
+              min: {
+                value: 0,
+                message: 'Amount less than minimum',
+              }
             })} />
         </NumberInput>
       </InputGroup>
@@ -291,6 +321,8 @@ function getCurrentDate() {
 }
 
 export {
+  type TFormIds,
+  FormIds,
   FormItemName,
   FormItemAmount,
   FormItemAmountDetails,
