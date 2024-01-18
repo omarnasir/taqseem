@@ -4,7 +4,7 @@ import {
   CardHeader,
   Heading,
   Text,
-  Stack, StackDivider, Flex, Link, Button
+  Stack, StackDivider, Flex, Link, Button, VStack, HStack
 } from '@chakra-ui/react'
 
 import NextLink from 'next/link'
@@ -40,54 +40,42 @@ export default function GroupList(
   }
 
   return (
-    <Stack direction={'column'} spacing={4} w='inherit'>
-      <Card mb={6}
-        p={1}
-        size='sm'
-        variant={'outline'}
-        bg={'itemBgGray'}
-        borderRadius={8}>
-        <CardHeader>
-          <Heading
-            alignSelf={'flex-start'}
-            size='md'
-            mb={2}
-            fontWeight='400'>Your Groups</Heading>
-          <Text size='sm' fontWeight='300'>Create or manage groups.</Text>
-        </CardHeader>
-        <CardBody marginX={1}>
-          <Stack divider={<StackDivider />} spacing='3'>
-            {!!groups &&
-              groups.map((group) => (
-                <Flex flexDirection={'row'} key={group.id} alignItems={'center'}
-                  justifyContent={'space-between'}>
-                  <Flex flexDirection={'row'} alignItems={'center'}>
-                    <MdGroup />
-                    <Link as={NextLink}
-                      href={`/groups/${group.id}`}
-                      ml={3} lineHeight={2}>
-                      {group.name}
-                    </Link>
-                  </Flex>
-                  {group.createdById === sessionData!.user.id &&
-                    <Flex>
-                      <Button leftIcon={<MdManageAccounts />} size='sm' mr={1}
-                        variant={'outline'} colorScheme={'blue'}
-                        onClick={() => router.push(
-                          `/memberships?data=${JSON.stringify(group)}`,)}>
-                        Manage
-                      </Button>
-                      <Button leftIcon={<MdPersonRemove />} size='sm' ml={1}
-                        variant={'outline'} colorScheme={'red'}
-                        onClick={() => onRemoveGroup(group.id)}>
-                        Remove
-                      </Button>
-                    </Flex>}
-                </Flex>
-              ))}
-          </Stack>
-        </CardBody>
-      </Card>
-    </Stack>
+    <Stack direction={'column'} spacing={4}>
+      <Text fontSize='xl' fontWeight='bold'>Groups</Text>
+      <Text size='sm' fontWeight='300'>Create or manage groups.</Text>
+      {!!groups &&
+        groups.map((group) => (
+          <Card key={group.id}
+            size='sm'
+            variant={'outline'}
+            bg={'black'}
+            borderRadius={8}>
+            <CardBody >
+              <HStack justifyContent={'center'}>
+                <Heading as={NextLink}
+                ml={2}
+                  w='50%'
+                  href={`/groups/${group.id}`}
+                  fontSize={'lg'}
+                  fontWeight='400'>{group.name}</Heading>
+                {group.createdById === sessionData!.user.id &&
+                  <Flex w='50%'>
+                    <Button leftIcon={<MdManageAccounts />} size='sm' mr={1}
+                      variant={'outline'} colorScheme={'blue'}
+                      onClick={() => router.push(
+                        `/memberships?data=${JSON.stringify(group)}`,)}>
+                      Manage
+                    </Button>
+                    <Button leftIcon={<MdPersonRemove />} size='sm' ml={1}
+                      variant={'outline'} colorScheme={'red'}
+                      onClick={() => onRemoveGroup(group.id)}>
+                      Remove
+                    </Button>
+                  </Flex>}
+              </HStack>
+            </CardBody>
+          </Card>
+        ))}
+    </Stack >
   )
 }
