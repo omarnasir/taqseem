@@ -38,8 +38,8 @@ export function Add(
     setError,
   } = methods
 
-  function onSubmit(values: TFormIds) {
-    console.log('Original: ', values)
+  function onSubmit(values: FieldValues) {
+    console.log(values)
     // Compute what each user owes
     // Case 1: Paid by everyone
     // Case 2: Paid by multiple users
@@ -55,12 +55,11 @@ export function Add(
       console.log('Case 1: ', { ...userDetails })
     }
     else {
-      const selectedUsers = Object.keys(amountDetails).filter((userId) => amountDetails[userId].checked) 
+      const selectedUsers = Object.keys(amountDetails)
       const usersWithoutInputAmount = Object.keys(amountDetails).filter((userId) => 
-        amountDetails[userId].checked && (amountDetails[userId].amount === 0 || isNaN(amountDetails[userId].amount)))
+        amountDetails[userId] === 0 || isNaN(amountDetails[userId]))
       const remainingAmount = values[FormIds.amount] - Object.values(amountDetails).filter(
-        (details) => details.checked && details.amount !== 0).reduce(
-          (acc, details) => acc + details.amount, 0)
+        (amount) => amount !== 0).reduce((acc, amount) => acc + amount, 0)
       if (usersWithoutInputAmount.length === 0 && remainingAmount > 0) {
         setError(FormIds.amountDetails, {
           type: 'manual',
@@ -79,61 +78,61 @@ export function Add(
         else {
           return {
             id: userId,
-            owes: amountDetails[userId].amount
+            owes: amountDetails[userId]
           }
         }
       })
-      console.log('Case 2: ', { ...userDetails })
+      console.log({ ...userDetails })
     }
   }
 
   return (
-    <Modal
-      blockScrollOnMount={false}
-      isOpen={isOpen}
-      onClose={onClose}
-      size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
-      <ModalOverlay />
-      <ModalContent marginX={2} 
-        as='form' onSubmit={handleSubmit(onSubmit)}>
-        <ModalHeader
-          textAlign={'left'}
-          fontSize={'lg'}
-          fontWeight={'bold'}>New transaction</ModalHeader>
-        <Divider />
-        <ModalCloseButton />
-        <ModalBody>
-          <FormProvider {...methods}>
+    <FormProvider {...methods}>
+      <Modal
+        blockScrollOnMount={false}
+        isOpen={isOpen}
+        onClose={onClose}
+        size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
+        <ModalOverlay />
+        <ModalContent marginX={2}
+          as='form' onSubmit={handleSubmit(onSubmit)}>
+          <ModalHeader
+            textAlign={'left'}
+            fontSize={'lg'}
+            fontWeight={'bold'}>New transaction</ModalHeader>
+          <Divider />
+          <ModalCloseButton />
+          <ModalBody>
             <FormItemName />
             <FormItemCategory />
             <FormItemSubCategory />
             <FormItemDateTime />
             <FormItemPaidBy {...{ users: groupDetail.users! }} />
-            <FormItemAmount/>
+            <FormItemAmount />
             <FormItemAmountDetails {...{ users: groupDetail.users! }} />
-          </FormProvider>
-        </ModalBody>
-        <ModalFooter mt={-4}>
-          <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-          <Button size={'sm'} fontWeight={'400'}
-            textAlign={'center'} variant={'none'} textColor='gray.500' 
-            onClick={() => reset({
-              name: null,
-              category: null,
-              amount: null,
-              datetime: getCurrentDate(),
-              amountDetails: null,
-            })}>
-            Clear
-          </Button>
-          <Button size={'sm'} w={'7rem'} fontWeight={'600'}
-            bg={'gray.100'} colorScheme='loginbtn' textColor='black'
-            isLoading={methods.formState.isSubmitting} type='submit'>
-            Add
-          </Button>
-          </Flex>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          </ModalBody>
+          <ModalFooter mt={-4}>
+            <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
+              <Button size={'sm'} fontWeight={'400'}
+                textAlign={'center'} variant={'none'} textColor='gray.500'
+                onClick={() => reset({
+                  name: null,
+                  category: null,
+                  amount: null,
+                  datetime: getCurrentDate(),
+                  amountDetails: undefined,
+                })}>
+                Clear
+              </Button>
+              <Button size={'sm'} w={'7rem'} fontWeight={'600'}
+                bg={'gray.100'} colorScheme='loginbtn' textColor='black'
+                isLoading={methods.formState.isSubmitting} type='submit'>
+                Add
+              </Button>
+            </Flex>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </FormProvider>
   )
 }
