@@ -44,7 +44,8 @@ export function Add(
     // Case 1: Paid by everyone
     // Case 2: Paid by multiple users
     const amountDetails = values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails];
-    if (amountDetails === undefined) {
+    const everyone = values[FormIds.everyone] as boolean;
+    if (everyone) {
       const userOwes = values[FormIds.amount] / groupDetail.users!.length
       const userDetails = groupDetail.users!.map(user => {
         return {
@@ -55,13 +56,12 @@ export function Add(
       console.log('Case 1: ', { ...userDetails })
     }
     else {
-      const selectedUsers = Object.keys(amountDetails)
-      const usersWithoutInputAmount = Object.keys(amountDetails).filter((userId) => 
-        amountDetails[userId] === 0 || isNaN(amountDetails[userId]))
-      const remainingAmount = values[FormIds.amount] - Object.values(amountDetails).filter(
-        (amount) => amount !== 0).reduce((acc, amount) => acc + amount, 0)
+      const selectedUsers = Object.keys(amountDetails).filter((userId) => amountDetails[userId] !== undefined)
+      const usersWithoutInputAmount = Object.keys(amountDetails).filter((userId) => amountDetails[userId] === null)
+      const remainingAmount = values[FormIds.amount] - Object.values(amountDetails).reduce(
+        (acc : number, userAmount) => acc + (userAmount ? userAmount : 0), 0)
       if (usersWithoutInputAmount.length === 0 && remainingAmount > 0) {
-        setError(FormIds.amountDetails, {
+        setError(FormIds.everyone, {
           type: 'manual',
           message: 'Exact user amounts must add up to total amount'
         })

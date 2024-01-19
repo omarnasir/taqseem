@@ -15,24 +15,26 @@ import {
   FormLabel,
   FormErrorMessage,
   useDisclosure,
-  SlideFade,
   Collapse,
+  Box,
+  InputRightElement,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
-  MdCalendarMonth, MdOutlineCategory
+  MdCalendarMonth, MdOutlineCategory, MdOutlineCancel
 } from "react-icons/md"
 
 import { UserBasicData } from "@/types/model/users";
 import { TransactionCategory, TransactionSubCategory } from "@/types/constants";
-import { useFormContext, FieldErrors  } from "react-hook-form";
+import { useFormContext, FieldErrors, set  } from "react-hook-form";
 
 
 type TFormIds = {
   name: string,
   amount: number,
-  amountDetails?: {
-    [key: string]: number
+  everyone: boolean,
+  amountDetails: {
+    [key: string]: number | undefined | null
   },
   category: string,
   subcategory: string,
@@ -43,6 +45,7 @@ type TFormIds = {
 enum FormIds {
   name = 'name',
   amount = 'amount',
+  everyone = 'everyone',
   amountDetails = 'amountDetails',
   category = 'category',
   subcategory = 'subcategory',
@@ -85,38 +88,49 @@ function FormItemName() {
 }
 
 function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
-  const { formState: { errors }, register, getValues } = useFormContext()
+  const { formState: { errors },
+    register,
+    unregister,
+    getValues } = useFormContext()
   const [everyone, setEveryone] = useState<boolean>(true)
   const { isOpen, onToggle } = useDisclosure()
 
   return (
-    <>
+    <Box>
       <FormLabel>Split</FormLabel>
-      <Button size={'sm'} width={'6rem'}
+      <Checkbox size={'sm'} h='2rem' as={Button}
+        isChecked={everyone}
+        colorScheme={'white'}
         bg={everyone ? 'gray.100' : 'gray.800'}
-        color={everyone ? 'gray.800' : 'gray.600'}
-        onClick={() => {
-          setEveryone(!everyone);
-          onToggle();}}>Everyone</Button>
-      <FormControl id={FormIds.amountDetails}
-        isInvalid={Boolean(errors[FormIds.amountDetails])}>
-        <FormErrorMessage>{errors[FormIds.amountDetails]?.message?.toString()}</FormErrorMessage>
-        <VStack marginY={2} alignItems={'center'}
-          {...register(FormIds.amountDetails, {
-            required: false,
-            validate: (value) => {
-              if (!everyone) {
-                const amountDetails = value as TFormIds[FormIds.amountDetails]
-                if (amountDetails) {
-                  const anyUserSelected = Object.keys(amountDetails)
-                  if (!anyUserSelected) return 'You must select at least one user'
-                  const sum = Object.values(amountDetails).reduce((acc, amount) => acc + amount, 0)
-                  if (sum > getValues('amount')) return 'The sum of the amounts is greater than the total amount'
+        color={everyone ? 'black' : 'gray.600'}
+        {...register(FormIds.everyone, {
+          required: false,
+          onChange: (e) => {
+            setEveryone(e.target.checked);
+            onToggle();
+            if (e.target.checked) {
+              unregister(FormIds.amountDetails)
+            }
+          },
+          validate: (value) => {
+            if (!value) {
+              const amountDetails = getValues(FormIds.amountDetails) as TFormIds[FormIds.amountDetails]
+              if (amountDetails) {
+                const anyUserSelected = Object.keys(amountDetails).some(key => amountDetails[key] !== undefined)
+                if (!anyUserSelected) return 'You must select at least one user'
+                const sum = Object.values(amountDetails).reduce((acc : number, amount) => acc + (amount || 0), 0)
+                if (sum > getValues('amount')) {
+                  return 'The sum of the amounts is greater than the total amount'
                 }
               }
-              return true
             }
-          })}>
+            return true
+          }
+        })}>Everyone</Checkbox>
+      <FormControl id={FormIds.everyone}
+        isInvalid={Boolean(errors[FormIds.everyone])}>
+        <FormErrorMessage>{errors[FormIds.everyone]?.message?.toString()}</FormErrorMessage>
+        <VStack marginY={2} alignItems={'center'}>
           {!everyone &&
             <Collapse in={isOpen} animateOpacity>
               {users.map((user: UserBasicData) => (
@@ -124,36 +138,35 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
             </Collapse>}
         </VStack>
       </FormControl>
-    </>
+    </Box>
   )
 }
 
 function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
+  const id = `${FormIds.amountDetails}.${user.id}`
+  
+  const { register, formState: { errors }, unregister, setValue,
+} = useFormContext()
   const [selected, setSelected] = useState<boolean>(false)
-  const { register, formState: { errors }, unregister } = useFormContext()
+  const [placeholder, setPlaceholder] = useState<string>('auto')
 
   useEffect(() => {
-    setSelected(true)
-  }, [register])
+    if (!selected) {
+      unregister(id)
+    }
+  }, [selected, unregister, id])
 
   function extractNestedErrors(errors: FieldErrors<TFormIds>, user: UserBasicData) {
     const nestedErrors = errors[FormIds.amountDetails]?.[user.id]
-    if (nestedErrors) {
-      return nestedErrors?.message?.toString()
-    }
-    return ''
+    return nestedErrors ? nestedErrors?.message?.toString() : ''
   }
 
   function checkIsFormAmountInvalid(errors: FieldErrors<TFormIds>) {
-    
-  if (errors[FormIds.amountDetails]?.[user.id]) {
-      return true
-    }
-    return false
+   return errors[FormIds.amountDetails]?.[user.id] ? true : false
   }
 
   return (
-    <FormControl id={`${FormIds.amountDetails}.${user.id}`} mb={2}
+    <FormControl id={id} mb={2}
       isInvalid={Boolean(checkIsFormAmountInvalid(errors))}>
       <HStack paddingLeft={2} w='sm'>
         <Checkbox onChange={(e) => {
@@ -162,7 +175,7 @@ function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
             unregister(`${FormIds.amountDetails}.${user.id}`)
           }
         }}
-          defaultChecked={true}
+          isChecked={selected}
           colorScheme={'gray'}
           size={'lg'}
           w='50%'>
@@ -170,28 +183,39 @@ function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
             fontSize={'md'}
             fontWeight={'light'}>{user.name}</Text>
         </Checkbox>
-        {selected &&
-          <InputGroup w='50%'>
-            <LeftIconWrapper>
-              <MdEuroSymbol size={'1rem'} />
-            </LeftIconWrapper>
-            <NumberInput defaultValue={0} size={'md'}>
-              <NumberInputField
-                {...register(`${FormIds.amountDetails}.${user.id}`, {
-                  required: false,
-                  setValueAs: (value: any) => {
-                    if (isNaN(value) || value === '') return 0
-                    return parseFloat(value)
-                  },
-                  min: {
-                    value: 0,
-                    message: 'Amount less than minimum',
-                  }
-                })}
-                borderWidth={1} fontWeight={'light'}
-                textIndent={'32px'} />
-            </NumberInput>
-          </InputGroup>}
+        <InputGroup w='50%'>
+          <LeftIconWrapper>
+            <MdEuroSymbol size={'1rem'} />
+          </LeftIconWrapper>
+          <NumberInput size={'md'}>
+            <NumberInputField disabled={!selected}
+              placeholder={placeholder}
+              {...register(id, {
+                required: false,
+                onChange: (value) => {
+                  if (value === '') setPlaceholder('auto')
+                },
+                disabled: !selected,
+                setValueAs: (value: any) => {
+                  if (value === '') return null
+                  return parseFloat(value)
+                },
+                validate: (value) => {
+                  if (value <= 0 && value !== null) return 'Amount must be greater than 0'
+                }
+              })
+              }
+              borderWidth={1} fontWeight={'light'}
+              textIndent={'32px'} />
+            <InputRightElement color={'gray.500'}
+              onClick={() => {
+                setValue(id, '')
+                setPlaceholder('auto')
+              }}>
+              <MdOutlineCancel size={'1rem'} />
+            </InputRightElement>
+          </NumberInput>
+        </InputGroup>
       </HStack >
       <FormErrorMessage>
         {extractNestedErrors(errors, user)}
