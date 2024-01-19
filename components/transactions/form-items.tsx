@@ -23,10 +23,10 @@ import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
   MdCalendarMonth, MdOutlineCategory, MdOutlineCancel
 } from "react-icons/md"
+import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValues, Controller  } from "react-hook-form";
 
 import { UserBasicData } from "@/types/model/users";
-import { TransactionCategory, TransactionSubCategory } from "@/types/constants";
-import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValue, FieldValues  } from "react-hook-form";
+import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/types/constants";
 
 
 type TFormIds = {
@@ -38,8 +38,8 @@ type TFormIds = {
     id: string,
     amount: number,
   }[],
-  category: string,
-  subcategory: string,
+  category: number,
+  subcategory: number,
   datetime: string,
   paidBy: string,
 }
@@ -98,6 +98,7 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
   const methods = useFieldArray({
     control,
     name: FormIds.amountDetails,
+    shouldUnregister: true,
   })
   const { fields, append, remove } = methods
   const [everyone, setEveryone] = useState<boolean>(true)
@@ -106,7 +107,8 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
   return (
     <Box>
       <FormLabel>Split</FormLabel>
-      <Checkbox size={'sm'} h='2rem' as={Button}
+      <Checkbox size={'md'} h='2rem' as={Button}
+        variant={'transactionEveryone'}
         isChecked={everyone}
         colorScheme={'white'}
         bg={everyone ? 'gray.100' : 'gray.800'}
@@ -149,6 +151,7 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
             {fields.map((field, index) => (
               <FormItemAmountDetailsUser
                 key={field.id}
+                registerId={`${FormIds.amountDetails}.${index}.amount`}
                 user={users[index]}
                 methods={methods}
                 index={index} />
@@ -160,13 +163,11 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
   )
 }
 
-function FormItemAmountDetailsUser({ index, user, methods }:
-  { user: UserBasicData, index: number, methods: UseFieldArrayReturn<FieldValues, FormIds.amountDetails> }) 
+function FormItemAmountDetailsUser({ index, registerId, user, methods }:
+  { user: UserBasicData, index: number, registerId: string, methods: UseFieldArrayReturn<FieldValues, FormIds.amountDetails> }) 
 {
   const { register, formState: { errors }, unregister } = useFormContext()
   const [selected, setSelected] = useState<boolean>(false)
-
-  const registerId = `${FormIds.amountDetails}.${index}.amount`
 
   function extractNestedErrors(errors: FieldErrors<TFormIds>) {
     const nestedErrors = errors[FormIds.amountDetails]?.[index]?.amount
@@ -223,7 +224,7 @@ function FormItemAmountDetailsUser({ index, user, methods }:
 }
 
 function FormItemAmount() {
-  const { formState: { errors }, register } = useFormContext()
+  const { formState: { errors }, register, control } = useFormContext()
 
   return (
     <FormControl id={FormIds.amount} isInvalid={Boolean(errors[FormIds.amount])} mb={3}>
@@ -232,18 +233,24 @@ function FormItemAmount() {
         <LeftIconWrapper>
           <MdEuroSymbol />
         </LeftIconWrapper>
-        <NumberInput w='100%'>
-          <NumberInputField textIndent={'32px'}
-            placeholder='Enter the amount'
-            {...register(FormIds.amount, {
-              required: 'No amount specified',
-              valueAsNumber: true,
-              min: {
-                value: 0,
-                message: 'Amount less than minimum',
-              }
-            })} />
-        </NumberInput>
+        <Controller
+          name={FormIds.amount}
+          control={control}
+          rules={{
+            required: 'No amount specified',
+            validate: (value) => {
+              if (value <= 0 && value !== '') return 'Amount must be greater than 0'
+            }
+          }}
+          render={({ field: { ref, ...field } }) => (
+            <NumberInput w='100%' {...field}>
+              <NumberInputField textIndent={'32px'}
+                ref={ref}
+                name={field.name}
+                placeholder='Enter the amount' />
+            </NumberInput>
+          )}
+        />
       </InputGroup>
       <FormErrorMessage>{errors[FormIds.amount]?.message?.toString()}</FormErrorMessage>
     </FormControl>
@@ -265,9 +272,9 @@ function FormItemSubCategory() {
         })}
           title="Select a category"
           sx={{ paddingLeft: '3rem' }}>
-            {Object.entries(TransactionSubCategory).map(([key, value]) => (
-              <option key={key} value={value.id}>
-                {value.name}
+            {Object.entries(TransactionSubCategoryEnum).map(([key, value], index) => (
+              <option key={key} value={index}>
+                {value}
               </option>
             ))}
           
@@ -293,9 +300,9 @@ function FormItemCategory() {
         })}
           title="Select a sub-category"
           sx={{ paddingLeft: '3rem' }}>
-            {Object.entries(TransactionCategory).map(([key, value]) => (
-              <option key={key} value={value.id}>
-                {value.name}
+            {Object.entries(TransactionCategoryEnum).map(([key, value], index) => (
+              <option key={key} value={index}>
+                {value}
               </option>
             ))}
           

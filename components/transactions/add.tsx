@@ -32,7 +32,17 @@ export function Add(
   { isOpen: boolean, onClose: () => void, groupDetail: GroupWithMembers }
 ) {
 
-  const methods = useForm<TFormIds>()
+  const methods = useForm<TFormIds>({
+    defaultValues: {
+      name: '',
+      category: 0,
+      subcategory: 0,
+      amount: 0,
+      datetime: getCurrentDate(),
+      amountDetails: [],
+      everyone: true,
+    }
+  })
   const {
     handleSubmit,
     reset,
@@ -62,6 +72,8 @@ export function Add(
       })
       console.log({ ...userDetails })
     }
+    console.log(values)
+    // submit here
     return
   }
 
@@ -94,14 +106,7 @@ export function Add(
             <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
               <Button size={'sm'} fontWeight={'400'}
                 textAlign={'center'} variant={'none'} textColor='gray.500'
-                onClick={() => reset({
-                  name: '',
-                  category: '',
-                  amount: 0,
-                  datetime: getCurrentDate(),
-                  amountDetails: undefined,
-                  everyone: false,
-                })}>
+                onClick={() => reset()}>
                 Clear
               </Button>
               <Button size={'sm'} w={'7rem'} fontWeight={'600'}
