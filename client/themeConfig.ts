@@ -11,6 +11,7 @@ import { modalTheme } from "./themes/modal"
 import { inputTheme } from "./themes/input"
 import { formLabelTheme } from "./themes/formLabel"
 import { buttonTheme } from "./themes/button"
+import { checkboxTheme } from "./themes/checkbox"
 
 const fonts = {
 	...chakraTheme.fonts,
@@ -77,6 +78,7 @@ const customTheme = extendTheme({ config, fonts },
 			Menu: menuTheme,
 			Modal: modalTheme,
 			Button: buttonTheme,
+			Checkbox: checkboxTheme,
 		}
 	})
 
