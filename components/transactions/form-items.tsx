@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Input,
   Text,
@@ -26,16 +26,18 @@ import {
 
 import { UserBasicData } from "@/types/model/users";
 import { TransactionCategory, TransactionSubCategory } from "@/types/constants";
-import { useFormContext, FieldErrors, set  } from "react-hook-form";
+import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValue, FieldValues  } from "react-hook-form";
 
 
 type TFormIds = {
   name: string,
   amount: number,
   everyone: boolean,
-  amountDetails: {
-    [key: string]: number | undefined | null
-  },
+  amountDetails:
+  {
+    id: string,
+    amount: number,
+  }[],
   category: string,
   subcategory: string,
   datetime: string,
@@ -90,8 +92,14 @@ function FormItemName() {
 function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
   const { formState: { errors },
     register,
-    unregister,
+    control,
+    clearErrors,
     getValues } = useFormContext()
+  const methods = useFieldArray({
+    control,
+    name: FormIds.amountDetails,
+  })
+  const { fields, append, remove } = methods
   const [everyone, setEveryone] = useState<boolean>(true)
   const { isOpen, onToggle } = useDisclosure()
 
@@ -108,19 +116,25 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
           onChange: (e) => {
             setEveryone(e.target.checked);
             onToggle();
-            if (e.target.checked) {
-              unregister(FormIds.amountDetails)
-            }
+            clearErrors(FormIds.everyone);
+            if (e.target.checked) remove()
+            else append(users.map(user => ({ id: user.id, amount: null })))
           },
           validate: (value) => {
             if (!value) {
               const amountDetails = getValues(FormIds.amountDetails) as TFormIds[FormIds.amountDetails]
               if (amountDetails) {
-                const anyUserSelected = Object.keys(amountDetails).some(key => amountDetails[key] !== undefined)
-                if (!anyUserSelected) return 'You must select at least one user'
-                const sum = Object.values(amountDetails).reduce((acc : number, amount) => acc + (amount || 0), 0)
-                if (sum > getValues('amount')) {
+                const { selectedUsers, usersWithoutInputAmount, sum } = processAmountDetails(amountDetails)
+                if (selectedUsers.length === 0) return 'You must select at least one user'
+
+                if (sum > getValues(FormIds.amount)) {
                   return 'The sum of the amounts is greater than the total amount'
+                }
+                if (sum === getValues(FormIds.amount) && usersWithoutInputAmount.length > 0) {
+                  return 'Some users are not participating in the transaction'
+                }
+                if (sum < getValues(FormIds.amount) && usersWithoutInputAmount.length === 0) {
+                  return 'Exact user amounts must add up to total amount'
                 }
               }
             }
@@ -131,51 +145,46 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
         isInvalid={Boolean(errors[FormIds.everyone])}>
         <FormErrorMessage>{errors[FormIds.everyone]?.message?.toString()}</FormErrorMessage>
         <VStack marginY={2} alignItems={'center'}>
-          {!everyone &&
-            <Collapse in={isOpen} animateOpacity>
-              {users.map((user: UserBasicData) => (
-                <FormItemAmountDetailsUser key={user.id} user={user} />))}
-            </Collapse>}
+          <Collapse in={isOpen} animateOpacity>
+            {fields.map((field, index) => (
+              <FormItemAmountDetailsUser
+                key={field.id}
+                user={users[index]}
+                methods={methods}
+                index={index} />
+            ))}
+          </Collapse>
         </VStack>
       </FormControl>
     </Box>
   )
 }
 
-function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
-  const id = `${FormIds.amountDetails}.${user.id}`
-  
-  const { register, formState: { errors }, unregister, setValue,
-} = useFormContext()
+function FormItemAmountDetailsUser({ index, user, methods }:
+  { user: UserBasicData, index: number, methods: UseFieldArrayReturn<FieldValues, FormIds.amountDetails> }) 
+{
+  const { register, formState: { errors }, unregister } = useFormContext()
   const [selected, setSelected] = useState<boolean>(false)
-  const [placeholder, setPlaceholder] = useState<string>('auto')
 
-  useEffect(() => {
-    if (!selected) {
-      unregister(id)
-    }
-  }, [selected, unregister, id])
+  const registerId = `${FormIds.amountDetails}.${index}.amount`
 
-  function extractNestedErrors(errors: FieldErrors<TFormIds>, user: UserBasicData) {
-    const nestedErrors = errors[FormIds.amountDetails]?.[user.id]
+  function extractNestedErrors(errors: FieldErrors<TFormIds>) {
+    const nestedErrors = errors[FormIds.amountDetails]?.[index]?.amount
     return nestedErrors ? nestedErrors?.message?.toString() : ''
   }
 
   function checkIsFormAmountInvalid(errors: FieldErrors<TFormIds>) {
-   return errors[FormIds.amountDetails]?.[user.id] ? true : false
+    return errors[FormIds.amountDetails]?.[index]?.amount ? true : false
   }
 
   return (
-    <FormControl id={id} mb={2}
+    <FormControl id={registerId} mb={2}
       isInvalid={Boolean(checkIsFormAmountInvalid(errors))}>
       <HStack paddingLeft={2} w='sm'>
         <Checkbox onChange={(e) => {
           setSelected(e.target.checked);
-          if (!e.target.checked) {
-            unregister(`${FormIds.amountDetails}.${user.id}`)
-          }
+          if (!e.target.checked) unregister(registerId)
         }}
-          isChecked={selected}
           colorScheme={'gray'}
           size={'lg'}
           w='50%'>
@@ -188,37 +197,26 @@ function FormItemAmountDetailsUser({ user }: { user: UserBasicData }) {
             <MdEuroSymbol size={'1rem'} />
           </LeftIconWrapper>
           <NumberInput size={'md'}>
-            <NumberInputField disabled={!selected}
-              placeholder={placeholder}
-              {...register(id, {
+            <NumberInputField disabled={!selected} placeholder={'auto'}
+              {...register(registerId, {
                 required: false,
-                onChange: (value) => {
-                  if (value === '') setPlaceholder('auto')
-                },
                 disabled: !selected,
-                setValueAs: (value: any) => {
-                  if (value === '') return null
-                  return parseFloat(value)
-                },
+                valueAsNumber: true,
                 validate: (value) => {
-                  if (value <= 0 && value !== null) return 'Amount must be greater than 0'
+                  if (value <= 0 && value !== '') return 'Amount must be greater than 0'
                 }
-              })
-              }
+              })}
               borderWidth={1} fontWeight={'light'}
               textIndent={'32px'} />
             <InputRightElement color={'gray.500'}
-              onClick={() => {
-                setValue(id, '')
-                setPlaceholder('auto')
-              }}>
+              onClick={() => methods.update(index, { id: user.id, amount: null })}>
               <MdOutlineCancel size={'1rem'} />
             </InputRightElement>
           </NumberInput>
         </InputGroup>
       </HStack >
       <FormErrorMessage>
-        {extractNestedErrors(errors, user)}
+        {extractNestedErrors(errors)}
       </FormErrorMessage>
     </FormControl>
   )
@@ -357,6 +355,23 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
   )
 }
 
+function processAmountDetails(amountDetails: TFormIds[FormIds.amountDetails])
+  : {
+    selectedUsers: TFormIds[FormIds.amountDetails],
+    usersWithoutInputAmount: TFormIds[FormIds.amountDetails],
+    sum: number
+  } {
+  const selectedUsers = amountDetails.filter((amountDetail) => amountDetail.amount !== undefined)
+  const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => isNaN(selectedUser.amount))
+  const sum = amountDetails.reduce((acc: number, item) => acc + (item.amount || 0), 0)
+
+  return {
+    selectedUsers,
+    usersWithoutInputAmount,
+    sum
+  }
+}
+
 function getCurrentDate() {
   const currentDate = new Date()
   const formatter = new Intl.DateTimeFormat('en-ca', {
@@ -379,5 +394,6 @@ export {
   FormItemSubCategory,
   FormItemDateTime,
   FormItemPaidBy,
+  processAmountDetails,
   getCurrentDate
 }
