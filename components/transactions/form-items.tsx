@@ -110,8 +110,8 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
       <Checkbox size={'md'} h='2rem' as={Button}
         variant={'transactionEveryone'}
         isChecked={everyone}
-        colorScheme={'white'}
-        bg={everyone ? 'gray.100' : 'gray.800'}
+        colorScheme={'loginbtn'}
+        bg={everyone ? 'white' : 'gray.800'}
         color={everyone ? 'black' : 'gray.600'}
         {...register(FormIds.everyone, {
           required: false,
@@ -147,8 +147,8 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
       <FormControl id={FormIds.everyone}
         isInvalid={Boolean(errors[FormIds.everyone])}>
         <FormErrorMessage>{errors[FormIds.everyone]?.message?.toString()}</FormErrorMessage>
-        <VStack marginY={2} alignItems={'center'}>
-          <Collapse in={isOpen} animateOpacity>
+        <Collapse in={isOpen} animateOpacity>
+          <VStack alignItems={'center'} marginX={1}>
             {fields.map((field, index) => (
               <FormItemAmountDetailsUser
                 key={field.id}
@@ -157,8 +157,8 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
                 methods={methods}
                 index={index} />
             ))}
-          </Collapse>
-        </VStack>
+          </VStack>
+        </Collapse>
       </FormControl>
     </Box>
   )
@@ -180,9 +180,9 @@ function FormItemAmountDetailsUser({ index, registerId, user, methods }:
   }
 
   return (
-    <FormControl id={registerId} mb={2}
+    <FormControl id={registerId}
       isInvalid={Boolean(checkIsFormAmountInvalid(errors))}>
-      <HStack paddingLeft={2} w='sm'>
+      <HStack>
         <Checkbox onChange={(e) => {
           setSelected(e.target.checked);
           if (!e.target.checked) unregister(registerId)
@@ -211,6 +211,19 @@ function FormItemAmountDetailsUser({ index, registerId, user, methods }:
             render={({ field: {ref, name, value, ...restField} }) => (
               <NumberInput size={'md'} {...restField}
               value={value || ''}
+              isValidCharacter={(char) => {
+                return (char >= '0' && char <= '9') || char === '.' || char === ','
+              }}
+              pattern={'[0-9]+([,.][0-9]+)?'}
+              parse={(value) => {
+                return value.replace(',', '.')
+              }}
+              format={(value) => {
+                if (typeof value === 'string') {
+                  return value.replace('.', ',')
+                }
+                return value
+              }}
               >
                 <NumberInputField
                   ref={ref}
@@ -256,7 +269,21 @@ function FormItemAmount() {
             }
           }}
           render={({ field : {ref, name, ...restField}}) => (
-            <NumberInput w='100%' {...restField}>
+            <NumberInput w='100%' {...restField} 
+            isValidCharacter={(char) => {
+              return (char >= '0' && char <= '9') || char === '.' || char === ','
+            }}
+            pattern={'[0-9]+([,.][0-9]+)?'}
+            parse={(value) => {
+              return value.replace(',', '.')
+            }}
+            format={(value) => {
+              if (typeof value === 'string') {
+                return value.replace('.', ',')
+              }
+              return value
+            }}
+            >
               <NumberInputField
                 ref={ref}
                 name={name}
@@ -339,6 +366,7 @@ function FormItemDateTime() {
         <Input {...register(FormIds.datetime, {
           required: true,
         })}
+          textAlign={'left'}
           placeholder='Select a date and time'
           fontWeight={'light'}
           textIndent={'15px'}
