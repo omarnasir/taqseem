@@ -37,7 +37,7 @@ export function Add(
       name: '',
       category: 0,
       subcategory: 0,
-      amount: 0,
+      amount: '0',
       datetime: getCurrentDate(),
       amountDetails: [],
       everyone: true,
@@ -50,11 +50,12 @@ export function Add(
 
   function onSubmit(values: TFormIds) {
     const everyone = values[FormIds.everyone] as boolean;
+    const totalAmount = parseFloat(values[FormIds.amount]);
     if (everyone) {
       const userDetails = groupDetail.users!.map(user => {
         return {
           id: user.id,
-          amount: values[FormIds.amount] / groupDetail.users!.length
+          amount: totalAmount / groupDetail.users!.length
         }
       })
       console.log('Case 1: ', { ...userDetails })
@@ -62,15 +63,15 @@ export function Add(
     else {
       const amountDetails = values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails];
       const { selectedUsers, usersWithoutInputAmount, sum } = processAmountDetails(amountDetails)
-      const remainingAmount = values[FormIds.amount] - sum;
+      const remainingAmount = totalAmount - sum;
       const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
       const userDetails = selectedUsers.map((selectedUser) => {
         return {
           id: selectedUser.id,
-          amount: isNaN(selectedUser.amount) ? owedAmountPerRemainingUser : selectedUser.amount
+          amount: (selectedUser.amount === null) ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
         }
       })
-      console.log({ ...userDetails })
+      console.log('Case 2: ', { ...userDetails })
     }
     console.log(values)
     // submit here

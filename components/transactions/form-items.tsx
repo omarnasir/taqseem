@@ -31,12 +31,12 @@ import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/types/con
 
 type TFormIds = {
   name: string,
-  amount: number,
+  amount: string,
   everyone: boolean,
   amountDetails:
   {
     id: string,
-    amount: number,
+    amount: string,
   }[],
   category: number,
   subcategory: number,
@@ -128,14 +128,15 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
               if (amountDetails) {
                 const { selectedUsers, usersWithoutInputAmount, sum } = processAmountDetails(amountDetails)
                 if (selectedUsers.length === 0) return 'You must select at least one user'
+                const totalAmount = parseFloat(getValues(FormIds.amount))
 
-                if (sum > getValues(FormIds.amount)) {
+                if (sum > totalAmount) {
                   return 'The sum of the amounts is greater than the total amount'
                 }
-                if (sum === getValues(FormIds.amount) && usersWithoutInputAmount.length > 0) {
+                if (sum === totalAmount && usersWithoutInputAmount.length > 0) {
                   return 'Some users are not participating in the transaction'
                 }
-                if (sum < getValues(FormIds.amount) && usersWithoutInputAmount.length === 0) {
+                if (sum < totalAmount && usersWithoutInputAmount.length === 0) {
                   return 'Exact user amounts must add up to total amount'
                 }
               }
@@ -166,7 +167,7 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
 function FormItemAmountDetailsUser({ index, registerId, user, methods }:
   { user: UserBasicData, index: number, registerId: string, methods: UseFieldArrayReturn<FieldValues, FormIds.amountDetails> }) 
 {
-  const { register, formState: { errors }, unregister } = useFormContext()
+  const { resetField, formState: { errors }, unregister, control } = useFormContext()
   const [selected, setSelected] = useState<boolean>(false)
 
   function extractNestedErrors(errors: FieldErrors<TFormIds>) {
@@ -197,23 +198,35 @@ function FormItemAmountDetailsUser({ index, registerId, user, methods }:
           <LeftIconWrapper>
             <MdEuroSymbol size={'1rem'} />
           </LeftIconWrapper>
-          <NumberInput size={'md'}>
-            <NumberInputField disabled={!selected} placeholder={'auto'}
-              {...register(registerId, {
-                required: false,
-                disabled: !selected,
-                valueAsNumber: true,
-                validate: (value) => {
-                  if (value <= 0 && value !== '') return 'Amount must be greater than 0'
-                }
-              })}
-              borderWidth={1} fontWeight={'light'}
-              textIndent={'32px'} />
-            <InputRightElement color={'gray.500'}
-              onClick={() => methods.update(index, { id: user.id, amount: null })}>
-              <MdOutlineCancel size={'1rem'} />
-            </InputRightElement>
-          </NumberInput>
+          <Controller
+            name={registerId}
+            control={control}
+            disabled={!selected}
+            rules={{
+              required: false,
+              validate: (value) => {
+                if (value <= 0 && (value !== '' && value !== null)) return 'Amount must be greater than 0'
+              }
+            }}
+            render={({ field: {ref, name, value, ...restField} }) => (
+              <NumberInput size={'md'} {...restField}
+              value={value || ''}
+              >
+                <NumberInputField
+                  ref={ref}
+                  name={name}
+                  disabled={restField.disabled}
+                  placeholder={'auto'}
+                  borderWidth={1} fontWeight={'light'}
+                  textIndent={'32px'} />
+                <InputRightElement color={'gray.500'}
+                  onClick={() => resetField(registerId,
+                    {
+                      defaultValue: null,
+                    })}>
+                  <MdOutlineCancel size={'1rem'} />
+                </InputRightElement>
+              </NumberInput>)} />
         </InputGroup>
       </HStack >
       <FormErrorMessage>
@@ -224,7 +237,7 @@ function FormItemAmountDetailsUser({ index, registerId, user, methods }:
 }
 
 function FormItemAmount() {
-  const { formState: { errors }, register, control } = useFormContext()
+  const { formState: { errors }, control } = useFormContext()
 
   return (
     <FormControl id={FormIds.amount} isInvalid={Boolean(errors[FormIds.amount])} mb={3}>
@@ -239,15 +252,16 @@ function FormItemAmount() {
           rules={{
             required: 'No amount specified',
             validate: (value) => {
-              if (value <= 0 && value !== '') return 'Amount must be greater than 0'
+              if (value <= 0) return 'Amount must be greater than 0'
             }
           }}
-          render={({ field: { ref, ...field } }) => (
-            <NumberInput w='100%' {...field}>
-              <NumberInputField textIndent={'32px'}
+          render={({ field : {ref, name, ...restField}}) => (
+            <NumberInput w='100%' {...restField}>
+              <NumberInputField
                 ref={ref}
-                name={field.name}
-                placeholder='Enter the amount' />
+                name={name}
+                fontWeight={'light'}
+                textIndent={'32px'} />
             </NumberInput>
           )}
         />
@@ -369,8 +383,8 @@ function processAmountDetails(amountDetails: TFormIds[FormIds.amountDetails])
     sum: number
   } {
   const selectedUsers = amountDetails.filter((amountDetail) => amountDetail.amount !== undefined)
-  const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => isNaN(selectedUser.amount))
-  const sum = amountDetails.reduce((acc: number, item) => acc + (item.amount || 0), 0)
+  const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => (selectedUser.amount === null))
+  const sum = amountDetails.reduce((acc: number, item) => acc + (parseFloat(item.amount) || 0), 0)
 
   return {
     selectedUsers,
