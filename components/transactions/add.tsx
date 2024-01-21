@@ -9,6 +9,10 @@ import {
   ModalFooter,
   Divider,
   Flex,
+  HStack,
+  useDisclosure,
+  Text,
+  VStack
 } from "@chakra-ui/react"
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -28,9 +32,9 @@ import {
 } from "@/components/transactions/form-items";
 
 export function Add(
-  { isOpen, onClose, groupDetail }:
-  { isOpen: boolean, onClose: () => void, groupDetail: GroupWithMembers }
+  { groupDetail }: { groupDetail: GroupWithMembers }
 ) {
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const methods = useForm<TFormIds>({
     defaultValues: {
@@ -79,46 +83,56 @@ export function Add(
   }
 
   return (
-    <FormProvider {...methods}>
-      <Modal
-        blockScrollOnMount={false}
-        isOpen={isOpen}
-        onClose={onClose}
-        size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
-        <ModalOverlay />
-        <ModalContent marginX={2}
-          as='form' onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader
-            textAlign={'left'}
-            fontSize={'lg'}
-            fontWeight={'bold'}>New transaction</ModalHeader>
-          <Divider />
-          <ModalCloseButton />
-          <ModalBody>
-            <FormItemName />
-            <FormItemCategory />
-            <FormItemSubCategory />
-            <FormItemDateTime />
-            <FormItemPaidBy {...{ users: groupDetail.users! }} />
-            <FormItemAmount />
-            <FormItemAmountDetails {...{ users: groupDetail.users! }} />
-          </ModalBody>
-          <ModalFooter mt={-4}>
-            <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-              <Button size={'sm'} fontWeight={'400'}
-                textAlign={'center'} variant={'none'} textColor='gray.500'
-                onClick={() => reset()}>
-                Clear
-              </Button>
-              <Button size={'sm'} w={'7rem'} fontWeight={'600'}
-                bg={'gray.100'} colorScheme='loginbtn' textColor='black'
-                isLoading={methods.formState.isSubmitting} type='submit'>
-                Add
-              </Button>
-            </Flex>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </FormProvider>
+    <VStack w='100%'>
+      <HStack w='100%' justifyContent={'space-between'}>
+        <Text fontSize='xl' fontWeight='bold'>{groupDetail.name}</Text>
+        <Button size={'md'} borderRadius={'full'}
+        onClick={onOpen}><Text fontSize={'xl'}>+</Text></Button>
+      </HStack>
+      <Divider marginY={2}/>
+      <FormProvider {...methods}>
+        <Modal
+          blockScrollOnMount={false}
+          isOpen={isOpen}
+          onClose={onClose}
+          size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
+          <ModalOverlay />
+          <ModalContent marginX={2}
+            as='form' onSubmit={handleSubmit(onSubmit)}>
+            <ModalHeader
+              textAlign={'left'}
+              fontSize={'lg'}
+              fontWeight={'bold'}>New transaction</ModalHeader>
+            <Divider />
+            <ModalCloseButton />
+            <ModalBody>
+              <FormItemName />
+              <FormItemDateTime />
+              <HStack>
+                <FormItemCategory />
+                <FormItemSubCategory />
+              </HStack>
+              <FormItemPaidBy {...{ users: groupDetail.users! }} />
+              <FormItemAmount />
+              <FormItemAmountDetails {...{ users: groupDetail.users! }} />
+            </ModalBody>
+            <ModalFooter>
+              <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
+                <Button size={'sm'} fontWeight={'400'}
+                  textAlign={'center'} variant={'none'} textColor='gray.500'
+                  onClick={() => reset()}>
+                  Clear
+                </Button>
+                <Button size={'sm'} w={'7rem'} fontWeight={'600'}
+                  bg={'gray.100'} colorScheme='loginbtn' textColor='black'
+                  isLoading={methods.formState.isSubmitting} type='submit'>
+                  Add
+                </Button>
+              </Flex>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </FormProvider>
+    </VStack>
   )
 }

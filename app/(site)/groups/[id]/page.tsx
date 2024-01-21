@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from "react"
-import { Button, useDisclosure } from "@chakra-ui/react"
 
 import { Add } from "@/components/transactions/add"
 import { GroupWithMembers } from "@/types/model/groups"
@@ -13,7 +12,6 @@ export default function GroupDetail({ params }:
 {
   const [loading, setLoading] = useState<boolean>(true);
   const [groupDetail, setGroupDetail] = useState<GroupWithMembers>();
-  const { isOpen, onOpen, onClose } = useDisclosure()
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -27,9 +25,8 @@ export default function GroupDetail({ params }:
 
   return (
     loading ? <Loading /> :
-    <div>
-      <Button onClick={onOpen}>Open Modal</Button>
-      <Add isOpen={isOpen} onClose={onClose} groupDetail={groupDetail!} />
-    </div>
+    <>
+      <Add groupDetail={groupDetail!} />
+    </>
   )
 }
