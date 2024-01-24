@@ -50,28 +50,28 @@ export default function GroupList(
             variant={'outline'}
             bg={'black'}
             borderRadius={8}>
-            <CardBody >
+            <CardBody>
               <HStack justifyContent={'center'}>
                 <Heading as={NextLink}
-                ml={2}
+                  ml={2}
                   w='50%'
                   href={`/groups/${group.id}`}
                   fontSize={'lg'}
                   fontWeight='400'>{group.name}</Heading>
                 {group.createdById === sessionData!.user.id &&
-                  <Flex w='50%'>
-                    <Button leftIcon={<MdManageAccounts />} size='sm' mr={1}
+                  <VStack w='50%' alignItems={'flex-end'}>
+                    <Button leftIcon={<MdManageAccounts />} size='sm'
                       variant={'outline'} colorScheme={'blue'}
                       onClick={() => router.push(
                         `/memberships?data=${JSON.stringify(group)}`,)}>
                       Manage
                     </Button>
-                    <Button leftIcon={<MdPersonRemove />} size='sm' ml={1}
+                    <Button leftIcon={<MdPersonRemove />} size='sm'
                       variant={'outline'} colorScheme={'red'}
                       onClick={() => onRemoveGroup(group.id)}>
                       Remove
                     </Button>
-                  </Flex>}
+                  </VStack>}
               </HStack>
             </CardBody>
           </Card>

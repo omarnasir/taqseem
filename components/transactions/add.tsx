@@ -1,5 +1,6 @@
 import {
   Button,
+  IconButton,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -14,6 +15,8 @@ import {
   Text,
   VStack
 } from "@chakra-ui/react"
+import { MdAdd } from "react-icons/md"
+
 import { FormProvider, useForm } from "react-hook-form";
 
 import { GroupWithMembers } from "@/types/model/groups"
@@ -86,8 +89,9 @@ export function Add(
     <VStack w='100%'>
       <HStack w='100%' justifyContent={'space-between'}>
         <Text fontSize='xl' fontWeight='bold'>{groupDetail.name}</Text>
-        <Button size={'md'} borderRadius={'full'}
-        onClick={onOpen}><Text fontSize={'xl'}>+</Text></Button>
+        <IconButton size={'md'} borderRadius={'full'}
+        icon={<MdAdd/>} aria-label="Add transaction"
+        onClick={onOpen}/>
       </HStack>
       <Divider marginY={2}/>
       <FormProvider {...methods}>
