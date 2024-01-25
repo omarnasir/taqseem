@@ -1,8 +1,19 @@
 import { Prisma } from '@prisma/client'
 
-const transaction = Prisma.validator<Prisma.TransactionDetailsDefaultArgs>()({
-  select: { transaction: true }
+const transaction = Prisma.validator<Prisma.TransactionsDefaultArgs>()({
+  include: { transactionDetails: true }
 })
 
-export type CreateTransaction = Prisma.TransactionDetailsCreateArgs['data']
-export type Transaction = Prisma.TransactionDetailsGetPayload<typeof transaction>['transaction']
+export type TransactionDeleteArgs = {
+  id: number,
+  groupId: string,
+  userId: string
+}
+
+type createTransaction = Prisma.TransactionsUncheckedCreateInput
+type createTransactionDetails = Prisma.TransactionDetailsUncheckedCreateWithoutTransactionInput
+
+export type CreateTransactionWithDetails = createTransaction & {
+  transactionDetails: createTransactionDetails[]
+}
+export type TransactionWithDetails = Prisma.TransactionsGetPayload<typeof transaction>
