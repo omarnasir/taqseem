@@ -42,6 +42,7 @@ type TFormIds = {
   subcategory: number,
   datetime: string,
   paidBy: string,
+  note: string
 }
 
 enum FormIds {
@@ -53,6 +54,7 @@ enum FormIds {
   subcategory = 'subcategory',
   datetime = 'datetime',
   paidBy = 'paidBy',
+  note = 'note'
 }
 
 function LeftIconWrapper({ children }: { children: React.ReactNode }) {
@@ -421,6 +423,27 @@ function processAmountDetails(amountDetails: TFormIds[FormIds.amountDetails])
   }
 }
 
+function FormItemNote() {
+  const { formState: { errors }, register } = useFormContext()
+  const id = FormIds.note
+  return (
+    <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
+      <FormLabel htmlFor={id}>Name</FormLabel>
+      <InputGroup >
+        <LeftIconWrapper>
+          <MdDriveFileRenameOutline />
+        </LeftIconWrapper>
+        <Input {...register(id, {
+          required: false
+        })}
+          placeholder='Additionnal note'
+          textIndent={'32px'} />
+      </InputGroup>
+      <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
+  )
+}
+
 function getCurrentDate() {
   const currentDate = new Date()
   const formatter = new Intl.DateTimeFormat('en-ca', {
@@ -443,6 +466,7 @@ export {
   FormItemSubCategory,
   FormItemDateTime,
   FormItemPaidBy,
+  FormItemNote,
   processAmountDetails,
   getCurrentDate
 }
