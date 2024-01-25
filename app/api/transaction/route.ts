@@ -191,11 +191,9 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       });
     }
     // Delete transaction details
-    const deleteDetails = prisma.transactionDetails.deleteMany({
+    const deleteRelation = prisma.transactionDetails.deleteMany({
       where: {
-        transactionId: {
-          in: transaction.transactionDetails.map(detail => detail.id)
-        }
+        transactionId: body.id
       }
     });
     // Delete transaction
@@ -204,9 +202,10 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
         id: body.id
       }
     });
-    await prisma.$transaction([deleteDetails, deleteTransaction]);
+    await prisma.$transaction([deleteRelation, deleteTransaction]);
     return NextResponse.json({ status: 200 });
   } catch (e: any) {
+    console.log(e);
     return sendErrorResponse({ statusText: e.message });
   }
 }
