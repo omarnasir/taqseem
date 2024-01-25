@@ -38,8 +38,14 @@ async function deleteGroup(reqData: GroupDeleteArgs
   return await responseHandler(response);
 }
 
+async function getTransactionsByGroupId(id: string): Promise<GETResponseType> {
+  const response = await fetch(`/api/groups/transactions/?id=${id}`);
+  return await responseHandler(response);
+}
+
 export {
   getGroupDetails,
   createGroup,
-  deleteGroup
+  deleteGroup,
+  getTransactionsByGroupId
 }
