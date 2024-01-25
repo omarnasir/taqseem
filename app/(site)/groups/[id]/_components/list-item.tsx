@@ -1,5 +1,4 @@
 import { useSession } from "next-auth/react";
-import { useRouter } from 'next/navigation'
 import { 
   Box,
   Button,
@@ -13,17 +12,18 @@ import { CustomToast } from '@/components/toast';
 
 
 export default function TransactionListItem(
-  { transaction, groupId }: { transaction: TransactionWithDetails, groupId: string}
+  { transaction, groupId, setRefreshTransactions }: 
+  { transaction: TransactionWithDetails, groupId: string, setRefreshTransactions: React.Dispatch<React.SetStateAction<string>> }
 ) {
   const { data: sessionData } = useSession();
-  const router = useRouter();
+
   const { addToast } = CustomToast();
 
   async function onRemoveTransaction(id: number) {
     const res = await deleteTransaction({ id: id, groupId: groupId, userId: sessionData!.user.id})
     if (res.success) {
       addToast(`Transaction removed`, null, 'success')
-      router.refresh();
+      setRefreshTransactions(Date.now().toString())
     }
     else {
       addToast('Cannot delete transaction.', res.error, 'error')

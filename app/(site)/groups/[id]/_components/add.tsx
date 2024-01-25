@@ -2,7 +2,6 @@ import { useRouter } from 'next/navigation'
 
 import {
   Button,
-  IconButton,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -13,11 +12,7 @@ import {
   Divider,
   Flex,
   HStack,
-  useDisclosure,
-  Text,
-  VStack
 } from "@chakra-ui/react"
-import { MdAdd } from "react-icons/md"
 
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -42,11 +37,12 @@ import { useSession } from "next-auth/react";
 import { CustomToast } from "@/components/toast";
 
 export function Add(
-  { group }: { group: GroupWithMembers }
+  { group, onClose, isOpen, setRefreshTransactions }: { group: GroupWithMembers,
+    onClose: () => void, isOpen: boolean, setRefreshTransactions: React.Dispatch<React.SetStateAction<string>> }
 ) {
   const router = useRouter()
   const { data: sessionData } = useSession();
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  
   const { addToast } = CustomToast();
 
   const methods = useForm<TFormIds>({
@@ -106,7 +102,7 @@ export function Add(
     if (response.success) {
       reset();
       onClose();
-      router.refresh();
+      setRefreshTransactions(Date.now().toString());
     }
     else {
       addToast("Error creating transaction", response.error, "error")
@@ -115,58 +111,49 @@ export function Add(
   }
 
   return (
-    <VStack w='100%'>
-      <HStack w='100%' justifyContent={'space-between'}>
-        <Text fontSize='xl' fontWeight='bold'>{group.name}</Text>
-        <IconButton size={'md'} borderRadius={'full'}
-        icon={<MdAdd/>} aria-label="Add transaction"
-        onClick={onOpen}/>
-      </HStack>
-      <Divider marginY={2}/>
-      <FormProvider {...methods}>
-        <Modal
-          blockScrollOnMount={false}
-          isOpen={isOpen}
-          onClose={onClose}
-          size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
-          <ModalOverlay />
-          <ModalContent marginX={2}
-            as='form' onSubmit={handleSubmit(onSubmit)}>
-            <ModalHeader
-              textAlign={'left'}
-              fontSize={'lg'}
-              fontWeight={'bold'}>New transaction</ModalHeader>
-            <Divider />
-            <ModalCloseButton />
-            <ModalBody>
-              <FormItemName />
-              <FormItemDateTime />
-              <HStack>
-                <FormItemCategory />
-                <FormItemSubCategory />
-              </HStack>
-              <FormItemPaidBy {...{ users: group.users! }} />
-              <FormItemAmount />
-              <FormItemAmountDetails {...{ users: group.users! }} />
-              <FormItemNote />
-            </ModalBody>
-            <ModalFooter>
-              <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-                <Button size={'sm'} fontWeight={'400'}
-                  textAlign={'center'} variant={'none'} textColor='gray.500'
-                  onClick={() => reset()}>
-                  Clear
-                </Button>
-                <Button size={'sm'} w={'7rem'} fontWeight={'600'}
-                  bg={'gray.100'} colorScheme='loginbtn' textColor='black'
-                  isLoading={methods.formState.isSubmitting} type='submit'>
-                  Add
-                </Button>
-              </Flex>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </FormProvider>
-    </VStack>
+    <FormProvider {...methods}>
+      <Modal
+        blockScrollOnMount={false}
+        isOpen={isOpen}
+        onClose={onClose}
+        size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
+        <ModalOverlay />
+        <ModalContent marginX={2}
+          as='form' onSubmit={handleSubmit(onSubmit)}>
+          <ModalHeader
+            textAlign={'left'}
+            fontSize={'lg'}
+            fontWeight={'bold'}>New transaction</ModalHeader>
+          <Divider />
+          <ModalCloseButton />
+          <ModalBody>
+            <FormItemName />
+            <FormItemDateTime />
+            <HStack>
+              <FormItemCategory />
+              <FormItemSubCategory />
+            </HStack>
+            <FormItemPaidBy {...{ users: group.users! }} />
+            <FormItemAmount />
+            <FormItemAmountDetails {...{ users: group.users! }} />
+            <FormItemNote />
+          </ModalBody>
+          <ModalFooter>
+            <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
+              <Button size={'sm'} fontWeight={'400'}
+                textAlign={'center'} variant={'none'} textColor='gray.500'
+                onClick={() => reset()}>
+                Clear
+              </Button>
+              <Button size={'sm'} w={'7rem'} fontWeight={'600'}
+                bg={'gray.100'} colorScheme='loginbtn' textColor='black'
+                isLoading={methods.formState.isSubmitting} type='submit'>
+                Add
+              </Button>
+            </Flex>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </FormProvider>
   )
 }

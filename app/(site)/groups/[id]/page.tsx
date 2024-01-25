@@ -6,13 +6,25 @@ import TransactionsList from "./_components/list"
 import { GroupWithMembers } from "@/types/model/groups"
 import { getGroupDetails } from "@/client/services/group-service"
 import Loading from "@/app/(site)/loading"
+import { 
+  Divider, 
+  HStack, 
+  IconButton, 
+  VStack, 
+  Text,
+  useDisclosure
+ } from "@chakra-ui/react"
+
+import { MdAdd } from "react-icons/md"
 
 
 export default function GroupDetail({ params }: 
   { params: { id: string } }) 
 {
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const [loading, setLoading] = useState<boolean>(true);
   const [group, setGroup] = useState<GroupWithMembers>();
+  const [refreshTransactions, setRefreshTransactions] = useState<string>('');
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -26,9 +38,17 @@ export default function GroupDetail({ params }:
 
   return (
     loading ? <Loading /> :
-    <>
-      <Add group={group!} />
-      <TransactionsList group={group!} />
-    </>
+      <VStack w='100%'>
+        <HStack w='100%' justifyContent={'space-between'}>
+          <Text fontSize='xl' fontWeight='bold'>{group?.name}</Text>
+          <Text fontSize='md' fontWeight='400'>Transactions</Text>
+          <IconButton size={'md'} borderRadius={'full'}
+            icon={<MdAdd />} aria-label="Add transaction"
+            onClick={onOpen} />
+        </HStack>
+        <Divider marginY={2} />
+        <Add {...{ group: group!, onClose, isOpen, setRefreshTransactions }} />
+        <TransactionsList {...{group: group!, refreshTransactions, setRefreshTransactions}} />
+      </VStack>
   )
 }
