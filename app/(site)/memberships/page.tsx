@@ -4,17 +4,17 @@ import { useSearchParams } from "next/navigation"
 import { Box } from "@chakra-ui/react";
 
 import { getMembershipsByGroupId } from "@/client/services/membershipService";
-import GroupMembers from "@/components/groups/memberships"
-import GroupAddUser from "@/components/groups/add-user";
+import GroupMembersListItem from "./_components/list-item"
+import GroupAddUser from "./_components/add-user";
 import Loading from "@/app/(site)/loading";
 
-import { type UserMembershipByGroup } from "@/types/model/memberships";
 import { GroupData } from "@/types/model/groups";
+import { UserBasicData } from "@/types/model/users";
 
 
 export default function GroupPage() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [users, setUsers] = useState<UserMembershipByGroup[]>([]);
+  const [users, setUsers] = useState<UserBasicData[]>([]);
   // get params from route query
   const group : GroupData = JSON.parse(useSearchParams().get('data')!)
 
@@ -30,7 +30,7 @@ export default function GroupPage() {
   return (
     loading ? <Loading /> :
       <Box w='100%'>
-        <GroupMembers group={group} users={users} setUsers={setUsers} />
+        <GroupMembersListItem group={group} users={users} setUsers={setUsers} />
         <GroupAddUser group={group} users={users} setUsers={setUsers} />
       </Box>
   )

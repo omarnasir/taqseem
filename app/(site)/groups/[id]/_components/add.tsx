@@ -34,15 +34,15 @@ import {
   processAmountDetails,
   getCurrentDate,
   FormItemNote
-} from "@/components/transactions/form-items";
+} from "./form-items";
 import { type GroupWithMembers } from "@/types/model/groups"
 import { createTransaction } from "@/client/services/transaction-service"
 import { CreateTransactionWithDetails } from "@/types/model/transactions";
 import { useSession } from "next-auth/react";
-import { CustomToast } from "../toast";
+import { CustomToast } from "@/components/toast";
 
 export function Add(
-  { groupDetail }: { groupDetail: GroupWithMembers }
+  { group }: { group: GroupWithMembers }
 ) {
   const router = useRouter()
   const { data: sessionData } = useSession();
@@ -59,7 +59,7 @@ export function Add(
       amountDetails: [],
       everyone: true,
       note: '',
-      paidBy: groupDetail.users![0].id
+      paidBy: group.users![0].id
     }
   })
   const {
@@ -72,10 +72,10 @@ export function Add(
     const totalAmount = parseFloat(values[FormIds.amount]);
     let userDetails : CreateTransactionWithDetails['transactionDetails']
     if (everyone) {
-      userDetails = groupDetail.users!.map(user => {
+      userDetails = group.users!.map(user => {
         return {
           userId: user.id,
-          amount: totalAmount / groupDetail.users!.length
+          amount: totalAmount / group.users!.length
         }
       })
     }
@@ -94,7 +94,7 @@ export function Add(
     const response = await createTransaction({
       name: values[FormIds.name],
       amount: totalAmount,
-      groupId: groupDetail.id,
+      groupId: group.id,
       createdById: sessionData!.user.id,
       paidById: values[FormIds.paidBy],
       subCategory: values[FormIds.subcategory],
@@ -117,7 +117,7 @@ export function Add(
   return (
     <VStack w='100%'>
       <HStack w='100%' justifyContent={'space-between'}>
-        <Text fontSize='xl' fontWeight='bold'>{groupDetail.name}</Text>
+        <Text fontSize='xl' fontWeight='bold'>{group.name}</Text>
         <IconButton size={'md'} borderRadius={'full'}
         icon={<MdAdd/>} aria-label="Add transaction"
         onClick={onOpen}/>
@@ -145,9 +145,9 @@ export function Add(
                 <FormItemCategory />
                 <FormItemSubCategory />
               </HStack>
-              <FormItemPaidBy {...{ users: groupDetail.users! }} />
+              <FormItemPaidBy {...{ users: group.users! }} />
               <FormItemAmount />
-              <FormItemAmountDetails {...{ users: groupDetail.users! }} />
+              <FormItemAmountDetails {...{ users: group.users! }} />
               <FormItemNote />
             </ModalBody>
             <ModalFooter>

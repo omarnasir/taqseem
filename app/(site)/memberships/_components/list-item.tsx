@@ -25,7 +25,7 @@ type GroupDetailsProps = {
   setUsers: React.Dispatch<React.SetStateAction<UserBasicData[]>>
 }
 
-export default function GroupMembers({ group, users, setUsers
+export default function GroupMembersListItem({ group, users, setUsers
 }: GroupDetailsProps) {
   const { data: sessionData } = useSession();
   const { addToast } = CustomToast()

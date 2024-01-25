@@ -3,8 +3,8 @@ import { Flex } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-import GroupList from "@/components/groups/list";
-import AddGroup from "@/components/groups/add-group";
+import GroupList from "./_components/list";
+import AddGroup from "./_components/add-group";
 import {
   getAllGroupsByUserId
 } from "@/client/services/user-service";

@@ -6,11 +6,11 @@ import {
   Link,
   Divider
 } from '@chakra-ui/react'
-import { BoxWrapper } from '@/components/auth/box-wrapper';
+import { BoxWrapper } from '../_components/box-wrapper';
 import {
   EmailFormItem,
   PasswordFormItem
-} from '@/components/auth/form-items';
+} from '@/app/auth/_components/form-items';
 
 import { useForm, FieldValues, FormProvider } from "react-hook-form"
 import { handleSignInAuth } from '@/client/services/auth-service';
