@@ -1,15 +1,14 @@
 import {
   Card,
   CardBody,
-  CardHeader,
   Heading,
   Text,
-  Stack, StackDivider, Flex, Link, Button, VStack, HStack
+  Stack, Button, VStack, HStack
 } from '@chakra-ui/react'
 
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { MdGroup, MdPersonRemove, MdManageAccounts } from "react-icons/md"
+import { MdPersonRemove, MdManageAccounts } from "react-icons/md"
 
 import { type GroupData } from "@/types/model/groups";
 import { deleteGroup } from '@/client/services/group-service';

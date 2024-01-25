@@ -1,3 +1,5 @@
+import { useRouter } from 'next/navigation'
+
 import {
   Button,
   IconButton,
@@ -19,7 +21,6 @@ import { MdAdd } from "react-icons/md"
 
 import { FormProvider, useForm } from "react-hook-form";
 
-import { GroupWithMembers } from "@/types/model/groups"
 import { 
   type TFormIds,
   FormIds,
@@ -31,13 +32,22 @@ import {
   FormItemName,
   FormItemPaidBy,
   processAmountDetails,
-  getCurrentDate
+  getCurrentDate,
+  FormItemNote
 } from "@/components/transactions/form-items";
+import { type GroupWithMembers } from "@/types/model/groups"
+import { createTransaction } from "@/client/services/transaction-service"
+import { CreateTransactionWithDetails } from "@/types/model/transactions";
+import { useSession } from "next-auth/react";
+import { CustomToast } from "../toast";
 
 export function Add(
   { groupDetail }: { groupDetail: GroupWithMembers }
 ) {
+  const router = useRouter()
+  const { data: sessionData } = useSession();
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { addToast } = CustomToast();
 
   const methods = useForm<TFormIds>({
     defaultValues: {
@@ -48,6 +58,8 @@ export function Add(
       datetime: getCurrentDate(),
       amountDetails: [],
       everyone: true,
+      note: '',
+      paidBy: groupDetail.users![0].id
     }
   })
   const {
@@ -55,33 +67,50 @@ export function Add(
     reset,
   } = methods
 
-  function onSubmit(values: TFormIds) {
+  async function onSubmit(values: TFormIds) {
     const everyone = values[FormIds.everyone] as boolean;
     const totalAmount = parseFloat(values[FormIds.amount]);
+    let userDetails : CreateTransactionWithDetails['transactionDetails']
     if (everyone) {
-      const userDetails = groupDetail.users!.map(user => {
+      userDetails = groupDetail.users!.map(user => {
         return {
-          id: user.id,
+          userId: user.id,
           amount: totalAmount / groupDetail.users!.length
         }
       })
-      console.log('Case 1: ', { ...userDetails })
     }
     else {
       const amountDetails = values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails];
       const { selectedUsers, usersWithoutInputAmount, sum } = processAmountDetails(amountDetails)
       const remainingAmount = totalAmount - sum;
       const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
-      const userDetails = selectedUsers.map((selectedUser) => {
+      userDetails = selectedUsers.map((selectedUser) => {
         return {
-          id: selectedUser.id,
+          userId: selectedUser.id,
           amount: (selectedUser.amount === null) ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
         }
       })
-      console.log('Case 2: ', { ...userDetails })
     }
-    console.log(values)
-    // submit here
+    const response = await createTransaction({
+      name: values[FormIds.name],
+      amount: totalAmount,
+      groupId: groupDetail.id,
+      createdById: sessionData!.user.id,
+      paidById: values[FormIds.paidBy],
+      subCategory: values[FormIds.subcategory],
+      category: values[FormIds.category],
+      createdAt: values[FormIds.datetime],
+      transactionDetails: userDetails,
+      notes: values[FormIds.note]
+    })
+    if (response.success) {
+      reset();
+      onClose();
+      router.refresh();
+    }
+    else {
+      addToast("Error creating transaction", response.error, "error")
+    }
     return
   }
 
@@ -119,6 +148,7 @@ export function Add(
               <FormItemPaidBy {...{ users: groupDetail.users! }} />
               <FormItemAmount />
               <FormItemAmountDetails {...{ users: groupDetail.users! }} />
+              <FormItemNote />
             </ModalBody>
             <ModalFooter>
               <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
