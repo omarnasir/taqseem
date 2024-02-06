@@ -1,6 +1,5 @@
 import {
   Box,
-  BoxProps,
   Center,
   Container,
   Divider,
@@ -8,9 +7,13 @@ import {
 }
   from '@chakra-ui/react'
 import Image from 'next/image'
-import logo from '../../public/logo.png'
+import logo from '@/public/logo.png'
 
-export function BoxWrapper(props: BoxProps) {
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const logoDims = 50;
   return (
     <Container>
@@ -22,11 +25,10 @@ export function BoxWrapper(props: BoxProps) {
             height={'1%'}
             borderWidth={'0.3rem'}
             borderRadius={'2rem'} />
-          <Image priority={true} src={logo} alt={'taqseem'} height={logoDims} width={0}/>
+          <Image priority={true} src={logo} alt={'taqseem'} height={logoDims} width={0} />
         </Flex>
         <Flex>
           <Box w={'100%'}
-            {...props}
             justifyContent={'center'}
             display='flex'
             flexDirection='column'
@@ -35,7 +37,9 @@ export function BoxWrapper(props: BoxProps) {
             borderWidth='0.1rem'
             borderColor={'gray.700'}
             borderRadius='0.5rem'
-            mb={6} />
+            mb={6}>
+          {children}
+          </Box>
         </Flex>
       </Flex>
     </Container>

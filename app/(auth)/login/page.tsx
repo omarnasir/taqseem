@@ -4,16 +4,13 @@ import {
   Heading,
   Flex,
   Link,
-  Divider
+  Divider,
+  FormControl
 } from '@chakra-ui/react'
-import { BoxWrapper } from '../_components/box-wrapper';
-import {
-  EmailFormItem,
-  PasswordFormItem
-} from '@/app/auth/_components/form-items';
-
 import { useForm, FieldValues, FormProvider } from "react-hook-form"
-import { handleSignInAuth } from '@/client/services/auth-service';
+
+import { EmailFormItem, PasswordFormItem } from '@/app/(auth)/_components/form-items';
+import { handleSignInAuth } from '@/app/(auth)/_lib/auth-service';
 import { CustomToast } from '@/components/toast';
 
 
@@ -35,19 +32,19 @@ export default function Signin() {
   }
 
   return (
-    <BoxWrapper as='form' onSubmit={handleSubmit(onSubmit)}>
+    <FormControl as='form' onSubmit={handleSubmit(onSubmit)}>
       <Heading textAlign={'left'} fontSize={'xl'} mb={4} fontWeight={'light'}>Login</Heading>
       <Divider mb={4} />
       <FormProvider {...methods}>
         <EmailFormItem />
         <PasswordFormItem />
-        <Button mt={4} isLoading={formState.isSubmitting} type='submit'>
+        <Button mt={4} w='100%' isLoading={formState.isSubmitting} type='submit'>
           Login
         </Button>
       </FormProvider>
       <Flex direction={'row'} justifyContent={'center'} mt={4}>
-        <Link href='/auth/register' ml={2} color={'gray.300'}>New User? Register here</Link>
+        <Link href='/register' ml={2} color={'gray.300'}>New User? Register here</Link>
       </Flex>
-    </BoxWrapper>
+    </FormControl>
   )
 }
