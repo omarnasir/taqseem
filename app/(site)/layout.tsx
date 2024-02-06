@@ -20,14 +20,11 @@ export default function SiteLayout({
   }
 
   return (
-    <Box minW='100vw' h='100vh'>
+    <Flex minW='100vw' h='100vh' flexDir='column'>
       <Flex
-        bg='itemBgGray'
         justify={'space-between'}
         w='100%'
-        justifyContent='center'
-        borderBottom='1px'
-        borderColor='gray.800'>
+        justifyContent='center'>
         <Header {...{ containerWidth: containerWidth, userName: data?.user?.name }} />
       </Flex>
       <Container maxW='container.lg'
@@ -37,17 +34,16 @@ export default function SiteLayout({
           {children}
         </Flex>
         <Flex
-          bg='itemBgGray'
+          boxShadow={'dark-lg'}
+          bg='bgFooter'
           justify={'space-between'}
           w='100%'
           justifyContent='center'
-          borderTop='1px'
-          borderColor='gray.800'
           position='absolute'
           bottom={0}>
           <Footer {...{ containerWidth: containerWidth }} />
         </Flex>
       </Container>
-    </Box>
+    </Flex>
   );
 }

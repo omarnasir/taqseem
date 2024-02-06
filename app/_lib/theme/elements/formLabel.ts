@@ -4,6 +4,6 @@ export const formLabelTheme = defineStyleConfig({
   baseStyle: {
     marginBottom: 1,
     fontSize: 'sm',
-    fontWeight: 'medium'
+    fontWeight: 'light'
   }
 })

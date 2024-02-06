@@ -6,13 +6,8 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const custom = definePartsStyle({
   dialog: {
-    borderRadius: 'md',
-    borderWidth: '1px',
-    borderColor: 'gray.700',
-    
-    // Let's also provide dark mode alternatives
     _dark: {
-      bg: 'black',
+      bg: 'bgModal',
       color: 'white',
     },
   },

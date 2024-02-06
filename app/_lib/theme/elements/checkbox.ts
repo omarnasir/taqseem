@@ -8,10 +8,15 @@ const transactionEveryone = definePartsStyle({
   control: {
     border: 'none',
   },
+  container: {
+    _pressed: {
+      bg: "red"
+    },
+  },
   label: {
     fontSize: 'sm',
     fontWeight: 'medium',
   },
 })
 
-export const checkboxTheme = defineMultiStyleConfig({ variants: {transactionEveryone} })
+export const checkboxTheme = defineMultiStyleConfig({ variants: { transactionEveryone } })

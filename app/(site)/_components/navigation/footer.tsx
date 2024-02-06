@@ -31,9 +31,6 @@ export default function Footer(
           size={'lg'} h='9vh'
           alignSelf={'center'}
           variant='none'
-          borderRadius={0}
-          borderLeftWidth={index === 0 ? 0 : 1}
-          borderColor={'gray.700'}
           colorScheme='loginbtn'
           flexDirection={'column'}>
           <linkItem.icon size={20} />

@@ -12,6 +12,9 @@ import { inputTheme } from "./elements/input"
 import { formLabelTheme } from "./elements/formLabel"
 import { buttonTheme } from "./elements/button"
 import { checkboxTheme } from "./elements/checkbox"
+import { cardTheme } from "./elements/card"
+import { numberTheme } from "./elements/numberInput"
+import { selectTheme } from "./elements/select"
 
 const fonts = {
 	...chakraTheme.fonts,
@@ -28,6 +31,9 @@ const customTheme = extendTheme({ config, fonts },
 		colors: {
 			black: '#0a0a0a',
 			itemBgGray: '#101010',
+			bgFooter: 'linear-gradient(205deg, rgb(20,19,19) 20%, rgb(35,35,35) 100%)',
+			bgCard: 'rgba(25,25,25, 0.15)',
+			bgModal: 'rgba(23,23,23, 1)',
 			loginbtn: {
 				50: '#ffffff',
 				100: '#ffffff',
@@ -38,7 +44,7 @@ const customTheme = extendTheme({ config, fonts },
 			global: {
 				'html, body': {
 					lineHeight: 'tall',
-					bg: 'black',
+					bg: 'linear-gradient(270deg, rgb(20,19,19) 0%, rgb(35,35,35) 100%)',
 				},
 				'#__next': {
 					display: 'flex',
@@ -56,29 +62,15 @@ const customTheme = extendTheme({ config, fonts },
 			},
 		},
 		components: {
-			Input: {
-				...inputTheme,
-				defaultProps: {
-					focusBorderColor: 'white',
-					color: 'white',
-				},
-			},
+			Input: inputTheme,
 			FormLabel: formLabelTheme,
-			NumberInput: {
-				defaultProps: {
-					focusBorderColor: 'white',
-					color: 'white',
-				},
-			},
-			Select: {
-				defaultProps: {
-					focusBorderColor: 'white',
-				},
-			},
+			NumberInput: numberTheme,
+			Select: selectTheme,
 			Menu: menuTheme,
 			Modal: modalTheme,
 			Button: buttonTheme,
 			Checkbox: checkboxTheme,
+			Card: cardTheme,
 		}
 	})
 

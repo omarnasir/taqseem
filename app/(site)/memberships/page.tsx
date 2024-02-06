@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation"
 import { Box } from "@chakra-ui/react";
 
 import { getMembershipsByGroupId } from "@/app/(site)/memberships/_lib/memberships-service";
-import GroupMembersListItem from "./_components/list-item"
+import GroupMembersList from "./_components/list"
 import GroupAddUser from "./_components/add-user";
 import Loading from "@/app/(site)/loading";
 
@@ -30,7 +30,7 @@ export default function GroupPage() {
   return (
     loading ? <Loading /> :
       <Box w='100%'>
-        <GroupMembersListItem group={group} users={users} setUsers={setUsers} />
+        <GroupMembersList group={group} users={users} setUsers={setUsers} />
         <GroupAddUser group={group} users={users} setUsers={setUsers} />
       </Box>
   )

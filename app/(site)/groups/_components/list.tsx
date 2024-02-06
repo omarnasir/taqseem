@@ -46,9 +46,7 @@ export default function GroupList(
         groups.map((group) => (
           <Card key={group.id}
             size='sm'
-            variant={'outline'}
-            bg={'black'}
-            borderRadius={8}>
+            variant={'custom'}>
             <CardBody>
               <HStack justifyContent={'center'}>
                 <Heading as={NextLink}
@@ -59,14 +57,14 @@ export default function GroupList(
                   fontWeight='400'>{group.name}</Heading>
                 {group.createdById === sessionData!.user.id &&
                   <VStack w='50%' alignItems={'flex-end'}>
-                    <Button leftIcon={<MdManageAccounts />} size='sm'
-                      variant={'outline'} colorScheme={'blue'}
+                    <Button leftIcon={<MdManageAccounts/>} size='sm'
+                      variant={'outline'}
                       onClick={() => router.push(
                         `/memberships?data=${JSON.stringify(group)}`,)}>
                       Manage
                     </Button>
-                    <Button leftIcon={<MdPersonRemove />} size='sm'
-                      variant={'outline'} colorScheme={'red'}
+                    <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)'/>} size='sm'
+                      variant={'outline'}
                       onClick={() => onRemoveGroup(group.id)}>
                       Remove
                     </Button>
