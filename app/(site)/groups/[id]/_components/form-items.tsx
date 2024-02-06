@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import {
   Input,
   Text,
+  Textarea,
   Select,
   NumberInput,
   NumberInputField,
   InputGroup,
-  InputLeftElement,
   VStack,
   HStack,
   Checkbox,
@@ -18,12 +18,13 @@ import {
   Collapse,
   Box,
   InputRightElement,
+  InputLeftAddon,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
   MdCalendarMonth, MdOutlineCategory, MdOutlineCancel
 } from "react-icons/md"
-import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValues, Controller  } from "react-hook-form";
+import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValues, Controller } from "react-hook-form";
 
 import { UserBasicData } from "@/app/_types/model/users";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
@@ -40,7 +41,7 @@ type TFormIds = {
   }[],
   category: number,
   subcategory: number,
-  datetime: string,
+  paidAt: Date | string,
   paidBy: string,
   note: string
 }
@@ -52,46 +53,32 @@ enum FormIds {
   amountDetails = 'amountDetails',
   category = 'category',
   subcategory = 'subcategory',
-  datetime = 'datetime',
+  paidAt = 'paidAt',
   paidBy = 'paidBy',
   note = 'note'
 }
 
-function LeftIconWrapper({ children }: { children: React.ReactNode }) {
-  return (
-    <InputLeftElement 
-      pointerEvents='none' 
-      height='95%'
-      mt={'1.2px'} ml={'1.2px'}
-      borderLeftRadius={5}
-      bg={'gray.900'}
-      borderColor='gray.800'>
-      {children}
-    </InputLeftElement>
-  )
-}
 
 function FormItemName() {
   const { formState: { errors }, register } = useFormContext()
   return (
     <FormControl id={FormIds.name} isInvalid={Boolean(errors[FormIds.name])} mb={3}>
       <FormLabel htmlFor={FormIds.name}>Name</FormLabel>
-      <InputGroup >
-        <LeftIconWrapper>
+      <InputGroup variant={"custom"}>
+        <InputLeftAddon>
           <MdDriveFileRenameOutline />
-        </LeftIconWrapper>
+        </InputLeftAddon>
         <Input {...register(FormIds.name, {
           required: 'You must enter a name'
         })}
-          placeholder='Give a name to the transaction'
-          textIndent={'32px'} />
+          placeholder='Give a name to the transaction' />
       </InputGroup>
       <FormErrorMessage>{errors[FormIds.name]?.message?.toString()}</FormErrorMessage>
     </FormControl>
   )
 }
 
-function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
+function FormItemAmountDetails({ users }: { users: UserBasicData[] }) {
   const { formState: { errors },
     register,
     control,
@@ -110,6 +97,7 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
     <Box>
       <FormLabel>Split</FormLabel>
       <Checkbox size={'md'} h='2rem' as={Button}
+        mb={2}
         variant={'transactionEveryone'}
         isChecked={everyone}
         colorScheme={'loginbtn'}
@@ -119,6 +107,7 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
           required: false,
           onChange: (e) => {
             setEveryone(e.target.checked);
+            e.preventDefault();
             onToggle();
             clearErrors(FormIds.everyone);
             if (e.target.checked) remove()
@@ -167,8 +156,7 @@ function FormItemAmountDetails({ users } : { users: UserBasicData[] }) {
 }
 
 function FormItemAmountDetailsUser({ index, registerId, user, methods }:
-  { user: UserBasicData, index: number, registerId: string, methods: UseFieldArrayReturn<FieldValues, FormIds.amountDetails> }) 
-{
+  { user: UserBasicData, index: number, registerId: string, methods: UseFieldArrayReturn<FieldValues, FormIds.amountDetails> }) {
   const { resetField, formState: { errors }, unregister, control } = useFormContext()
   const [selected, setSelected] = useState<boolean>(false)
 
@@ -189,51 +177,51 @@ function FormItemAmountDetailsUser({ index, registerId, user, methods }:
           setSelected(e.target.checked);
           if (!e.target.checked) unregister(registerId)
         }}
-          colorScheme={'gray'}
+          rounded='full'
           size={'lg'}
           w='50%'>
           <Text paddingLeft={2}
             fontSize={'md'}
             fontWeight={'light'}>{user.name}</Text>
         </Checkbox>
-        <InputGroup w='50%'>
-          <LeftIconWrapper>
-            <MdEuroSymbol size={'1rem'} />
-          </LeftIconWrapper>
-          <Controller
-            name={registerId}
-            control={control}
-            disabled={!selected}
-            rules={{
-              required: false,
-              validate: (value) => {
-                if (value <= 0 && (value !== '' && value !== null)) return 'Amount must be greater than 0'
-              }
-            }}
-            render={({ field: {ref, name, value, ...restField} }) => (
-              <NumberInput size={'md'} {...restField}
-              value={value || ''}
-              isValidCharacter={(char) => {
-                return (char >= '0' && char <= '9') || char === '.' || char === ','
-              }}
-              pattern={'[0-9]+([,.][0-9]+)?'}
-              parse={(value) => {
-                return value.replace(',', '.')
-              }}
-              format={(value) => {
-                if (typeof value === 'string') {
-                  return value.replace('.', ',')
-                }
-                return value
-              }}
+        <Controller
+          name={registerId}
+          control={control}
+          disabled={!selected}
+          rules={{
+            required: false,
+            validate: (value) => {
+              if (value <= 0 && (value !== '' && value !== null)) return 'Amount must be greater than 0'
+            }
+          }}
+          render={({ field: { ref, name, value, ...restField } }) => (
+            <InputGroup variant={"custom"} w='50%'>
+              <InputLeftAddon>
+                <MdEuroSymbol size={'0.75rem'} />
+              </InputLeftAddon>
+              <NumberInput size={'md'} {...restField} variant={'custom'}
+                value={value || ''}
+                isValidCharacter={(char) => {
+                  return (char >= '0' && char <= '9') || char === '.' || char === ','
+                }}
+                pattern={'[0-9]+([,.][0-9]+)?'}
+                parse={(value) => {
+                  return value.replace(',', '.')
+                }}
+                format={(value) => {
+                  if (typeof value === 'string') {
+                    return value.replace('.', ',')
+                  }
+                  return value
+                }}
               >
                 <NumberInputField
                   ref={ref}
                   name={name}
                   disabled={restField.disabled}
                   placeholder={'auto'}
-                  borderWidth={1} fontWeight={'light'}
-                  textIndent={'32px'} />
+                  textIndent={'0.5rem'}
+                />
                 <InputRightElement color={'gray.500'}
                   onClick={() => resetField(registerId,
                     {
@@ -241,8 +229,8 @@ function FormItemAmountDetailsUser({ index, registerId, user, methods }:
                     })}>
                   <MdOutlineCancel size={'1rem'} />
                 </InputRightElement>
-              </NumberInput>)} />
-        </InputGroup>
+              </NumberInput>
+            </InputGroup>)} />
       </HStack >
       <FormErrorMessage>
         {extractNestedErrors(errors)}
@@ -257,10 +245,10 @@ function FormItemAmount() {
   return (
     <FormControl id={FormIds.amount} isInvalid={Boolean(errors[FormIds.amount])} mb={3}>
       <FormLabel htmlFor={FormIds.amount}>Amount</FormLabel>
-      <InputGroup >
-        <LeftIconWrapper>
+      <InputGroup variant={"custom"}>
+        <InputLeftAddon>
           <MdEuroSymbol />
-        </LeftIconWrapper>
+        </InputLeftAddon>
         <Controller
           name={FormIds.amount}
           control={control}
@@ -270,27 +258,28 @@ function FormItemAmount() {
               if (value <= 0) return 'Amount must be greater than 0'
             }
           }}
-          render={({ field : {ref, name, ...restField}}) => (
-            <NumberInput w='100%' {...restField} 
-            isValidCharacter={(char) => {
-              return (char >= '0' && char <= '9') || char === '.' || char === ','
-            }}
-            pattern={'[0-9]+([,.][0-9]+)?'}
-            parse={(value) => {
-              return value.replace(',', '.')
-            }}
-            format={(value) => {
-              if (typeof value === 'string') {
-                return value.replace('.', ',')
-              }
-              return value
-            }}
+          render={({ field: { ref, name, ...restField } }) => (
+            <NumberInput w='100%' variant={'custom'}
+              {...restField}
+              isValidCharacter={(char) => {
+                return (char >= '0' && char <= '9') || char === '.' || char === ','
+              }}
+              pattern={'[0-9]+([,.][0-9]+)?'}
+              parse={(value) => {
+                return value.replace(',', '.')
+              }}
+              format={(value) => {
+                if (typeof value === 'string') {
+                  return value.replace('.', ',')
+                }
+                return value
+              }}
             >
               <NumberInputField
                 ref={ref}
                 name={name}
                 fontWeight={'light'}
-                textIndent={'32px'} />
+              />
             </NumberInput>
           )}
         />
@@ -305,22 +294,21 @@ function FormItemSubCategory() {
   return (
     <FormControl id={FormIds.subcategory} isInvalid={Boolean(errors[FormIds.subcategory])} mb={3}>
       <FormLabel htmlFor={FormIds.subcategory}>Sub-category</FormLabel>
-      <InputGroup>
-        <LeftIconWrapper>
+      <InputGroup variant={"custom"}>
+        <InputLeftAddon>
           <MdOutlineCategory />
-        </LeftIconWrapper>
+        </InputLeftAddon>
         <Select {...register(FormIds.subcategory, {
           required: true,
           valueAsNumber: true
         })}
-          title="Select a category"
-          sx={{ paddingLeft: '3rem' }}>
-            {Object.entries(TransactionSubCategoryEnum).map(([key, value], index) => (
-              <option key={key} value={index}>
-                {value}
-              </option>
-            ))}
-          
+          title="Select a category">
+          {Object.entries(TransactionSubCategoryEnum).map(([key, value], index) => (
+            <option key={key} value={index}>
+              {value}
+            </option>
+          ))}
+
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[FormIds.subcategory]?.message?.toString()}</FormErrorMessage>
@@ -333,22 +321,21 @@ function FormItemCategory() {
   return (
     <FormControl id={FormIds.category} isInvalid={Boolean(errors[FormIds.category])} mb={3}>
       <FormLabel htmlFor={FormIds.category}>Category</FormLabel>
-      <InputGroup>
-        <LeftIconWrapper>
+      <InputGroup variant={"custom"}>
+        <InputLeftAddon>
           <MdCategory />
-        </LeftIconWrapper>
+        </InputLeftAddon>
         <Select {...register(FormIds.category, {
           required: true,
           valueAsNumber: true
         })}
-          title="Select a sub-category"
-          sx={{ paddingLeft: '3rem' }}>
-            {Object.entries(TransactionCategoryEnum).map(([key, value], index) => (
-              <option key={key} value={index}>
-                {value}
-              </option>
-            ))}
-          
+          title="Select a sub-category">
+          {Object.entries(TransactionCategoryEnum).map(([key, value], index) => (
+            <option key={key} value={index}>
+              {value}
+            </option>
+          ))}
+
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[FormIds.category]?.message?.toString()}</FormErrorMessage>
@@ -359,23 +346,22 @@ function FormItemCategory() {
 function FormItemDateTime() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIds.datetime} isInvalid={Boolean(errors[FormIds.datetime])} mb={3}>
-      <FormLabel htmlFor={FormIds.datetime}>Date and time</FormLabel>
-      <InputGroup>
-        <LeftIconWrapper>
+    <FormControl id={FormIds.paidAt} isInvalid={Boolean(errors[FormIds.paidAt])} mb={3}>
+      <FormLabel htmlFor={FormIds.paidAt}>Date</FormLabel>
+      <InputGroup variant={"custom"}>
+        <InputLeftAddon>
           <MdCalendarMonth />
-        </LeftIconWrapper>
-        <Input {...register(FormIds.datetime, {
+        </InputLeftAddon>
+        <Input {...register(FormIds.paidAt, {
           required: true,
         })}
           textAlign={'left'}
           placeholder='Select a date and time'
           fontWeight={'light'}
-          textIndent={'15px'}
           type='date'
           defaultValue={getCurrentDate()} />
       </InputGroup>
-      <FormErrorMessage>{errors[FormIds.datetime]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIds.paidAt]?.message?.toString()}</FormErrorMessage>
     </FormControl>
   )
 }
@@ -385,15 +371,14 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
   return (
     <FormControl id={FormIds.paidBy} isInvalid={Boolean(errors[FormIds.paidBy])} mb={3}>
       <FormLabel htmlFor={FormIds.paidBy}>Paid by</FormLabel>
-      <InputGroup>
-        <LeftIconWrapper>
+      <InputGroup variant={"custom"}>
+        <InputLeftAddon>
           <MdCategory />
-        </LeftIconWrapper>
+        </InputLeftAddon>
         <Select {...register(FormIds.paidBy, {
           required: true,
         })}
-          title="Select a user"
-          sx={{ paddingLeft: '3rem' }}>
+          title="Select a user">
           {users.map(user => (
             <option key={user.id} value={user.id}>
               {user.name}
@@ -429,15 +414,18 @@ function FormItemNote() {
   return (
     <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
       <FormLabel htmlFor={id}>Name</FormLabel>
-      <InputGroup >
-        <LeftIconWrapper>
+      <InputGroup variant={"custom"}>
+        <InputLeftAddon>
           <MdDriveFileRenameOutline />
-        </LeftIconWrapper>
-        <Input {...register(id, {
+        </InputLeftAddon>
+        <Textarea {...register(id, {
           required: false
         })}
-          placeholder='Additionnal note'
-          textIndent={'32px'} />
+          placeholder='Add a note'
+          background={"transparent"}
+          borderWidth={0}
+          resize={"none"}
+        />
       </InputGroup>
       <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
     </FormControl>

@@ -59,6 +59,7 @@ model Transactions {
   groupId       String
   paidBy        Users      @relation("PaidBy", fields: [paidById], references: [id])
   paidById      String
+  paidAt        DateTime   @default(now())
   createdBy     Users      @relation("CreatedBy", fields: [createdById], references: [id])
   createdById   String
   createdAt     DateTime   @default(now())

@@ -51,7 +51,7 @@ export default function Add(
       category: 0,
       subcategory: 0,
       amount: '0',
-      datetime: getCurrentDate(),
+      paidAt: getCurrentDate(),
       amountDetails: [],
       everyone: true,
       note: '',
@@ -95,7 +95,7 @@ export default function Add(
       paidById: values[FormIds.paidBy],
       subCategory: values[FormIds.subcategory],
       category: values[FormIds.category],
-      createdAt: values[FormIds.datetime],
+      paidAt: values[FormIds.paidAt],
       transactionDetails: userDetails,
       notes: values[FormIds.note]
     })

@@ -40,15 +40,17 @@ export default function GroupDetail({ params }:
     loading ? <Loading /> :
       <VStack w='100%'>
         <HStack w='100%' justifyContent={'space-between'}>
-          <Text fontSize='xl' fontWeight='bold'>{group?.name}</Text>
-          <Text fontSize='md' fontWeight='400'>Transactions</Text>
+          <VStack alignItems={'flex-start'}>
+            <Text fontSize='xl' fontWeight='bold'>{group?.name}</Text>
+            <Text fontSize='md' fontWeight='400'>Transactions</Text>
+          </VStack>
           <IconButton size={'md'} borderRadius={'full'}
             icon={<MdAdd />} aria-label="Add transaction"
             onClick={onOpen} />
         </HStack>
         <Divider marginY={2} />
         <Add {...{ group: group!, onClose, isOpen, setRefreshTransactions }} />
-        <TransactionsList {...{group: group!, refreshTransactions, setRefreshTransactions}} />
+        <TransactionsList {...{ group: group!, refreshTransactions, setRefreshTransactions }} />
       </VStack>
   )
 }
