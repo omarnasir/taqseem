@@ -8,7 +8,7 @@ export type AuthContextProps = {
   session: Session
 }
 
-export default function AuthProvider({ children }: AuthContextProps) {
+export default function Provider({ children }: AuthContextProps) {
   return (
     <SessionProvider>
       {children}

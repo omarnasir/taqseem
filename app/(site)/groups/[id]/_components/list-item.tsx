@@ -5,10 +5,10 @@ import {
   Text
  } from "@chakra-ui/react";
 
-import { TransactionWithDetails } from "@/types/model/transactions";
-import { deleteTransaction } from '@/client/services/transaction-service';
+import { TransactionWithDetails } from "@/app/_types/model/transactions";
+import { deleteTransaction } from '@/app/(site)/groups/_lib/transaction-service';
 
-import { CustomToast } from '@/components/toast';
+import { CustomToast } from '@/app/_components/toast';
 
 
 export default function TransactionListItem(

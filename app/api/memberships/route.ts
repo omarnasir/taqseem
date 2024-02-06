@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import prisma from "@/server/lib/prisma";
+import prisma from "@/app/_lib/db/prisma";
 
-import { type CreateMembershipArgs, type MembershipDefaultArgs } from "@/types/model/memberships";
-import { type UserBasicData } from "@/types/model/users";
+import { type CreateMembershipArgs, type MembershipDefaultArgs } from "@/app/_types/model/memberships";
+import { type UserBasicData } from "@/app/_types/model/users";
 import { sendErrorResponse } from "@/app/api/error-response";
 
 type GETResponseType = NextResponse<{ data: UserBasicData[] } | undefined | null>

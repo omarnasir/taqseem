@@ -10,9 +10,9 @@ import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MdPersonRemove, MdManageAccounts } from "react-icons/md"
 
-import { type GroupData } from "@/types/model/groups";
-import { deleteGroup } from '@/client/services/group-service';
-import { CustomToast } from '@/components/toast';
+import { type GroupData } from "@/app/_types/model/groups";
+import { deleteGroup } from '@/app/(site)/groups/_lib/group-service';
+import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
 
 

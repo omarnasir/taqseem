@@ -2,9 +2,8 @@ import {
   type CreateTransactionWithDetails,
   type TransactionWithDetails,
   type TransactionDeleteArgs
-} from '@/types/model/transactions';
-import { type ServiceResponseType } from '@/client/services/types';
-import { responseHandler } from '@/client/services/base';
+} from '@/app/_types/model/transactions';
+import { responseHandler, type ServiceResponseType } from '@/app/_lib/base-service';
 
 type CreateResponseType = ServiceResponseType & {
   data?: CreateTransactionWithDetails

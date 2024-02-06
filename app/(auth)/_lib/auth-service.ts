@@ -1,5 +1,5 @@
 import { signIn, signOut } from 'next-auth/react';
-import { type ServiceResponseType } from '@/client/services/types';
+import { type ServiceResponseType } from '@/app/_lib/base-service';
 
 type LoginData = {
   email: FormDataEntryValue,

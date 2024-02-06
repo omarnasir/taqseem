@@ -13,10 +13,10 @@ import {
   from "@chakra-ui/react";
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
-import { deleteMembership } from "@/client/services/membershipService";
-import { CustomToast } from "@/components/toast";
-import { type UserBasicData } from "@/types/model/users";
-import { GroupData } from "@/types/model/groups";
+import { deleteMembership } from "@/app/(site)/memberships/_lib/memberships-service";
+import { CustomToast } from "@/app/_components/toast";
+import { type UserBasicData } from "@/app/_types/model/users";
+import { GroupData } from "@/app/_types/model/groups";
 import { useSession } from "next-auth/react";
 
 type GroupDetailsProps = {

@@ -25,8 +25,8 @@ import {
 } from "react-icons/md"
 import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValues, Controller  } from "react-hook-form";
 
-import { UserBasicData } from "@/types/model/users";
-import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/types/constants";
+import { UserBasicData } from "@/app/_types/model/users";
+import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
 
 
 type TFormIds = {

@@ -2,7 +2,7 @@ import { useRouter } from 'next/navigation';
 
 import { Image, Button, Flex, Link } from "@chakra-ui/react";
 import { MdArrowBackIosNew } from "react-icons/md";
-import NavBarDrawer from './drawer-menu';
+import NavbarMenu from './menu';
 
 
 export default function Header(
@@ -31,9 +31,9 @@ export default function Header(
           w='50px'
           objectFit='fill'
           src='/logo.png'
-          alt={'taqseem'}/>
+          alt={'taqseem'} />
       </Link>
-      <NavBarDrawer {...{ userName: userName! }} />
+      <NavbarMenu {...{ userName: userName! }} />
     </Flex>
   )
 }

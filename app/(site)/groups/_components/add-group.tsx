@@ -13,9 +13,9 @@ import {
 import { useForm, FieldValues } from "react-hook-form"
 import { useSession } from "next-auth/react";
 
-import { createGroup } from "@/client/services/group-service";
-import { type GroupData } from "@/types/model/groups";
-import { CustomToast } from "@/components/toast";
+import { createGroup } from "@/app/(site)/groups/_lib/group-service";
+import { type GroupData } from "@/app/_types/model/groups";
+import { CustomToast } from "@/app/_components/toast";
 
 
 export default function AddGroup({ groups, setGroups }: {

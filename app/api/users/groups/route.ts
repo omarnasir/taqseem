@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/server/lib/prisma';
-import { type GroupData } from "@/types/model/groups";
+import prisma from '@/app/_lib/db/prisma';
+import { type GroupData } from "@/app/_types/model/groups";
 import { sendErrorResponse } from '@/app/api/error-response';
 
 type GETResponseType = NextResponse<{ data: GroupData[] } | undefined | null>

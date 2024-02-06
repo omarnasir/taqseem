@@ -4,8 +4,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'
 import { getServerSession } from 'next-auth';
 
-import AuthProvider from '@/client/providers/authProvider';
-import { Providers } from '@/client/providers/chakraProviders';
+import AuthProvider from '@/app/_lib/providers/AuthProvider';
+import ChakraProvider from '@/app/_lib/providers/ChakraProvider';
 
 export const metadata: Metadata = {
 	title: 'Taqseem',
@@ -24,7 +24,7 @@ export default async function RootLayout({
 		<html lang="en" data-theme='dark'>
 			<body className={inter.className}>
 				<AuthProvider session={session!}>
-					<Providers>{children}</Providers>
+					<ChakraProvider>{children}</ChakraProvider>
 				</AuthProvider>
 			</body>
 		</html>

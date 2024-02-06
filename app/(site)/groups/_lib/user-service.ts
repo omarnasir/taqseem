@@ -1,6 +1,5 @@
-import type { ServiceResponseType } from '@/client/services/types';
-import { GroupData } from '@/types/model/groups';
-import { responseHandler } from '@/client/services/base';
+import { GroupData } from '@/app/_types/model/groups';
+import { responseHandler, type ServiceResponseType } from '@/app/_lib/base-service';
 
 type GroupByUserIdResponseType = ServiceResponseType & {
   data?: GroupData;

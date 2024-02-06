@@ -1,10 +1,11 @@
-'use client'
+"use client";
+
 import { CacheProvider } from "@chakra-ui/next-js";
 import { ChakraProvider } from "@chakra-ui/react"
-import customTheme from "../themeConfig";
+import customTheme from "@/app/_lib/theme/config";
 
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
+export default function Provider ({ children }: { children: React.ReactNode }) {
   return (
     <CacheProvider>
       <ChakraProvider theme={customTheme}>

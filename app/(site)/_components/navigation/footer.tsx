@@ -10,6 +10,8 @@ import {
   MdNotifications,
   MdPerson,
 } from 'react-icons/md';
+
+
 export default function Footer(
   props: { containerWidth: Record<string, string> }
 ) {

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/server/lib/prisma';
+import prisma from '@/app/_lib/db/prisma';
 import { 
   GroupWithMembers,
   type CreateGroup, 
   type GroupData,
   type GroupDeleteArgs
-} from "@/types/model/groups";
+} from "@/app/_types/model/groups";
 import { sendErrorResponse } from "@/app/api/error-response";
 
 type GETResponseType = NextResponse<{data: GroupWithMembers} | undefined | null>

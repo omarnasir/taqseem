@@ -1,10 +1,10 @@
 'use client'
 import React, { useEffect, useState } from "react"
 
-import { Add } from "./_components/add"
+import Add from "./_components/add"
 import TransactionsList from "./_components/list"
-import { GroupWithMembers } from "@/types/model/groups"
-import { getGroupDetails } from "@/client/services/group-service"
+import { GroupWithMembers } from "@/app/_types/model/groups"
+import { getGroupDetails } from "@/app/(site)/groups/_lib/group-service"
 import Loading from "@/app/(site)/loading"
 import { 
   Divider, 

@@ -6,12 +6,12 @@ import {
 }
 	from "@chakra-ui/react"
 
-import { menuTheme } from "./themes/menu"
-import { modalTheme } from "./themes/modal"
-import { inputTheme } from "./themes/input"
-import { formLabelTheme } from "./themes/formLabel"
-import { buttonTheme } from "./themes/button"
-import { checkboxTheme } from "./themes/checkbox"
+import { menuTheme } from "./elements/menu"
+import { modalTheme } from "./elements/modal"
+import { inputTheme } from "./elements/input"
+import { formLabelTheme } from "./elements/formLabel"
+import { buttonTheme } from "./elements/button"
+import { checkboxTheme } from "./elements/checkbox"
 
 const fonts = {
 	...chakraTheme.fonts,

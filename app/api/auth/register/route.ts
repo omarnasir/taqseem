@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { hashPassword } from "@/server/utils/hashing";
-import prisma from '@/server/lib/prisma';
+import { hashPassword } from "@/app/_lib/utils/hashing";
+import prisma from '@/app/_lib/db/prisma';
 import { sendErrorResponse } from "@/app/api/error-response";
-import { UserPersonalData } from '@/types/model/users';
+import { UserPersonalData } from '@/app/_types/model/users';
 
 type POSTResponseType = NextResponse<{ data: UserPersonalData } | undefined | null>
 

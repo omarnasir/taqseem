@@ -8,9 +8,9 @@ import {
 } from "@chakra-ui/react";
 import { MdLogout, MdSettings } from 'react-icons/md'
 
-import { handleSignOutAuth } from '@/client/services/auth-service';
+import { handleSignOutAuth } from '@/app/(auth)/_lib/auth-service';
 
-export default function NavBarDrawer(props: { 
+export default function NavbarMenu(props: { 
   userName: string
  }) {
   return (

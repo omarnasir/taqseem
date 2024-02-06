@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 
 import GroupList from "./_components/list";
 import AddGroup from "./_components/add-group";
-import { getAllGroupsByUserId } from "@/client/services/user-service";
+import { getAllGroupsByUserId } from "@/app/(site)/groups/_lib/user-service";
 
-import { type GroupData } from "@/types/model/groups";
-import Loading from "../loading";
+import { type GroupData } from "@/app/_types/model/groups";
+import Loading from "@/app/(site)/loading";
 
 export default function GroupsPage() {
   const { data: sessionData } = useSession();

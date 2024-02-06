@@ -30,13 +30,13 @@ import {
   getCurrentDate,
   FormItemNote
 } from "./form-items";
-import { type GroupWithMembers } from "@/types/model/groups"
-import { createTransaction } from "@/client/services/transaction-service"
-import { CreateTransactionWithDetails } from "@/types/model/transactions";
+import { type GroupWithMembers } from "@/app/_types/model/groups"
+import { createTransaction } from "@/app/(site)/groups/_lib/transaction-service"
+import { CreateTransactionWithDetails } from "@/app/_types/model/transactions";
 import { useSession } from "next-auth/react";
-import { CustomToast } from "@/components/toast";
+import { CustomToast } from "@/app/_components/toast";
 
-export function Add(
+export default function Add(
   { group, onClose, isOpen, setRefreshTransactions }: { group: GroupWithMembers,
     onClose: () => void, isOpen: boolean, setRefreshTransactions: React.Dispatch<React.SetStateAction<string>> }
 ) {

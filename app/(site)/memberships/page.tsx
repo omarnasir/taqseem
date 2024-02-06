@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"
 import { Box } from "@chakra-ui/react";
 
-import { getMembershipsByGroupId } from "@/client/services/membershipService";
+import { getMembershipsByGroupId } from "@/app/(site)/memberships/_lib/memberships-service";
 import GroupMembersListItem from "./_components/list-item"
 import GroupAddUser from "./_components/add-user";
 import Loading from "@/app/(site)/loading";
 
-import { GroupData } from "@/types/model/groups";
-import { UserBasicData } from "@/types/model/users";
+import { GroupData } from "@/app/_types/model/groups";
+import { UserBasicData } from "@/app/_types/model/users";
 
 
 export default function GroupPage() {

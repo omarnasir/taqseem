@@ -3,9 +3,8 @@ import {
   type CreateGroup,
   type GroupDeleteArgs,
   type GroupWithMembers
-} from '@/types/model/groups';
-import { type ServiceResponseType } from '@/client/services/types';
-import { responseHandler } from '@/client/services/base';
+} from '@/app/_types/model/groups';
+import { responseHandler, type ServiceResponseType } from '@/app/_lib/base-service';
 
 type CreateOrDeleteResponseType = ServiceResponseType & {
   data?: GroupData;

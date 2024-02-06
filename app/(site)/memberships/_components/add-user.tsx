@@ -10,11 +10,11 @@ import {
   VStack,
 }
   from "@chakra-ui/react";
-import { type UserBasicData } from "@/types/model/users";
+import { type UserBasicData } from "@/app/_types/model/users";
 import { FieldValues, useForm } from "react-hook-form";
-import { createMembership } from "@/client/services/membershipService";
-import { CustomToast } from '@/components/toast';
-import { GroupData } from "@/types/model/groups";
+import { createMembership } from "@/app/(site)/memberships/_lib/memberships-service";
+import { CustomToast } from '@/app/_components/toast';
+import { GroupData } from "@/app/_types/model/groups";
 
 export default function GroupAddUser(
   { group, users, setUsers }: {

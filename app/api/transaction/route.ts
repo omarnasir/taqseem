@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/server/lib/prisma';
+import prisma from '@/app/_lib/db/prisma';
 import { 
   type CreateTransactionWithDetails,
   type TransactionDeleteArgs,
   type TransactionWithDetails
-} from "@/types/model/transactions";
+} from "@/app/_types/model/transactions";
 import { sendErrorResponse } from "@/app/api/error-response";
 
 type GETResponseType = NextResponse<{data: TransactionWithDetails} | undefined | null>

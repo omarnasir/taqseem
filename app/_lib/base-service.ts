@@ -1,4 +1,8 @@
-import { ServiceResponseType } from "./types";
+type ServiceResponseType = {
+  success: boolean;
+  error?: string;
+  data?: any;
+}
 
 async function responseHandler(response: Response): Promise<ServiceResponseType> {
   if (response.ok) {
@@ -12,5 +16,6 @@ async function responseHandler(response: Response): Promise<ServiceResponseType>
 }
 
 export {
-  responseHandler
+  responseHandler,
+  type ServiceResponseType
 }

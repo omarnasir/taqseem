@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { Text, VStack} from '@chakra-ui/react'
 
-import { type TransactionWithDetails } from "@/types/model/transactions";
-import { getTransactionsByGroupId } from "@/client/services/group-service";
-import { GroupWithMembers } from '@/types/model/groups';
+import { type TransactionWithDetails } from "@/app/_types/model/transactions";
+import { getTransactionsByGroupId } from "@/app/(site)/groups/_lib/group-service";
+import { GroupWithMembers } from '@/app/_types/model/groups';
 import TransactionListItem from './list-item';
 
 

@@ -11,7 +11,7 @@ import { useForm, FieldValues, FormProvider } from "react-hook-form"
 
 import { NameFormItem, EmailFormItem, PasswordFormItem } from '@/app/(auth)/_components/form-items';
 import { handlerRegisterAuth } from '@/app/(auth)/_lib/auth-service';
-import { CustomToast } from '@/components/toast';
+import { CustomToast } from '@/app/_components/toast';
 
 
 export default function Register() {

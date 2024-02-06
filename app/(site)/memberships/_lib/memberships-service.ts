@@ -1,10 +1,9 @@
 import { 
   type MembershipDefaultArgs,
   type CreateMembershipArgs
-} from '@/types/model/memberships';
-import { type UserBasicData } from '@/types/model/users';
-import { type ServiceResponseType } from '@/client/services/types';
-import { responseHandler } from '@/client/services/base';
+} from '@/app/_types/model/memberships';
+import { type UserBasicData } from '@/app/_types/model/users';
+import { responseHandler, type ServiceResponseType } from '@/app/_lib/base-service';
 
 
 type MembershipResponseType = ServiceResponseType & {
