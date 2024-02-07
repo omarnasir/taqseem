@@ -1,8 +1,9 @@
 'use client'
 import React, { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 
-import Add from "./_components/add"
-import TransactionsList from "./_components/list"
+import AddTransaction from "./_components/add-transaction"
+import TransactionsList from "./_components/transactions-list"
 import { GroupWithMembers } from "@/app/_types/model/groups"
 import { getGroupDetails } from "@/app/(site)/groups/_lib/group-service"
 import Loading from "@/app/(site)/loading"
@@ -18,9 +19,11 @@ import {
 import { MdAdd } from "react-icons/md"
 
 
-export default function GroupDetail({ params }: 
-  { params: { id: string } }) 
-{
+export default function GroupDetail() {
+  // get params from the router using url search
+  const searchParams = useSearchParams();
+  const groupId = searchParams.get('id');
+
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [loading, setLoading] = useState<boolean>(true);
   const [group, setGroup] = useState<GroupWithMembers>();
@@ -28,13 +31,13 @@ export default function GroupDetail({ params }:
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
-      await getGroupDetails(params.id).then((res) => {
+      await getGroupDetails(groupId!).then((res) => {
         setGroup(res.data);
         setLoading(false);
       });
     }
     fetchGroupDetails();
-  }, [params.id]);
+  }, [groupId]);
 
   return (
     loading ? <Loading /> :
@@ -49,7 +52,7 @@ export default function GroupDetail({ params }:
             onClick={onOpen} />
         </HStack>
         <Divider marginY={2} />
-        <Add {...{ group: group!, onClose, isOpen, setRefreshTransactions }} />
+        <AddTransaction {...{ group: group!, onClose, isOpen, setRefreshTransactions }} />
         <TransactionsList {...{ group: group!, refreshTransactions, setRefreshTransactions }} />
       </VStack>
   )

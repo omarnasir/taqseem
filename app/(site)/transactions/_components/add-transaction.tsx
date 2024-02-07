@@ -31,12 +31,12 @@ import {
   FormItemNote
 } from "./form-items";
 import { type GroupWithMembers } from "@/app/_types/model/groups"
-import { createTransaction } from "@/app/(site)/groups/_lib/transaction-service"
+import { createTransaction } from "@/app/(site)/transactions/_lib/transactions-service"
 import { CreateTransactionWithDetails } from "@/app/_types/model/transactions";
 import { useSession } from "next-auth/react";
 import { CustomToast } from "@/app/_components/toast";
 
-export default function Add(
+export default function AddTransaction(
   { group, onClose, isOpen, setRefreshTransactions }: { group: GroupWithMembers,
     onClose: () => void, isOpen: boolean, setRefreshTransactions: React.Dispatch<React.SetStateAction<string>> }
 ) {

@@ -9,8 +9,8 @@ import {
 } from '@chakra-ui/react'
 
 import { type TransactionWithDetails } from "@/app/_types/model/transactions";
-import { getTransactionsByGroupId } from "@/app/(site)/groups/_lib/group-service";
-import { deleteTransaction } from '@/app/(site)/groups/_lib/transaction-service';
+import { getTransactionsByGroupId } from "@/app/(site)/transactions/_lib/transactions-service";
+import { deleteTransaction } from '@/app/(site)/transactions/_lib/transactions-service';
 import { GroupWithMembers } from '@/app/_types/model/groups';
 
 import { CustomToast } from '@/app/_components/toast';

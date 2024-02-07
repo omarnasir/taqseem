@@ -3,6 +3,7 @@ import {
   type TransactionWithDetails,
   type TransactionDeleteArgs
 } from '@/app/_types/model/transactions';
+
 import { responseHandler, type ServiceResponseType } from '@/app/_lib/base-service';
 
 type CreateResponseType = ServiceResponseType & {
@@ -13,6 +14,14 @@ type DeleteResponseType = ServiceResponseType & {
 }
 type GETResponseType = ServiceResponseType & {
   data?: TransactionWithDetails
+}
+type GETTransactionsResponseType = ServiceResponseType & {
+  data?: TransactionWithDetails[]
+}
+
+async function getTransactionsByGroupId(id: string): Promise<GETTransactionsResponseType> {
+  const response = await fetch(`/api/groups/transactions/?id=${id}`);
+  return await responseHandler(response);
 }
 
 async function getTransaction(id: string): 
@@ -40,6 +49,7 @@ async function deleteTransaction(reqData: TransactionDeleteArgs):
 }
 
 export {
+  getTransactionsByGroupId,
   getTransaction,
   createTransaction,
   deleteTransaction

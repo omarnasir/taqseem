@@ -16,7 +16,7 @@ import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
 
 
-export default function GroupList(
+export default function GroupsList(
   { groups, setGroups }:
     {
       groups: GroupData[],
@@ -52,7 +52,7 @@ export default function GroupList(
                 <Heading as={NextLink}
                   ml={2}
                   w='50%'
-                  href={`/groups/${group.id}`}
+                  href={`/transactions?id=${group.id}`}
                   fontSize={'lg'}
                   fontWeight='400'>{group.name}</Heading>
                 {group.createdById === sessionData!.user.id &&

@@ -1,6 +1,6 @@
 'use client';
 import { useSession } from 'next-auth/react';
-import { Box, Container, Flex } from '@chakra-ui/react';
+import { Container, Flex } from '@chakra-ui/react';
 
 import Footer from '@/app/(site)/_components/navigation/footer';
 import Header from '@/app/(site)/_components/navigation/header';
