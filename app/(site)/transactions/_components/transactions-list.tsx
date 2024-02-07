@@ -5,7 +5,8 @@ import {
   Card,
   CardBody,
   Text,
-  Button
+  Button,
+  useDisclosure
 } from '@chakra-ui/react'
 
 import { type TransactionWithDetails } from "@/app/_types/model/transactions";
@@ -15,12 +16,14 @@ import { GroupWithMembers } from '@/app/_types/model/groups';
 
 import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
+import Confirm from "@/app/(site)/_components/confirm";
+
 
 export default function TransactionsList({ group, refreshTransactions, setRefreshTransactions }:
   { group: GroupWithMembers, refreshTransactions: string, setRefreshTransactions: React.Dispatch<React.SetStateAction<string>> }) {
   const { data: sessionData } = useSession();
   const [transactions, setTransactions] = useState<TransactionWithDetails[]>([]);
-
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const { addToast } = CustomToast();
 
@@ -57,7 +60,10 @@ export default function TransactionsList({ group, refreshTransactions, setRefres
               <Text>{transaction.amount}</Text>
               <Text>{group.users!.find(user => user.id === transaction.paidById)?.name}</Text>
               <Text>{transaction.paidAt.toString()}</Text>
-              <Button onClick={() => onRemoveTransaction(transaction.id)}>Remove</Button>
+              <Button onClick={onOpen}>Remove</Button>
+              <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                onRemoveTransaction(transaction.id); onClose();
+              }} mode="removeTransaction"/>
             </CardBody>
           </Card>
         ))}

@@ -1,20 +1,19 @@
 'use client'
 import {
   Button,
-  Heading,
   Text,
   CardBody,
   Card,
-  CardHeader,
   Flex,
   Stack,
-  StackDivider
+  useDisclosure
 }
   from "@chakra-ui/react";
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
 import { deleteMembership } from "@/app/(site)/memberships/_lib/memberships-service";
 import { CustomToast } from "@/app/_components/toast";
+import Confirm from "@/app/(site)/_components/confirm";
 import { type UserBasicData } from "@/app/_types/model/users";
 import { GroupData } from "@/app/_types/model/groups";
 import { useSession } from "next-auth/react";
@@ -28,6 +27,7 @@ type GroupDetailsProps = {
 export default function GroupMembersList({ group, users, setUsers
 }: GroupDetailsProps) {
   const { data: sessionData } = useSession();
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const { addToast } = CustomToast()
 
   async function onRemoveUser(userId: string) {
@@ -47,7 +47,7 @@ export default function GroupMembersList({ group, users, setUsers
       <Text size='sm' fontWeight='300'>Add or remove members.</Text>
       {users.length > 0 ? users.map((user) => (
         <Card key={user.id}
-          size='sm'
+          size='md'
           variant={'custom'}>
           <CardBody>
             <Flex flexDirection={'row'} alignItems={'center'}
@@ -58,11 +58,14 @@ export default function GroupMembersList({ group, users, setUsers
               </Flex>
               {(group.createdById === sessionData?.user?.id ||
                 user.id === sessionData?.user?.id) &&
-                <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)'/>} size='sm'
+                <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)' />} size='sm'
                   variant={'outline'}
-                  onClick={() => onRemoveUser(user.id)}>
+                  onClick={onOpen}>
                   Remove
                 </Button>}
+              <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                onRemoveUser(user.id); onClose();
+              }} mode="removeUser"/>
             </Flex>
           </CardBody>
         </Card>

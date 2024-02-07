@@ -32,7 +32,7 @@ const customTheme = extendTheme({ config, fonts },
 			black: '#0a0a0a',
 			itemBgGray: '#101010',
 			bgFooter: 'linear-gradient(205deg, rgb(20,19,19) 20%, rgb(35,35,35) 100%)',
-			bgCard: 'rgba(25,25,25, 0.15)',
+			bgCard: 'linear-gradient(135deg, rgba(25,25,25, 0.25) 0%, rgba(55,55,55, 0.20) 100%)',
 			bgModal: 'rgba(23,23,23, 1)',
 			loginbtn: {
 				50: '#ffffff',

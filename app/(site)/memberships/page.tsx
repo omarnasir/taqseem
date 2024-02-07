@@ -4,8 +4,8 @@ import { useSearchParams } from "next/navigation"
 import { Box } from "@chakra-ui/react";
 
 import { getMembershipsByGroupId } from "@/app/(site)/memberships/_lib/memberships-service";
-import GroupMembersList from "./_components/list"
-import GroupAddUser from "./_components/add-user";
+import GroupMembersList from "./_components/members-list"
+import GroupAddUser from "./_components/add-member";
 import Loading from "@/app/(site)/loading";
 
 import { GroupData } from "@/app/_types/model/groups";

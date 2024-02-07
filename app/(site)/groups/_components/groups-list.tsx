@@ -3,7 +3,7 @@ import {
   CardBody,
   Heading,
   Text,
-  Stack, Button, VStack, HStack
+  Stack, Button, VStack, HStack, useDisclosure
 } from '@chakra-ui/react'
 
 import NextLink from 'next/link'
@@ -14,6 +14,7 @@ import { type GroupData } from "@/app/_types/model/groups";
 import { deleteGroup } from '@/app/(site)/groups/_lib/group-service';
 import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
+import Confirm from '@/app/(site)/_components/confirm';
 
 
 export default function GroupsList(
@@ -24,6 +25,8 @@ export default function GroupsList(
     }) {
   const { data: sessionData } = useSession();
   const router = useRouter();
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const { addToast } = CustomToast();
 
   async function onRemoveGroup(id: string) {
@@ -65,9 +68,12 @@ export default function GroupsList(
                     </Button>
                     <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)'/>} size='sm'
                       variant={'outline'}
-                      onClick={() => onRemoveGroup(group.id)}>
+                      onClick={onOpen}>
                       Remove
                     </Button>
+                    <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                      onRemoveGroup(group.id); onClose();
+                    }} mode="removeGroup" />
                   </VStack>}
               </HStack>
             </CardBody>

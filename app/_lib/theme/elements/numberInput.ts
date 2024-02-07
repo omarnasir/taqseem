@@ -16,6 +16,13 @@ const custom = definePartsStyle({
     _disabled: {
       background: "rgba(5,5,5, 1)",
     },
+    _focus: {
+      borderColor: "gray",
+      borderBottomWidth: "1px",
+    },
+    _autofill: {
+      transition: "background-color 5000s ease-in-out 0s",
+    },
   }
 })
 
