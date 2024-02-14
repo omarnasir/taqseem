@@ -22,28 +22,31 @@ export default function SiteLayout({
   return (
     <Flex minW='100vw' h='100vh' flexDir='column'>
       <Flex
+        boxShadow={'xl'}
         justify={'space-between'}
         w='100%'
-        justifyContent='center'>
+        justifyContent='center'
+        position='sticky'
+        top={0}>
         <Header {...{ containerWidth: containerWidth, userName: data?.user?.name }} />
       </Flex>
-      <Container maxW='container.lg'
+      <Container
         flexDirection={'column'} alignItems={'center'}
         display={'flex'}>
         <Flex mt={3} w={containerWidth} display='flex'>
           {children}
         </Flex>
-        <Flex
-          boxShadow={'dark-lg'}
-          bg='bgFooter'
-          justify={'space-between'}
-          w='100%'
-          justifyContent='center'
-          position='absolute'
-          bottom={0}>
-          <Footer {...{ containerWidth: containerWidth }} />
-        </Flex>
       </Container>
+      <Flex
+        boxShadow={'dark-lg'}
+        bg='bgFooter'
+        justify={'space-between'}
+        w='100%'
+        justifyContent='center'
+        position='absolute'
+        bottom={0}>
+        <Footer {...{ containerWidth: containerWidth }} />
+      </Flex>
     </Flex>
   );
 }

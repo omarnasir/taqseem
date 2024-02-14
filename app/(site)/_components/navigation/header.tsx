@@ -18,7 +18,7 @@ export default function Header(
     <Flex direction={'row'}
       justifyContent={'space-between'}
       alignItems={'center'}
-      mt={2}
+      pt={2}
       w={containerWidth}>
       <Button
         leftIcon={<MdArrowBackIosNew size={18} />}

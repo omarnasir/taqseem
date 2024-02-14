@@ -24,7 +24,7 @@ export default function Footer(
   ]
 
   return (
-    <Flex maxW='container.lg' w={containerWidth} direction='row'
+    <Flex w={containerWidth} direction='row'
       justifyContent={'space-evenly'}>
       {linkItems.map((linkItem, index) => (
         <Button key={index} href={linkItem.href} as={Link} w='100%'
@@ -33,7 +33,7 @@ export default function Footer(
           variant='none'
           colorScheme='loginbtn'
           flexDirection={'column'}>
-          <linkItem.icon size={20} />
+          <linkItem.icon size={25} />
           <Text mt={2} fontSize={'sm'} fontWeight={300}>{linkItem.name}</Text>
         </Button>
       ))}
