@@ -24,6 +24,11 @@ async function getTransactionsByGroupId(id: string): Promise<GETTransactionsResp
   return await responseHandler(response);
 }
 
+async function getTransactionsByUserAndGroupId(groupId: string, userId: string): Promise<GETTransactionsResponseType> {
+  const response = await fetch(`/api/users/groups/transactions/?groupId=${groupId}&userId=${userId}`);
+  return await responseHandler(response);
+}
+
 async function getTransaction(id: string): 
   Promise<GETResponseType> {
   const response = await fetch(`/api/transaction/?id=${id}`);
@@ -50,6 +55,7 @@ async function deleteTransaction(reqData: TransactionDeleteArgs):
 
 export {
   getTransactionsByGroupId,
+  getTransactionsByUserAndGroupId,
   getTransaction,
   createTransaction,
   deleteTransaction

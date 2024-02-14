@@ -68,10 +68,11 @@ export default function AddTransaction(
     const totalAmount = parseFloat(values[FormIds.amount]);
     let userDetails : CreateTransactionWithDetails['transactionDetails']
     if (everyone) {
+      const userAmount = totalAmount / group.users!.length
       userDetails = group.users!.map(user => {
         return {
           userId: user.id,
-          amount: totalAmount / group.users!.length
+          amount: userAmount
         }
       })
     }
@@ -87,6 +88,13 @@ export default function AddTransaction(
         }
       })
     }
+    // Multiply the non-paying user's amount by -1 to indicate that they are paying
+    userDetails = userDetails.map(user => {
+      if (user.userId !== values[FormIds.paidBy]) {
+        user.amount *= -1;
+      }
+      return user;
+    })
     const response = await createTransaction({
       name: values[FormIds.name],
       amount: totalAmount,
@@ -95,7 +103,7 @@ export default function AddTransaction(
       paidById: values[FormIds.paidBy],
       subCategory: values[FormIds.subcategory],
       category: values[FormIds.category],
-      paidAt: values[FormIds.paidAt],
+      paidAt: new Date(values[FormIds.paidAt]).toISOString(),
       transactionDetails: userDetails,
       notes: values[FormIds.note]
     })
@@ -140,13 +148,13 @@ export default function AddTransaction(
           </ModalBody>
           <ModalFooter>
             <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-              <Button size={'sm'} fontWeight={'400'}
-                textAlign={'center'} variant={'none'} textColor='gray.500'
+              <Button size={'sm'} fontWeight={'400'} w={'7rem'}
+                textAlign={'center'} variant={'outline'} textColor='whiteAlpha.600'
                 onClick={() => reset()}>
                 Clear
               </Button>
               <Button size={'sm'} w={'7rem'} fontWeight={'600'}
-                bg={'gray.100'} colorScheme='loginbtn' textColor='black'
+                variant={'add'} textColor='black'
                 isLoading={methods.formState.isSubmitting} type='submit'>
                 Add
               </Button>

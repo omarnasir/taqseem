@@ -1,7 +1,18 @@
+import {
+  MdFastfood as FoodIcon,
+  MdHome as HouseholdIcon,
+  MdLocalMall as ShoppingIcon,
+  MdNightlife as LifestyleIcon,
+  MdDirectionsTransit as TransportationIcon,
+  MdFlight as VacationIcon,
+  MdMoreHoriz as OtherIcon,
+} from "react-icons/md"
+import { IconType } from "react-icons"
+
 // Define the types and enums used in the application
 
 // Transaction Categories
-export enum TransactionCategoryEnum {
+enum TransactionCategoryEnum {
   Food = 'Food',
   Household = 'Household',
   Lifestyle = 'Lifestyle',
@@ -12,7 +23,7 @@ export enum TransactionCategoryEnum {
 }
 
 // Transaction Sub Categories
-export enum TransactionSubCategoryEnum {
+enum TransactionSubCategoryEnum {
   Groceries = 'Groceries',
   FoodOutdoors = 'Food Outdoors',
   Rent = 'Rent',
@@ -29,4 +40,37 @@ export enum TransactionSubCategoryEnum {
   HomeGoods = 'Home Goods',
   Electronics = 'Electronics',
   Other = 'Other'
+}
+
+// Transaction Icons
+function getTransactionIcon(category: number): IconType {
+  const categoryEnum = Object.values(TransactionCategoryEnum)[category]
+  let Icon : IconType = OtherIcon
+  switch (categoryEnum) {
+    case TransactionCategoryEnum.Food:
+      Icon = FoodIcon;
+      break;
+    case TransactionCategoryEnum.Household:
+      Icon = HouseholdIcon
+      break;
+    case TransactionCategoryEnum.Lifestyle:
+      Icon = LifestyleIcon
+      break;
+    case TransactionCategoryEnum.Transportation:
+      Icon = TransportationIcon
+      break;
+    case TransactionCategoryEnum.Shopping:
+      Icon = ShoppingIcon
+      break;
+    case TransactionCategoryEnum.Vacation:
+      Icon = VacationIcon
+      break;
+  }
+  return Icon
+}
+
+export {
+  TransactionCategoryEnum,
+  TransactionSubCategoryEnum,
+  getTransactionIcon
 }
