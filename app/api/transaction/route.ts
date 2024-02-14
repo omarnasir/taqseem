@@ -90,6 +90,7 @@ export async function POST(request: NextRequest):
           amount: body.amount,
           groupId: body.groupId,
           paidById: body.paidById,
+          paidAt: body.paidAt,
           createdById: body.createdById,
           transactionDetails: {
             create: body.transactionDetails?.map(detail => {
@@ -120,6 +121,7 @@ export async function POST(request: NextRequest):
           amount: body.amount,
           groupId: body.groupId,
           paidById: body.paidById,
+          paidAt: body.paidAt,
           createdById: body.createdById,
           transactionDetails: {
             update: body.transactionDetails?.map(detail => {
@@ -142,6 +144,7 @@ export async function POST(request: NextRequest):
       return NextResponse.json({ data: updatedTransaction }, { status: 200 });
     }
   } catch (e: any) {
+    console.log(e);
     return sendErrorResponse({ statusText: e.message });
   }
 }
