@@ -101,8 +101,6 @@ function FormItemAmountDetails({ users }: { users: UserBasicData[] }) {
         variant={'transactionEveryone'}
         isChecked={everyone}
         colorScheme={'loginbtn'}
-        bg={everyone ? 'white' : 'gray.800'}
-        color={everyone ? 'black' : 'gray.600'}
         {...register(FormIds.everyone, {
           required: false,
           onChange: (e) => {

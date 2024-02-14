@@ -59,36 +59,32 @@ export default function Confirm({ onClose, isOpen, callback, mode }: ConfirmProp
     message: '',
     title: ''
   })
-  
+
   useEffect(() => {
     setDescription(getMessageAndTitle(mode))
   }, [mode])
 
   return (
-    <>
-      <AlertDialog
-        motionPreset='slideInBottom'
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-        isOpen={isOpen}
-        isCentered
-      >
-        <AlertDialogOverlay />
-
-        <AlertDialogContent>
-          <AlertDialogHeader>{description.title}</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>{description.message}</AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
-              No
-            </Button>
-            <Button colorScheme='red' ml={3} onClick={callback}>
-              Yes
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <AlertDialog
+      motionPreset='slideInBottom'
+      leastDestructiveRef={cancelRef}
+      onClose={onClose}
+      isOpen={isOpen}
+      isCentered>
+      <AlertDialogOverlay />
+      <AlertDialogContent>
+        <AlertDialogHeader>{description.title}</AlertDialogHeader>
+        <AlertDialogCloseButton />
+        <AlertDialogBody>{description.message}</AlertDialogBody>
+        <AlertDialogFooter>
+          <Button ref={cancelRef} onClick={onClose}>
+            No
+          </Button>
+          <Button colorScheme='red' ml={3} onClick={callback}>
+            Yes
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

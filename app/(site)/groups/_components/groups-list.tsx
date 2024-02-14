@@ -60,7 +60,7 @@ export default function GroupsList(
                   fontWeight='400'>{group.name}</Heading>
                 {group.createdById === sessionData!.user.id &&
                   <VStack w='50%' alignItems={'flex-end'}>
-                    <Button leftIcon={<MdManageAccounts/>} size='sm'
+                    <Button leftIcon={<MdManageAccounts color='rgb(90, 105, 155)'/>} size='sm'
                       variant={'outline'}
                       onClick={() => router.push(
                         `/memberships?data=${JSON.stringify(group)}`,)}>

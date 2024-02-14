@@ -9,9 +9,10 @@ const transactionEveryone = definePartsStyle({
     border: 'none',
   },
   container: {
-    _pressed: {
-      bg: "red"
+    _checked: {
+      bg: 'whiteAlpha.800',
     },
+    bg: 'whiteAlpha.300',
   },
   label: {
     fontSize: 'sm',

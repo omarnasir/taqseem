@@ -11,6 +11,12 @@ export const buttonTheme = defineStyleConfig({
         bg: '#aaaaaa',
         textColor: 'black',
       },
+    },
+    add: {
+      bg: 'green.500',
+      boxShadow: '0px 4px 6px 4px rgba(0, 0, 0, 0.1)',
+      colorScheme: 'loginbtn',
+      textColor: 'black'
     }
   }
 })
