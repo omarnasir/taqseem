@@ -24,4 +24,16 @@ const transactionEveryone = definePartsStyle({
   },
 })
 
-export const checkboxTheme = defineMultiStyleConfig({ variants: { transactionEveryone } })
+const transactionDetailsUser = definePartsStyle({
+  control: {
+    _checked: {
+      border: 'none',
+      bg: 'whiteAlpha.800',
+    },
+    _focus: {
+      boxShadow: 'none',
+    },
+  },
+})
+
+export const checkboxTheme = defineMultiStyleConfig({ variants: { transactionEveryone, transactionDetailsUser } })

@@ -18,6 +18,12 @@ export const buttonTheme = defineStyleConfig({
       colorScheme: 'loginbtn',
       textColor: 'black'
     },
+    delete: {
+      bg: 'red.400',
+      opacity: 0.75,
+      color: 'black',
+      fontWeight: 'medium',
+    },
     headerButton: {
       fontSize: 'lg',
       color: 'whiteAlpha.700',

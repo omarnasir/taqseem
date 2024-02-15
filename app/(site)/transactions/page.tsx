@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 
 import TransactionView from "./_components/view-transaction"
 import { AmountDisplay, DateDisplay, cardItemWidths, SummaryDisplay } from "./_components/transactions-list"
-import { type TransactionWithDetails } from "@/app/_types/model/transactions";
+import { type TTransactionWithDetails } from "@/app/_types/model/transactions";
 import { GroupWithMembers } from "@/app/_types/model/groups"
 import { getGroupDetails } from "@/app/(site)/groups/_lib/group-service"
 import { getTransactionsByUserAndGroupId } from "@/app/(site)/transactions/_lib/transactions-service";
@@ -30,17 +30,17 @@ export default function GroupTransactions() {
   const groupId = searchParams.get('id');
 
   const { data: sessionData } = useSession();
-  const [transactions, setTransactions] = useState<TransactionWithDetails[]>([]);
+  const [transactions, setTransactions] = useState<TTransactionWithDetails[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [group, setGroup] = useState<GroupWithMembers>();
   const [refreshTransactions, setRefreshTransactions] = useState<string>('');
-  const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
+  const [selectedTransaction, setSelectedTransaction] = useState<TTransactionWithDetails>();
 
   const onCloseCallback = () => {
-    setSelectedTransaction(undefined);
     onClose();
+    setSelectedTransaction(undefined);
   }
-
+  
   useEffect(() => {
     const fetchGroupDetails = async () => {
       const res = await getGroupDetails(groupId!)

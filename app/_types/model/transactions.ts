@@ -10,10 +10,7 @@ export type TransactionDeleteArgs = {
   userId: string
 }
 
-type createTransaction = Prisma.TransactionsUncheckedCreateInput
-type createTransactionDetails = Prisma.TransactionDetailsUncheckedCreateWithoutTransactionInput
+export type TCreateTransaction = Prisma.TransactionsUncheckedCreateInput
+export type TCreateTransactionDetails = Prisma.TransactionDetailsUncheckedCreateWithoutTransactionInput
 
-export type CreateTransactionWithDetails = createTransaction & {
-  transactionDetails: createTransactionDetails[]
-}
-export type TransactionWithDetails = Prisma.TransactionsGetPayload<typeof transaction>
+export type TTransactionWithDetails = Prisma.TransactionsGetPayload<typeof transaction>

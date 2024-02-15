@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 
 import {
@@ -16,29 +17,28 @@ import {
 } from "@chakra-ui/react"
 
 import { FormProvider, useForm } from "react-hook-form";
-import { MdDelete } from "react-icons/md"
 
 import {
-  type TFormIds,
-  FormIds,
+  type TFormTransaction,
+  type TFormTransactionDetails,
+  TransactionFormIds,
   FormItemId,
   FormItemAmount,
-  FormItemAmountDetails,
+  FormItemTransactionDetails,
   FormItemCategory,
   FormItemSubCategory,
   FormItemDateTime,
   FormItemName,
   FormItemPaidBy,
   FormItemNote,
-  processAmountDetails,
+  processTransactionDetails,
   formatDateToString
 } from "./form-items";
 import { type GroupWithMembers } from "@/app/_types/model/groups"
 import { createTransaction, deleteTransaction } from "@/app/(site)/transactions/_lib/transactions-service"
-import { CreateTransactionWithDetails, TransactionWithDetails } from "@/app/_types/model/transactions";
+import { type TCreateTransaction, type TCreateTransactionDetails, type TTransactionWithDetails } from "@/app/_types/model/transactions";
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/(site)/_components/confirm";
-import { useEffect } from "react";
 
 
 export default function TransactionView(
@@ -46,10 +46,10 @@ export default function TransactionView(
     group: GroupWithMembers,
     disclosureMethods: { onClose: () => void, isOpen: boolean },
     setRefreshTransactions: React.Dispatch<React.SetStateAction<string>>,
-    transactionWithDetails?: TransactionWithDetails,
+    transactionWithDetails?: TTransactionWithDetails,
   }
 ) {
-  console.log('TransactionView', transactionWithDetails)
+  const users = group.users!;
   const { data: sessionData } = useSession();
   const { addToast } = CustomToast();
   const { isOpen, onClose } = disclosureMethods
@@ -67,67 +67,41 @@ export default function TransactionView(
     }
   }
 
-  const defaultValues = {
+  const defaultValues: TFormTransaction = useMemo(() => ({
     id: transactionWithDetails?.id || undefined,
     name: transactionWithDetails?.name || '',
     category: transactionWithDetails?.category || 0,
-    subcategory: transactionWithDetails?.subCategory || 0,
+    subCategory: transactionWithDetails?.subCategory || 0,
     amount: transactionWithDetails?.amount.toString() || '0',
-    paidAt: transactionWithDetails?.paidAt || formatDateToString(new Date()),
-    amountDetails: transactionWithDetails?.transactionDetails,
-    everyone: true,
-    note: transactionWithDetails?.notes,
-    paidBy: transactionWithDetails?.paidById
-  }
-
-  const methods = useForm<TFormIds>(
-    {
-      defaultValues: {
-        id: undefined,
-        name: '',
-        category: 0,
-        subcategory: 0,
-        amount: '0',
-        paidAt: formatDateToString(new Date()),
-        amountDetails: [],
-        everyone: true,
-        note: '',
-        paidBy: group.users![0].id
+    paidAt: transactionWithDetails?.paidAt ? formatDateToString(transactionWithDetails?.paidAt) : formatDateToString(new Date()),
+    everyone: transactionWithDetails?.id ? false : true,
+    transactionDetails: transactionWithDetails?.transactionDetails.map(detail => {
+      return {
+        userId: detail.userId,
+        amount: detail.amount.toString()
       }
-    })
+    }) || [],
+    groupId: group.id,
+    createdById: transactionWithDetails?.createdById || sessionData!.user.id,
+    notes: transactionWithDetails?.notes || '',
+    paidById: transactionWithDetails?.paidById || sessionData!.user.id,
+  }), [sessionData, group, transactionWithDetails]);
+
+  const methods = useForm<TFormTransaction>({
+    values: defaultValues
+  });
   const {
     handleSubmit,
-    reset
+    reset,
   } = methods
 
-  useEffect(() => {
-    if (transactionWithDetails) {
-      reset({
-        name: transactionWithDetails.name,
-        category: transactionWithDetails.category,
-        subcategory: transactionWithDetails.subCategory,
-        amount: transactionWithDetails.amount.toString(),
-        paidAt: formatDateToString(transactionWithDetails.paidAt),
-        amountDetails: transactionWithDetails.transactionDetails.map(detail => {
-          return {
-            userId: detail.userId,
-            amount: detail.amount.toString()
-          }
-        }),
-        everyone: false,
-        note: transactionWithDetails.notes || '',
-        paidBy: transactionWithDetails.paidById,
-      })
-    }
-  }, [transactionWithDetails, reset]);
-
-  async function onSubmit(values: TFormIds) {
-    const everyone = values[FormIds.everyone] as boolean;
-    const totalAmount = parseFloat(values[FormIds.amount]);
-    let userDetails: CreateTransactionWithDetails['transactionDetails']
+  async function onSubmit(values: TFormTransaction) {
+    const everyone = values[TransactionFormIds.everyone] as boolean;
+    const totalAmount = parseFloat(values[TransactionFormIds.amount]);
+    let userDetails: TCreateTransactionDetails[];
     if (everyone) {
-      const userAmount = totalAmount / group.users!.length
-      userDetails = group.users!.map(user => {
+      const userAmount = totalAmount / users.length
+      userDetails = users.map(user => {
         return {
           userId: user.id,
           amount: userAmount
@@ -135,48 +109,60 @@ export default function TransactionView(
       })
     }
     else {
-      const amountDetails = values[FormIds.amountDetails] as TFormIds[FormIds.amountDetails];
-      const { selectedUsers, usersWithoutInputAmount, sum } = processAmountDetails(amountDetails)
+      const transactionDetails = values[TransactionFormIds.transactionDetails] as TFormTransactionDetails[];
+      const { selectedUsers, usersWithoutInputAmount, sum } = processTransactionDetails(transactionDetails)
       const remainingAmount = totalAmount - sum;
       const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
       userDetails = selectedUsers.map((selectedUser) => {
         return {
-          userId: selectedUser.id,
+          userId: selectedUser.userId,
           amount: (selectedUser.amount === null) ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
         }
       })
     }
     // Multiply the non-paying user's amount by -1 to indicate that they are paying
     userDetails = userDetails.map(user => {
-      if (user.userId !== values[FormIds.paidBy]) {
+      if (user.userId !== values[TransactionFormIds.paidById]) {
         user.amount *= -1;
       }
       return user;
     })
-    if (transactionWithDetails) {
-      console.log('Edit', userDetails, values[FormIds.id])
+    if (values.id) {
+      console.log('Edit', userDetails)
     }
     else {
-      const response = await createTransaction({
-        name: values[FormIds.name],
-        amount: totalAmount,
-        groupId: group.id,
-        createdById: sessionData!.user.id,
-        paidById: values[FormIds.paidBy],
-        subCategory: values[FormIds.subcategory],
-        category: values[FormIds.category],
-        paidAt: new Date(values[FormIds.paidAt]).toISOString(),
-        transactionDetails: userDetails,
-        notes: values[FormIds.note]
-      })
-      if (response.success) {
-        reset();
-        onClose();
-        setRefreshTransactions(Date.now().toString());
-      }
-      else {
-        addToast("Error creating transaction", response.error, "error")
-      }
+      console.log('Create', {
+          name: values[TransactionFormIds.name],
+          amount: totalAmount,
+          groupId: group.id,
+          createdById: sessionData!.user.id,
+          paidById: values[TransactionFormIds.paidById],
+          subCategory: values[TransactionFormIds.subCategory],
+          category: values[TransactionFormIds.category],
+          paidAt: new Date(values[TransactionFormIds.paidAt]!).toISOString(),
+          transactionDetails: userDetails,
+          notes: values[TransactionFormIds.notes]
+        })
+      // const response = await createTransaction({
+      //   name: values[FormIds.name],
+      //   amount: totalAmount,
+      //   groupId: group.id,
+      //   createdById: sessionData!.user.id,
+      //   paidById: values[FormIds.paidById],
+      //   subCategory: values[FormIds.subCategory],
+      //   category: values[FormIds.category],
+      //   paidAt: new Date(values[FormIds.paidAt]).toISOString(),
+      //   transactionDetails: userDetails,
+      //   notes: values[FormIds.notes]
+      // })
+      // if (response.success) {
+      //   reset();
+      //   onClose();
+      //   setRefreshTransactions(Date.now().toString());
+      // }
+      // else {
+      //   addToast("Error creating transaction", response.error, "error")
+      // }
     }
     return
   }
@@ -205,29 +191,29 @@ export default function TransactionView(
               <FormItemCategory />
               <FormItemSubCategory />
             </HStack>
-            <FormItemPaidBy {...{ users: group.users! }} />
+            <FormItemPaidBy {...{ users: users }} />
             <FormItemAmount />
-            <FormItemAmountDetails {...{ users: group.users! }} />
+            <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
             <FormItemNote />
           </ModalBody>
           <ModalFooter>
             <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-              <Button size={'sm'} fontWeight={'400'} w={'7rem'}
-                textAlign={'center'} variant={'outline'} textColor='whiteAlpha.600'
-                onClick={() => reset()}>
-                Clear
-              </Button>
-              {transactionWithDetails &&
+              {transactionWithDetails ?
                 <>
-                  <Button size={'sm'} fontWeight={'400'} w={'7rem'}
-                    textAlign={'center'} variant={'remove'} textColor='whiteAlpha.600'
+                  <Button size={'sm'} fontWeight={'600'} w={'7rem'}
+                    textAlign={'center'} variant={'delete'}
                     onClick={onOpenRemoveTransaction}>
-                    <MdDelete size={20} />
+                    Delete
                   </Button>
                   <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
                     onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
                   }} mode="removeTransaction" />
-                </>}
+                </> :
+                <Button size={'sm'} fontWeight={'400'} w={'7rem'}
+                  textAlign={'center'} variant={'outline'} textColor='whiteAlpha.600'
+                  onClick={() => reset(defaultValues)}>
+                  Clear
+                </Button>}
               <Button size={'sm'} w={'7rem'} fontWeight={'600'}
                 variant={'add'} textColor='black'
                 isLoading={methods.formState.isSubmitting} type='submit'>

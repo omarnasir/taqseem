@@ -1,22 +1,22 @@
 import { 
-  type CreateTransactionWithDetails,
-  type TransactionWithDetails,
+  type TCreateTransaction,
+  type TTransactionWithDetails,
   type TransactionDeleteArgs
 } from '@/app/_types/model/transactions';
 
 import { responseHandler, type ServiceResponseType } from '@/app/_lib/base-service';
 
 type CreateResponseType = ServiceResponseType & {
-  data?: CreateTransactionWithDetails
+  data?: TCreateTransaction
 }
 type DeleteResponseType = ServiceResponseType & {
   data?: TransactionDeleteArgs
 }
 type GETResponseType = ServiceResponseType & {
-  data?: TransactionWithDetails
+  data?: TTransactionWithDetails
 }
 type GETTransactionsResponseType = ServiceResponseType & {
-  data?: TransactionWithDetails[]
+  data?: TTransactionWithDetails[]
 }
 
 async function getTransactionsByGroupId(id: string): Promise<GETTransactionsResponseType> {
@@ -35,7 +35,7 @@ async function getTransaction(id: string):
   return await responseHandler(response);
 }
 
-async function createTransaction(body: CreateTransactionWithDetails): 
+async function createTransaction(body: TCreateTransaction): 
   Promise<CreateResponseType> {
   const response = await fetch(`/api/transaction/`, {
     method: "POST",
