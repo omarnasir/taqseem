@@ -6,7 +6,7 @@ import {
   CardBody,
   Heading,
   Text,
-  Stack, Button, VStack, HStack, useDisclosure, SimpleGrid, Icon, CardFooter, Spacer
+  Stack, Button, VStack, HStack, useDisclosure, SimpleGrid, Icon, CardFooter, Spacer, ButtonGroup
 } from '@chakra-ui/react'
 
 import { MdPersonRemove, MdManageAccounts, MdOutlineGroup } from "react-icons/md"
@@ -46,42 +46,45 @@ export default function GroupsList(
     <Stack direction={'column'} spacing={4}>
       <Text fontSize='xl' fontWeight='bold'>Groups</Text>
       <Text size='sm' fontWeight='300'>Create or manage groups.</Text>
-      <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))'>
+      <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(160px, 1fr))'>
         {!!groups &&
           groups.map((group) => (
             <Card key={group.id}
-              size={{ base: 'sm', md: 'md' }}
+              size={{ base: 'md', md: 'lg' }}
               variant={'custom'}>
-              <CardBody mt={2}>
-                <HStack>
-                  <Icon w='15%' h='1.5rem'
+              <CardBody mt={2} as={NextLink} 
+                href={`/transactions?id=${group.id}`}>
+                <HStack justifyContent={'space-around'} w='100%'>
+                  <Icon boxSize={5}
                     opacity={0.7}
-                    alignItems={'center'}
                     as={MdOutlineGroup} />
-                  <Heading as={NextLink}
-                    href={`/transactions?id=${group.id}`}
+                  <Heading w='70%'
                     size={'md'}
                     fontWeight='300'>{group.name}</Heading>
                 </HStack>
               </CardBody>
-              {group.createdById === sessionData!.user.id &&
-                <CardFooter alignSelf={'end'}>
-                  <Button leftIcon={<MdManageAccounts color='rgb(90, 105, 155)' />} size='sm'
-                    variant={'outline'}
-                    mr={1}
-                    onClick={() => router.push(
-                      `/memberships?data=${JSON.stringify(group)}`,)}>
-                    Manage
-                  </Button>
-                  <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)' />} size='sm'
-                    variant={'outline'}
-                    onClick={onOpen}>
-                    Remove
-                  </Button>
-                  <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                    onRemoveGroup(group.id); onClose();
-                  }} mode="removeGroup" />
-                </CardFooter>}
+              <CardFooter w='100%'>
+                {group.createdById === sessionData!.user.id &&
+                  <SimpleGrid spacing={4} w={'100%'}
+                    templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}>
+                    <Button leftIcon={<MdManageAccounts color='rgb(90, 105, 155)' />} size='sm'
+                      fontWeight={400}
+                      height={10}
+                      onClick={() => router.push(
+                        `/memberships?data=${JSON.stringify(group)}`,)}>
+                      Manage
+                    </Button>
+                    <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)' />} size='sm'
+                      fontWeight={400}
+                      height={10}
+                      onClick={onOpen}>
+                      Remove
+                    </Button>
+                    <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                      onRemoveGroup(group.id); onClose();
+                    }} mode="removeGroup" />
+                  </SimpleGrid>}
+              </CardFooter>
             </Card>
           ))}
       </SimpleGrid>
