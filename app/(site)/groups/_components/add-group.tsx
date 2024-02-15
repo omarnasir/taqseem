@@ -67,7 +67,7 @@ export default function AddGroup({ groups, setGroups }: {
                 }
               })}
             />
-            <Button w='50%' isLoading={isSubmitting} type='submit' size='md'>
+            <Button w='50%' isLoading={isSubmitting} type='submit' size='md' variant={"login"}>
               Create
             </Button>
           </HStack>

@@ -6,7 +6,17 @@ import {
   Card,
   Flex,
   Stack,
-  useDisclosure
+  useDisclosure,
+  Grid,
+  SimpleGrid,
+  CardHeader,
+  Heading,
+  CardFooter,
+  Spacer,
+  VStack,
+  HStack,
+  Box,
+  Icon
 }
   from "@chakra-ui/react";
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
@@ -45,31 +55,37 @@ export default function GroupMembersList({ group, users, setUsers
     <Stack direction={'column'} spacing={4} mb={6}>
       <Text fontSize='xl' fontWeight='bold'>Members - {group.name}</Text>
       <Text size='sm' fontWeight='300'>Add or remove members.</Text>
-      {users.length > 0 ? users.map((user) => (
-        <Card key={user.id}
-          size='md'
-          variant={'custom'}>
-          <CardBody>
-            <Flex flexDirection={'row'} alignItems={'center'}
-              justifyContent={'space-between'}>
-              <Flex flexDirection={'row'} alignItems={'center'}>
-                <MdPerson />
-                <Text ml={4} lineHeight={4}>{user.name}</Text>
-              </Flex>
-              {(group.createdById === sessionData?.user?.id ||
-                user.id === sessionData?.user?.id) &&
+      <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(200px, 1fr))'>
+        {users.length > 0 ? users.map((user) => (
+          <Card key={user.id}
+            size={{ base: 'sm', md: 'md' }}
+            variant={'custom'}>
+            <CardBody mt={2}>
+              <HStack>
+                <Icon
+                  h='1.5rem' w='15%'
+                  opacity={0.7}
+                  alignItems={'center'}
+                  as={MdPerson} />
+                <Heading size='md' fontWeight={300}>{user.name}</Heading>
+              </HStack>
+            </CardBody>
+            {(group.createdById === sessionData?.user?.id ||
+              user.id === sessionData?.user?.id) &&
+              <CardFooter alignSelf='end'>
                 <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)' />} size='sm'
                   variant={'outline'}
+                  fontWeight={300}
                   onClick={onOpen}>
                   Remove
-                </Button>}
-              <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                onRemoveUser(user.id); onClose();
-              }} mode="removeUser"/>
-            </Flex>
-          </CardBody>
-        </Card>
-      )) : <Text>No members</Text>}
+                </Button>
+                <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                  onRemoveUser(user.id); onClose();
+                }} mode="removeUser" />
+              </CardFooter>}
+          </Card>
+        )) : <Text>No members</Text>}
+      </SimpleGrid>
     </Stack>
 
   );

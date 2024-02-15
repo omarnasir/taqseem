@@ -27,10 +27,12 @@ import {
 import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValues, Controller } from "react-hook-form";
 
 import { UserBasicData } from "@/app/_types/model/users";
+import { type TransactionWithDetails } from "@/app/_types/model/transactions";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
 
 
 type TFormIds = {
+  id?: number,
   name: string,
   amount: string,
   everyone: boolean,
@@ -47,6 +49,7 @@ type TFormIds = {
 }
 
 enum FormIds {
+  id = 'id',
   name = 'name',
   amount = 'amount',
   everyone = 'everyone',
@@ -58,6 +61,17 @@ enum FormIds {
   note = 'note'
 }
 
+function FormItemId() {
+  const { formState: { errors }, register } = useFormContext()
+  return (
+    <FormControl id={FormIds.id} isInvalid={Boolean(errors[FormIds.id])} mb={3}>
+      <Input {...register(FormIds.id, {
+        required: false
+      })}
+        hidden disabled />
+    </FormControl>
+  )
+}
 
 function FormItemName() {
   const { formState: { errors }, register } = useFormContext()
@@ -100,7 +114,6 @@ function FormItemAmountDetails({ users }: { users: UserBasicData[] }) {
         mb={2}
         variant={'transactionEveryone'}
         isChecked={everyone}
-        colorScheme={'loginbtn'}
         {...register(FormIds.everyone, {
           required: false,
           onChange: (e) => {
@@ -357,7 +370,7 @@ function FormItemDateTime() {
           placeholder='Select a date and time'
           fontWeight={'light'}
           type='date'
-          defaultValue={getCurrentDate()} />
+          defaultValue={formatDateToString(new Date())} />
       </InputGroup>
       <FormErrorMessage>{errors[FormIds.paidAt]?.message?.toString()}</FormErrorMessage>
     </FormControl>
@@ -430,21 +443,19 @@ function FormItemNote() {
   )
 }
 
-function getCurrentDate() {
-  const currentDate = new Date()
-  const formatter = new Intl.DateTimeFormat('en-ca', {
+function formatDateToString(date: Date) {
+  const formattedDate = new Date(date).toLocaleDateString('en-ca', {
     month: '2-digit',
     day: '2-digit',
     year: 'numeric',
-
   })
-  const formattedDate = formatter.format(currentDate)
   return formattedDate
 }
 
 export {
   type TFormIds,
   FormIds,
+  FormItemId,
   FormItemName,
   FormItemAmount,
   FormItemAmountDetails,
@@ -454,5 +465,5 @@ export {
   FormItemPaidBy,
   FormItemNote,
   processAmountDetails,
-  getCurrentDate
+  formatDateToString
 }

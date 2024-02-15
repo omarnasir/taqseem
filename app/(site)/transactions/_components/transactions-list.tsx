@@ -4,7 +4,6 @@ import {
   HStack,
   Icon
 } from '@chakra-ui/react'
-import { MdEuroSymbol } from "react-icons/md"
 
 import { type TransactionWithDetails } from "@/app/_types/model/transactions";
 import { type UserBasicData } from "@/app/_types/model/users";
@@ -23,7 +22,7 @@ function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
     month: 'short',
   });
   return (
-    <VStack w={cardItemWidths['date']} spacing={0}>
+    <VStack w={cardItemWidths['date']} spacing={0} fontSize={'sm'}>
       <Text color={'#999999'} >{date.split(' ')[1]}</Text>
       <Text color={'#dedede'}>{date.split(' ')[0]}</Text>
     </VStack>
@@ -37,15 +36,13 @@ function AmountDisplay({ transactionDetails, userId }:
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
       <HStack>
         <Text color={amount > 0 ? 'green.500' : 'red.500'}
-          fontSize={'1.2rem'} fontWeight={'300'}>
+          fontSize={'1.25rem'} fontWeight={'00'}>
           {amount > 0 ? '+' : ''}{amount.toFixed(2)}</Text>
-        <Icon as={MdEuroSymbol} boxSize={'0.8em'}
-          color={amount > 0 ? 'green.500' : 'red.500'} opacity={0.7}
-        />
+        <Text color={amount > 0 ? 'green.500' : 'red.500'} opacity={0.7}>€</Text>
       </HStack>
       <Text fontSize={'0.65rem'}
         color={amount > 0 ? 'green.500' : 'red.500'} opacity={0.9}
-        fontWeight={'200'}>
+        fontWeight={'300'}>
         you {amount > 0 ? 'lent' : 'borrowed'}
       </Text>
     </VStack>
@@ -56,9 +53,9 @@ function SummaryDisplay({ transaction, users }:
   { transaction: TransactionWithDetails, users: UserBasicData[] }) {
   const name = users!.find(user => user.id === transaction.paidById)?.name;
   return (
-    <VStack width={cardItemWidths['desc']} alignItems={'flex-start'} pl={2}>
-      <Text textAlign={'start'}>{transaction.name}</Text>
-      <Text color={'#808080'} textAlign={'start'} fontSize={'xs'}>
+    <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'} pl={2}>
+      <Text textAlign={'start'} fontSize={'1rem'}>{transaction.name}</Text>
+      <Text color={'#808080'} textAlign={'start'} fontSize={'0.65rem'}>
         {name + ' paid ' + transaction.amount + ' €'}
       </Text>
     </VStack>
