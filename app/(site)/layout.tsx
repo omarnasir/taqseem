@@ -12,41 +12,48 @@ export default function SiteLayout({
 }) {
   const { data } = useSession();
 
-  const containerWidth = {
-    base: '92vw',
-    md: '70vw',
-    lg: '50vw',
-    xl: '40vw',
-  }
+  const heights = {
+    header: '8vh',
+    footer: '10vh',
+  };
 
   return (
-    <Flex minW='100vw' h='100vh' flexDir='column'>
+    <Container
+      h='100vh'
+      flexDirection={'column'} 
+      alignItems={'center'}
+      display={'flex'}>
       <Flex
-        boxShadow={'xl'}
-        justify={'space-between'}
+        zIndex={1}
+        height={heights.header}
+        boxShadow={'lg'}
+        bg='bgHeader'
         w='100%'
-        justifyContent='center'
-        position='sticky'
+        position='absolute'
         top={0}>
-        <Header {...{ containerWidth: containerWidth, userName: data?.user?.name }} />
+        <Header {...{ userName: data?.user?.name }} />
       </Flex>
       <Container
-        flexDirection={'column'} alignItems={'center'}
-        display={'flex'}>
-        <Flex mt={3} w={containerWidth} display='flex'>
-          {children}
-        </Flex>
+        pt={3}
+
+        flexDirection={'column'}
+        position='absolute'
+        overflow={'auto'}
+        pb={heights.footer}
+        top={heights.header}
+        bottom={heights.footer}>
+        {children}
       </Container>
       <Flex
+        height={heights.footer}
         boxShadow={'dark-lg'}
         bg='bgFooter'
-        justify={'space-between'}
         w='100%'
-        justifyContent='center'
         position='absolute'
+        overflow={'hidden'}
         bottom={0}>
-        <Footer {...{ containerWidth: containerWidth }} />
+        <Footer />
       </Flex>
-    </Flex>
+    </Container>
   );
 }

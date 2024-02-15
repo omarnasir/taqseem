@@ -3,6 +3,7 @@ import {
   Link,
   Button,
   Text,
+  Container,
 } from '@chakra-ui/react';
 import {
   MdHomeFilled,
@@ -12,10 +13,7 @@ import {
 } from 'react-icons/md';
 
 
-export default function Footer(
-  props: { containerWidth: Record<string, string> }
-) {
-  const { containerWidth } = props;
+export default function Footer() {
   const linkItems = [
     { name: 'Home', href: '/', icon: MdHomeFilled },
     { name: 'Groups', href: '/groups', icon: MdGroup },
@@ -24,7 +22,8 @@ export default function Footer(
   ]
 
   return (
-    <Flex w={containerWidth} direction='row'
+    <Container flexDirection='row' display='flex' w='100%'
+      paddingX={0}
       justifyContent={'space-evenly'}>
       {linkItems.map((linkItem, index) => (
         <Button key={index} href={linkItem.href} as={Link} w='100%'
@@ -37,6 +36,6 @@ export default function Footer(
           <Text mt={2} fontSize={'sm'} fontWeight={300}>{linkItem.name}</Text>
         </Button>
       ))}
-    </Flex>
+    </Container>
   );
 }

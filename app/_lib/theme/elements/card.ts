@@ -7,7 +7,8 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const custom = definePartsStyle({
   container: {
     bg: 'bgCard',
-    boxShadow: '0px 6px 12px 1px rgb(20,20,20)',
+    borderRadius: "8px",
+    boxShadow: "0 6px 8px 0px rgba(0,0,0,0.25)",
   },
 })
 

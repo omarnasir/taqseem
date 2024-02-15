@@ -7,12 +7,16 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const transactionEveryone = definePartsStyle({
   control: {
     border: 'none',
+    _checked: {
+      bg: 'transparent',
+    },
   },
   container: {
     _checked: {
       bg: 'whiteAlpha.800',
     },
     bg: 'whiteAlpha.300',
+    color: 'gray.900',
   },
   label: {
     fontSize: 'sm',

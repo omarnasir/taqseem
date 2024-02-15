@@ -26,14 +26,20 @@ const config: ThemeConfig = {
 	initialColorMode: 'dark',
 	useSystemColorMode: false,
 }
+
 const customTheme = extendTheme({ config, fonts },
 	{
 		colors: {
 			black: '#0a0a0a',
 			itemBgGray: '#101010',
-			bgFooter: 'linear-gradient(205deg, rgb(20,19,19) 20%, rgb(35,35,35) 100%)',
-			bgCard: 'linear-gradient(135deg, rgba(25,25,25, 0.25) 0%, rgba(55,55,55, 0.20) 100%)',
-			bgModal: 'rgba(23,23,23, 1)',
+			// bg: 'linear-gradient(270deg, rgb(13,14,16) 0%, rgb(25,25,27) 100%)',
+			bg: 'rgba(19,20,22, 1)',
+			// bgFooter: 'linear-gradient(205deg, rgb(20,19,19) 20%, rgb(35,35,35) 100%)',
+			// bgCard: 'linear-gradient(135deg, rgba(25,25,25, 0.25) 0%, rgba(55,55,55, 0.20) 100%)',
+			bgHeader: 'rgba(19,20,22, 1)',
+			bgFooter: 'rgba(25,25,28, 1)',
+			bgCard: 'linear-gradient(to right, rgba(39,41,43, 0.35) 35%, rgba(60,61,65, 0.35) 100%)',
+			bgModal: 'rgba(25,25,28, 1)',
 			loginbtn: {
 				50: '#ffffff',
 				100: '#ffffff',
@@ -44,7 +50,7 @@ const customTheme = extendTheme({ config, fonts },
 			global: {
 				'html, body': {
 					lineHeight: 'tall',
-					bg: 'linear-gradient(270deg, rgb(20,19,19) 0%, rgb(35,35,35) 100%)',
+					bg: 'bg',
 				},
 				'#__next': {
 					display: 'flex',

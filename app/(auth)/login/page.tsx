@@ -38,7 +38,7 @@ export default function Signin() {
       <FormProvider {...methods}>
         <EmailFormItem />
         <PasswordFormItem />
-        <Button mt={4} w='100%' isLoading={formState.isSubmitting} type='submit'>
+        <Button mt={4} w='100%' isLoading={formState.isSubmitting} type='submit' variant={'login'}>
           Login
         </Button>
       </FormProvider>

@@ -1,39 +1,36 @@
 import { useRouter } from 'next/navigation';
 
-import { Image, Button, Flex, Link } from "@chakra-ui/react";
-import { MdArrowBackIosNew } from "react-icons/md";
+import { Image, Button, Flex, Link, IconButton, Container, Spacer } from "@chakra-ui/react";
+import { MdOutlineArrowLeft } from "react-icons/md";
 import NavbarMenu from './menu';
 
 
 export default function Header(
   props: {
-    containerWidth: Record<string, string>,
     userName: string | undefined
   }
 ) {
   const router = useRouter();
-  const { userName, containerWidth } = props;
+  const { userName } = props;
 
   return (
-    <Flex direction={'row'}
+    <Container flexDirection='row' display='flex' w='100%'
       justifyContent={'space-between'}
-      alignItems={'center'}
-      pt={2}
-      w={containerWidth}>
-      <Button
-        leftIcon={<MdArrowBackIosNew size={18} />}
-        size='xs'
+      alignItems={'center'}>
+      <IconButton mr={4}
+        icon={<MdOutlineArrowLeft size={40} />}
+        aria-label='back'
         onClick={() => router.back()}
-        variant='ghost'
-        borderRadius={5}></Button>
-      <Link href='/' alignSelf='center' w='70%'>
+        variant='headerButton'></IconButton>
+      <Link href='/' alignSelf='center'>
         <Image
           w='50px'
           objectFit='fill'
           src='/logo.png'
           alt={'taqseem'} />
       </Link>
+      <Spacer />
       <NavbarMenu {...{ userName: userName! }} />
-    </Flex>
+    </Container>
   )
 }
