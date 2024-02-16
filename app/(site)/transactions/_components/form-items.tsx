@@ -90,8 +90,7 @@ function FormItemName() {
   )
 }
 
-function FormItemTransactionDetails({ users, transactionDetails }: 
-  { users: UserBasicData[], transactionDetails?: TTransactionWithDetails['transactionDetails'] }) 
+function FormItemTransactionDetails({ users } : { users: UserBasicData[],  }) 
 {
   const { formState: { errors },
     register,
@@ -109,21 +108,22 @@ function FormItemTransactionDetails({ users, transactionDetails }:
     name: TransactionFormIds.everyone,
   });
   const { isOpen, onClose, onOpen } = useDisclosure(
-    { defaultIsOpen: transactionDetails ? true : false}
+    { defaultIsOpen: false }
   )
 
   useEffect(() => {
+    const transactionDetails = getValues(TransactionFormIds.transactionDetails) as TFormTransaction[TransactionFormIds.transactionDetails]
     if (transactionDetails) {
       replace(transactionDetails.map(detail => {
         return {
           userId: detail.userId,
           amount: detail.amount.toString()
         }
-      }
-      ))
+      }));
+      onOpen();
     }
-    else setValue(TransactionFormIds.everyone, true)
-  }, [transactionDetails, replace, setValue])
+    else {setValue(TransactionFormIds.everyone, true); remove();}
+  }, [replace, setValue, getValues, onOpen, remove])
 
   return (
     <Box>
@@ -247,12 +247,7 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
                 parse={(value) => {
                   return value.replace(',', '.')
                 }}
-                format={(value) => {
-                  if (typeof value === 'string') {
-                    return value.replace('.', ',')
-                  }
-                  return value
-                }}
+                format={(value) => { return value.toString()}}
               >
                 <NumberInputField
                   ref={ref}

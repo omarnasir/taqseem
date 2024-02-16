@@ -31,16 +31,21 @@ export default function GroupTransactions() {
 
   const { data: sessionData } = useSession();
   const [transactions, setTransactions] = useState<TTransactionWithDetails[]>([]);
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onClose: onCloseDisclosure, onOpen, getDisclosureProps, getButtonProps } = useDisclosure()
   const [group, setGroup] = useState<GroupWithMembers>();
   const [refreshTransactions, setRefreshTransactions] = useState<string>('');
   const [selectedTransaction, setSelectedTransaction] = useState<TTransactionWithDetails>();
-
-  const onCloseCallback = () => {
-    onClose();
-    setSelectedTransaction(undefined);
-  }
   
+  const { onClick, buttonProps } = getButtonProps();
+  const disclosureProps = getDisclosureProps({
+    transaction: selectedTransaction,
+  });
+
+  const onClose = (callback: any, callbackProps?: any) => {
+    onCloseDisclosure();
+    callback(callbackProps);
+  }
+
   useEffect(() => {
     const fetchGroupDetails = async () => {
       const res = await getGroupDetails(groupId!)
@@ -63,7 +68,8 @@ export default function GroupTransactions() {
             <Text fontSize='md' fontWeight='400'>Transactions</Text>
           </VStack>
           <Button width={'6rem'} fontWeight={500} variant={'add'} size={'md'}
-            fontSize={'sm'} onClick={onOpen}>Add</Button>
+            fontSize={'sm'} onClick={()=> {setSelectedTransaction(undefined); onClick(); onOpen();}}
+            {...buttonProps}>Add</Button>
         </HStack>
         <Divider marginY={2} />
         <VStack w='100%'>
@@ -73,6 +79,7 @@ export default function GroupTransactions() {
                 onClick={
                   () => {
                     setSelectedTransaction(transaction);
+                    onClick();
                     onOpen();
                   }
                 }>
@@ -88,11 +95,9 @@ export default function GroupTransactions() {
             ))}
         </VStack >
         <TransactionView {...{
+          disclosureProps,
+          isOpen, onClose,
           group: group!,
-          disclosureMethods: {
-            onClose: onCloseCallback,
-            isOpen: isOpen
-          },
           setRefreshTransactions,
           transactionWithDetails: selectedTransaction,
         }} />

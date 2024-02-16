@@ -42,9 +42,11 @@ import Confirm from "@/app/(site)/_components/confirm";
 
 
 export default function TransactionView(
-  { group, disclosureMethods, setRefreshTransactions, transactionWithDetails}: {
+  { group, disclosureProps, isOpen, onClose, setRefreshTransactions, transactionWithDetails}: {
     group: GroupWithMembers,
-    disclosureMethods: { onClose: () => void, isOpen: boolean },
+    disclosureProps: any,
+    isOpen: boolean,
+    onClose: (callback: any, callbackProps?: any) => void,
     setRefreshTransactions: React.Dispatch<React.SetStateAction<string>>,
     transactionWithDetails?: TTransactionWithDetails,
   }
@@ -52,7 +54,6 @@ export default function TransactionView(
   const users = group.users!;
   const { data: sessionData } = useSession();
   const { addToast } = CustomToast();
-  const { isOpen, onClose } = disclosureMethods
   const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
 
   async function onRemoveTransaction(id: number) {
@@ -60,7 +61,6 @@ export default function TransactionView(
     if (res.success) {
       addToast(`Transaction removed`, null, 'success')
       setRefreshTransactions(Date.now().toString())
-      onClose();
     }
     else {
       addToast('Cannot delete transaction.', res.error, 'error')
@@ -172,7 +172,8 @@ export default function TransactionView(
       <Modal
         blockScrollOnMount={false}
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={() => onClose(reset, defaultValues)}
+        {...disclosureProps}
         size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
         <ModalOverlay />
         <ModalContent marginX={2}

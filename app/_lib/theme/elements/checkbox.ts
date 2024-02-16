@@ -8,7 +8,10 @@ const transactionEveryone = definePartsStyle({
   control: {
     border: 'none',
     _checked: {
-      bg: 'transparent',
+      bg: 'none',
+      _hover: {
+        bg: 'transparent',
+      },
     },
   },
   container: {
