@@ -15,8 +15,11 @@ export const buttonTheme = defineStyleConfig({
     add: {
       bg: 'whiteAlpha.800',
       boxShadow: '0px 4px 6px 4px rgba(0, 0, 0, 0.1)',
-      colorScheme: 'loginbtn',
-      textColor: 'black'
+      textColor: 'black',
+      _disabled: {
+        bg: 'whiteAlpha.300',
+        textColor: 'black',
+      },
     },
     delete: {
       bg: 'red.400',

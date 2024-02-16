@@ -66,6 +66,7 @@ export default function TransactionView(
     if (res.success) {
       addToast(`Transaction removed`, null, 'success')
       setRefreshTransactions(Date.now().toString())
+      onClose(reset, defaultValues);
     }
     else {
       addToast('Cannot delete transaction.', res.error, 'error')
@@ -83,7 +84,7 @@ export default function TransactionView(
     transactionDetails: transactionWithDetails?.transactionDetails.map(detail => {
       return {
         userId: detail.userId,
-        amount: detail.amount.toString()
+        amount: (detail.amount < 0 ? detail.amount * -1 : detail.amount).toString()
       }
     }) || [],
     groupId: group.id,
@@ -98,6 +99,7 @@ export default function TransactionView(
   const {
     handleSubmit,
     reset,
+    formState: { isDirty, isValid }
   } = methods
 
   async function onSubmit(values: TFormTransaction) {
@@ -219,8 +221,9 @@ export default function TransactionView(
                 </Button>}
               <Button size={'sm'} w={'7rem'} fontWeight={'600'}
                 variant={'add'} textColor='black'
+                isDisabled={!isValid || !isDirty}
                 isLoading={methods.formState.isSubmitting} type='submit'>
-                Add
+                {transactionWithDetails ? 'Update' : 'Add'}
               </Button>
             </Flex>
           </ModalFooter>

@@ -24,10 +24,10 @@ import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
   MdCalendarMonth, MdOutlineCategory, MdOutlineCancel
 } from "react-icons/md"
-import { useFormContext, FieldErrors, useFieldArray, UseFieldArrayReturn, FieldValues, Controller, useWatch } from "react-hook-form";
+import { useFormContext, FieldErrors, useFieldArray, Controller, useWatch } from "react-hook-form";
 
 import { UserBasicData } from "@/app/_types/model/users";
-import { type TCreateTransaction, type TCreateTransactionDetails, type TTransactionWithDetails } from "@/app/_types/model/transactions";
+import { type TCreateTransaction, type TCreateTransactionDetails } from "@/app/_types/model/transactions";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
 
 
@@ -183,13 +183,10 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[],  })
 
 function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user }:
   { user: UserBasicData, index: number, registerAmount: string, registerUserId: string }) {
-  const { resetField, formState: { errors }, unregister, control, register } = useFormContext()
+  const { resetField, formState: { errors },unregister, control, register, getValues } = useFormContext()
   
-  const userAmount = useWatch({
-    control,
-    name: `${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.amount}`,
-  });
-  const [selected, setSelected] = useState<boolean>(userAmount!==undefined)
+  const userAmount = getValues(`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.amount}`);
+  const [selected, setSelected] = useState<boolean>(userAmount !== undefined)
 
   function extractNestedErrors(errors: FieldErrors<TFormTransaction>) {
     const nestedErrors = errors[TransactionFormIds.transactionDetails]?.[index]?.amount
@@ -213,7 +210,7 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
           setSelected(e.target.checked);
           if (!e.target.checked) unregister(registerAmount)
         }}
-          defaultChecked={userAmount !== null}
+          defaultChecked={selected}
           colorScheme={'gray'}
           variant={'transactionDetailsUser'}
           rounded='full'
@@ -239,7 +236,7 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
                 <MdEuroSymbol size={'0.75rem'} />
               </InputLeftAddon>
               <NumberInput size={'md'} {...restField} variant={'custom'}
-                value={value < 0 ? value * -1 : value || ''}
+                value={value < 0 ? value : value || ''}
                 isValidCharacter={(char) => {
                   return (char >= '0' && char <= '9') || char === '.' || char === ','
                 }}
@@ -247,7 +244,9 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
                 parse={(value) => {
                   return value.replace(',', '.')
                 }}
-                format={(value) => { return value.toString()}}
+                format={(value) => {
+                  return value.toString().replace('.', ',')
+                }}
               >
                 <NumberInputField
                   ref={ref}
@@ -303,10 +302,7 @@ function FormItemAmount() {
                 return value.replace(',', '.')
               }}
               format={(value) => {
-                if (typeof value === 'string') {
-                  return value.replace('.', ',')
-                }
-                return value
+                return value.toString().replace('.', ',')
               }}
             >
               <NumberInputField

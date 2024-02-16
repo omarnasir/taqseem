@@ -5,7 +5,7 @@ import {
   Icon
 } from '@chakra-ui/react'
 
-import { type TransactionWithDetails } from "@/app/_types/model/transactions";
+import { type TTransactionWithDetails } from "@/app/_types/model/transactions";
 import { type UserBasicData } from "@/app/_types/model/users";
 
 const cardItemWidths = {
@@ -16,7 +16,7 @@ const cardItemWidths = {
   delete: '5%',
 }
 
-function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
+function DateDisplay({ paidAt }: { paidAt: TTransactionWithDetails['paidAt'] }) {
   const date = new Date(paidAt).toLocaleDateString('en-gb', {
     day: '2-digit',
     month: 'short',
@@ -30,7 +30,7 @@ function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
 }
 
 function AmountDisplay({ transactionDetails, userId }:
-  { transactionDetails: TransactionWithDetails['transactionDetails'], userId: string }) {
+  { transactionDetails: TTransactionWithDetails['transactionDetails'], userId: string }) {
   const amount = transactionDetails.find(td => td.userId === userId)?.amount as number;
   return (
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
@@ -50,7 +50,7 @@ function AmountDisplay({ transactionDetails, userId }:
 }
 
 function SummaryDisplay({ transaction, users }:
-  { transaction: TransactionWithDetails, users: UserBasicData[] }) {
+  { transaction: TTransactionWithDetails, users: UserBasicData[] }) {
   const name = users!.find(user => user.id === transaction.paidById)?.name;
   return (
     <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'} pl={2}>
