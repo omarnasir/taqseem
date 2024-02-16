@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/_lib/db/prisma';
 import { 
-  type CreateTransactionWithDetails,
+  type TCreateTransaction,
+  type TUpdateTransaction,
   type TransactionDeleteArgs,
-  type TransactionWithDetails
+  type TTransactionWithDetails
 } from "@/app/_types/model/transactions";
 import { sendErrorResponse } from "@/app/api/error-response";
 
-type GETResponseType = NextResponse<{data: TransactionWithDetails} | undefined | null>
-type POSTResponseType = NextResponse<{ data: TransactionWithDetails } | undefined | null>
+type GETResponseType = NextResponse<{data: TTransactionWithDetails} | undefined | null>
+type POSTResponseType = NextResponse<{ data: TCreateTransaction } | undefined | null>
+type PUTResponseType = NextResponse<{ data: TUpdateTransaction } | undefined | null>
 
 /**
  * GET /api/transactions route
@@ -58,7 +60,7 @@ export async function GET(request: NextRequest):
 export async function POST(request: NextRequest):
   Promise<POSTResponseType> {
   try {
-    const body: CreateTransactionWithDetails = await request.json();
+    const body: TCreateTransaction = await request.json();
     // Fetch group members
     const members = await prisma.memberships.findMany({
       where: {
@@ -79,70 +81,105 @@ export async function POST(request: NextRequest):
         statusText: "Incorrect user ids provided",
       });
     }
-    // if the transactionId is not provided, create a new transaction
-    if (body.id === undefined) {
-      const newTransaction = await prisma.transactions.create({
-        data: {
-          name: body.name,
-          category: body.category,
-          subCategory: body.subCategory,
-          notes: body.notes?.toString(),
-          amount: body.amount,
-          groupId: body.groupId,
-          paidById: body.paidById,
-          paidAt: body.paidAt,
-          createdById: body.createdById,
-          transactionDetails: {
-            create: body.transactionDetails?.map(detail => {
-              return {
-                userId: detail.userId,
-                amount: detail.amount
-              }
-            })
-          }
-        },
-        include: {
-          transactionDetails: true
+    const newTransaction = await prisma.transactions.create({
+      data: {
+        name: body.name,
+        category: body.category,
+        subCategory: body.subCategory,
+        notes: body.notes?.toString(),
+        amount: body.amount,
+        groupId: body.groupId,
+        paidById: body.paidById,
+        paidAt: body.paidAt,
+        createdById: body.createdById,
+        transactionDetails: {
+          create: body.transactionDetails?.map(detail => {
+            return {
+              userId: detail.userId,
+              amount: detail.amount
+            }
+          })
         }
+      },
+      include: {
+        transactionDetails: true
+      }
+    });
+    return NextResponse.json({ data: newTransaction }, { status: 200 });
+  } catch (e: any) {
+    console.log(e);
+    return sendErrorResponse({ statusText: e.message });
+  }
+}
+
+
+/**
+ * PUT /api/transaction route
+ * This route is used to update a new transaction
+ * @param request - The request object
+ * @returns {Promise<NextResponse>} The response object
+ * 
+ * @bodyParam body - The transaction details
+ * 
+ * @response 200 - The group is created
+ * @response 409 - The group already exists
+ * @response 500 - Server error
+ */
+export async function PUT(request: NextRequest):
+  Promise<PUTResponseType> {
+  try {
+    const body: TUpdateTransaction = await request.json();
+    // Fetch group members 
+    const members = await prisma.memberships.findMany({
+      where: {
+        groupId: body.groupId as string
+      },
+      select: {
+        userId: true
+      }
+    });
+    // Validate if paidById, createdById and transactionDetails.userId are part of the group
+    const paidByUser = members.some(member => member.userId === body.paidById);
+    const createdByUser = members.some(member => member.userId === body.createdById);
+    const transactionDetailsUser = body.transactionDetails?.every(detail => {
+      return members.some(member => member.userId === detail.userId);
+    });
+    if (!paidByUser || !createdByUser || !transactionDetailsUser) {
+      return sendErrorResponse({ 
+        statusText: "Incorrect user ids provided",
       });
-      return NextResponse.json({ data: newTransaction }, { status: 200 });
     }
-    else {
-      // if the transactionId is provided, update the transaction
-      const updatedTransaction = await prisma.transactions.update({
-        where: {
-          id: body.id
-        },
-        data: {
-          name: body.name,
-          category: body.category,
-          subCategory: body.subCategory,
-          notes: body.notes?.toString(),
-          amount: body.amount,
-          groupId: body.groupId,
-          paidById: body.paidById,
-          paidAt: body.paidAt,
-          createdById: body.createdById,
-          transactionDetails: {
-            update: body.transactionDetails?.map(detail => {
-              return {
-                where: {
-                  id: detail.id
-                },
-                data: {
-                  userId: detail.userId,
-                  amount: detail.amount
-                }
-              }
-            })
-          }
-        },
-        include: {
-          transactionDetails: true
+    // if the transactionId is provided, update the transaction
+    const updatedTransaction = await prisma.transactions.update({
+      where: {
+        id: body.id as number
+      },
+      data: {
+        name: body.name,
+        category: body.category,
+        subCategory: body.subCategory,
+        notes: body.notes?.toString(),
+        amount: body.amount,
+        groupId: body.groupId,
+        paidById: body.paidById,
+        paidAt: body.paidAt,
+        createdById: body.createdById,
+        transactionDetails: {
+          deleteMany: {
+            transactionId: body.id as number
+          },
+          create: body.transactionDetails?.map(detail => {
+            return {
+              userId: detail.userId as string,
+              amount: detail.amount as number
+            }
+          })
         }
-      });
+      },
+      include: {
+        transactionDetails: true
+      }})
       return NextResponse.json({ data: updatedTransaction }, { status: 200 });
-    }
   } catch (e: any) {
     console.log(e);
     return sendErrorResponse({ statusText: e.message });

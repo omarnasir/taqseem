@@ -35,8 +35,13 @@ import {
   formatDateToString
 } from "./form-items";
 import { type GroupWithMembers } from "@/app/_types/model/groups"
-import { createTransaction, deleteTransaction } from "@/app/(site)/transactions/_lib/transactions-service"
-import { type TCreateTransaction, type TCreateTransactionDetails, type TTransactionWithDetails } from "@/app/_types/model/transactions";
+import { createTransaction, updateTransaction, deleteTransaction } from "@/app/(site)/transactions/_lib/transactions-service"
+import { 
+  type TCreateTransaction, 
+  type TCreateTransactionDetails, 
+  type TUpdateTransaction,
+  type TTransactionWithDetails } 
+from "@/app/_types/model/transactions";
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/(site)/_components/confirm";
 
@@ -127,42 +132,39 @@ export default function TransactionView(
       }
       return user;
     })
+    // Build the transaction object
+    const transaction: TUpdateTransaction | TCreateTransaction = {
+      id: values.id? values.id : undefined,
+      name: values[TransactionFormIds.name],
+      amount: totalAmount,
+      groupId: group.id,
+      createdById: sessionData!.user.id,
+      paidById: values[TransactionFormIds.paidById],
+      subCategory: values[TransactionFormIds.subCategory],
+      category: values[TransactionFormIds.category],
+      paidAt: new Date(values[TransactionFormIds.paidAt]!).toISOString(),
+      transactionDetails: userDetails,
+      notes: values[TransactionFormIds.notes]
+    }
     if (values.id) {
-      console.log('Edit', userDetails)
+      const response = await updateTransaction(transaction as TUpdateTransaction);
+      if (response.success) {
+        onClose(reset, defaultValues);
+        setRefreshTransactions(Date.now().toString());
+      }
+      else {
+        addToast("Error updating transaction", response.error, "error")
+      }
     }
     else {
-      console.log('Create', {
-          name: values[TransactionFormIds.name],
-          amount: totalAmount,
-          groupId: group.id,
-          createdById: sessionData!.user.id,
-          paidById: values[TransactionFormIds.paidById],
-          subCategory: values[TransactionFormIds.subCategory],
-          category: values[TransactionFormIds.category],
-          paidAt: new Date(values[TransactionFormIds.paidAt]!).toISOString(),
-          transactionDetails: userDetails,
-          notes: values[TransactionFormIds.notes]
-        })
-      // const response = await createTransaction({
-      //   name: values[FormIds.name],
-      //   amount: totalAmount,
-      //   groupId: group.id,
-      //   createdById: sessionData!.user.id,
-      //   paidById: values[FormIds.paidById],
-      //   subCategory: values[FormIds.subCategory],
-      //   category: values[FormIds.category],
-      //   paidAt: new Date(values[FormIds.paidAt]).toISOString(),
-      //   transactionDetails: userDetails,
-      //   notes: values[FormIds.notes]
-      // })
-      // if (response.success) {
-      //   reset();
-      //   onClose();
-      //   setRefreshTransactions(Date.now().toString());
-      // }
-      // else {
-      //   addToast("Error creating transaction", response.error, "error")
-      // }
+      const response = await createTransaction(transaction as TCreateTransaction);
+      if (response.success) {
+        onClose(reset, defaultValues);
+        setRefreshTransactions(Date.now().toString());
+      }
+      else {
+        addToast("Error creating transaction", response.error, "error")
+      }
     }
     return
   }

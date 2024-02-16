@@ -1,4 +1,5 @@
 import { 
+  TUpdateTransaction,
   type TCreateTransaction,
   type TTransactionWithDetails,
   type TransactionDeleteArgs
@@ -44,6 +45,15 @@ async function createTransaction(body: TCreateTransaction):
   return await responseHandler(response);
 }
 
+async function updateTransaction(body: TUpdateTransaction): 
+  Promise<CreateResponseType> {
+  const response = await fetch(`/api/transaction/`, {
+    method: "PUT",
+    body: JSON.stringify(body)
+  });
+  return await responseHandler(response);
+}
+
 async function deleteTransaction(reqData: TransactionDeleteArgs): 
   Promise<DeleteResponseType> {
   const response = await fetch(`/api/transaction`, {
@@ -58,5 +68,6 @@ export {
   getTransactionsByUserAndGroupId,
   getTransaction,
   createTransaction,
+  updateTransaction,
   deleteTransaction
 }
