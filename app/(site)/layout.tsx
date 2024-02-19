@@ -14,7 +14,7 @@ export default function SiteLayout({
 
   const heights = {
     header: '8vh',
-    footer: '10vh',
+    footer: '9vh',
   };
 
   return (
@@ -26,7 +26,6 @@ export default function SiteLayout({
       <Flex
         zIndex={1}
         height={heights.header}
-        boxShadow={'lg'}
         bg='bgHeader'
         w='100%'
         position='absolute'
@@ -34,8 +33,6 @@ export default function SiteLayout({
         <Header {...{ userName: data?.user?.name }} />
       </Flex>
       <Container
-        pt={3}
-
         flexDirection={'column'}
         position='absolute'
         overflow={'auto'}
@@ -47,6 +44,8 @@ export default function SiteLayout({
       <Flex
         height={heights.footer}
         boxShadow={'dark-lg'}
+        borderTopRadius={'3xl'}
+        borderTopWidth={0}
         bg='bgFooter'
         w='100%'
         position='absolute'

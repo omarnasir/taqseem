@@ -10,10 +10,10 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  Divider,
   Flex,
   HStack,
   useDisclosure,
+  Box,
 } from "@chakra-ui/react"
 
 import { FormProvider, useForm } from "react-hook-form";
@@ -174,20 +174,18 @@ export default function TransactionView(
   return (
     <FormProvider {...methods}>
       <Modal
+        variant={'transaction'}
         blockScrollOnMount={false}
         isOpen={isOpen}
         onClose={() => onClose(reset, defaultValues)}
         {...disclosureProps}
         size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
+        <ModalHeader padding={0}/>
         <ModalOverlay />
         <ModalContent marginX={2}
+          position={'absolute'} top={{base: '-10vh', md: '0'}}
           as='form' onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader
-            textAlign={'left'}
-            fontSize={'lg'}
-            fontWeight={'bold'}>New transaction</ModalHeader>
-          <Divider />
-          <ModalCloseButton />
+          <ModalCloseButton/>
           <ModalBody>
             <FormItemId />
             <FormItemName />

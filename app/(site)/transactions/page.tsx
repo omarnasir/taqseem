@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useSession } from 'next-auth/react';
 
+import { MdAdd } from "react-icons/md"
+
 import TransactionView from "./_components/view-transaction"
 import { AmountDisplay, DateDisplay, cardItemWidths, SummaryDisplay } from "./_components/transactions-list"
 import { type TTransactionWithDetails } from "@/app/_types/model/transactions";
@@ -19,9 +21,9 @@ import {
   Text,
   useDisclosure,
   Button,
-  Card,
-  CardBody,
-  Icon,
+  ListItem,
+  List,
+  ListIcon,
 } from "@chakra-ui/react"
 
 export default function GroupTransactions() {
@@ -64,18 +66,19 @@ export default function GroupTransactions() {
       <VStack w='100%'>
         <HStack w='100%' justifyContent={'space-between'}>
           <VStack alignItems={'flex-start'}>
-            <Text fontSize='xl' fontWeight='bold'>{group?.name}</Text>
-            <Text fontSize='md' fontWeight='400'>Transactions</Text>
+            <Text fontSize='lg' fontWeight='300'>{group?.name}</Text>
           </VStack>
-          <Button width={'6rem'} fontWeight={500} variant={'add'} size={'md'}
-            fontSize={'sm'} onClick={()=> {setSelectedTransaction(undefined); onClick(); onOpen();}}
+          <Button width={'6.5rem'} variant={'add'} size={'sm'}
+            leftIcon={<MdAdd font-size='16px'/>}
+            fontSize={'xs'} onClick={()=> {setSelectedTransaction(undefined); onClick(); onOpen();}}
             {...buttonProps}>Add</Button>
         </HStack>
-        <Divider marginY={2} />
-        <VStack w='100%'>
+        <Divider marginY={1} />
+        <List w='100%' variant={'transaction'}>
           {!!transactions &&
             transactions.map((transaction) => (
-              <Card variant={'custom'} w='100%' key={transaction.id} mb={2}
+              <ListItem w='100%' key={transaction.id}
+                flexDirection={'row'} display={'flex'} justifyContent={'space-between'}
                 onClick={
                   () => {
                     setSelectedTransaction(transaction);
@@ -83,18 +86,17 @@ export default function GroupTransactions() {
                     onOpen();
                   }
                 }>
-                <CardBody padding={2} w='100%'>
-                  <HStack>
-                    <DateDisplay paidAt={transaction.paidAt} />
-                    <Icon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='6' />
-                    <SummaryDisplay transaction={transaction} users={group?.users!} />
-                    <AmountDisplay transactionDetails={transaction.transactionDetails} userId={sessionData!.user.id} />
-                  </HStack>
-                </CardBody>
-              </Card>
+                <DateDisplay paidAt={transaction.paidAt} />
+                <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='6'
+                color='whiteAlpha.700'
+                 />
+                <SummaryDisplay transaction={transaction} users={group?.users!} />
+                <AmountDisplay transactionDetails={transaction.transactionDetails} userId={sessionData!.user.id} />
+              </ListItem>
             ))}
-        </VStack >
-        <TransactionView {...{
+        </List >
+        <TransactionView 
+        {...{
           disclosureProps,
           isOpen, onClose,
           group: group!,

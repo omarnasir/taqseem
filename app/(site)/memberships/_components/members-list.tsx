@@ -27,6 +27,7 @@ import Confirm from "@/app/(site)/_components/confirm";
 import { type UserBasicData } from "@/app/_types/model/users";
 import { GroupData } from "@/app/_types/model/groups";
 import { useSession } from "next-auth/react";
+import CustomCardIcon from "../../_components/cardIcon";
 
 type GroupDetailsProps = {
   group: GroupData,
@@ -53,40 +54,39 @@ export default function GroupMembersList({ group, users, setUsers
 
   return (
     <Stack direction={'column'} spacing={4} mb={6}>
-      <Text fontSize='xl' fontWeight='bold'>Members - {group.name}</Text>
-      <Text size='sm' fontWeight='300'>Add or remove members.</Text>
-      <SimpleGrid spacing={4} templateColumns='repeat(auto-fill, minmax(160px, 1fr))'>
+      <Text fontSize='lg' fontWeight='400'>Members - {group.name}</Text>
+      <Text fontSize='sm' fontWeight='300'>Add or remove members.</Text>
+      <SimpleGrid spacing={4} columns={2}>
         {users.length > 0 ? users.map((user) => (
           <Card key={user.id}
-            size={{ base: 'md', md: 'lg' }}
-            variant={'custom'}>
+            size={'sm'}
+            variant={'infoCard'}>
             <CardBody mt={2}>
               <HStack justifyContent={'space-around'} w='100%'>
-                <Icon boxSize={5}
-                  opacity={0.7}
-                  alignItems={'center'}
-                  as={MdPerson} />
-                <Heading size='md' w='70%' fontWeight={300}>{user.name}</Heading>
+                <CustomCardIcon icon={MdPerson} />
+                <Heading w='70%' borderBottom={'1px solid'}
+                  pb={4} ml={1}
+                  borderColor={'whiteAlpha.200'}
+                  fontSize={'1rem'}
+                  fontFamily={'body'}
+                  fontWeight={200}>{user.name}</Heading>
               </HStack>
             </CardBody>
-            <CardFooter w='100%' >
-              {(group.createdById === sessionData?.user?.id ||
-                user.id === sessionData?.user?.id) &&
-                <SimpleGrid spacing={4} w={'100%'} >
-                  <Button leftIcon={<MdPersonRemove color='rgb(155,90,105)' />} size='sm'
-                    fontWeight={400}
-                    height={10}
-                    backgroundColor={'whiteAlpha.100'}
-                    variant={'ghost'}
-                    onClick={onOpen}>
-                    Remove
-                  </Button>
-                  <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                    onRemoveUser(user.id); onClose();
-                  }} mode="removeUser" />
-                </SimpleGrid>
-              }
-            </CardFooter>
+            {(group.createdById === sessionData?.user?.id ||
+              user.id === sessionData?.user?.id) &&
+              <CardFooter w='100%' pt={2} justifyContent={'flex-end'}>
+                <Button leftIcon={<MdPersonRemove />} size='sm'
+                  width={{ base: '70%', sm: '50%' }}
+                  variant={'delete'}
+                  fontSize={'0.8rem'}
+                  onClick={onOpen}>
+                  Remove
+                </Button>
+                <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                  onRemoveUser(user.id); onClose();
+                }} mode="removeUser" />
+              </CardFooter>
+            }
           </Card>
         )) : <Text>No members</Text>}
       </SimpleGrid>

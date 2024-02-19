@@ -6,9 +6,8 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const custom = definePartsStyle({
   group: {
-    background: "rgba(60, 60, 60, 0.25)",
+    background: "rgba(80, 80, 80, 0.25)",
     borderRadius: "8px",
-    boxShadow: "0 6px 8px 0px rgba(0,0,0,0.25)",
   },
   field: {
     _invalid: {

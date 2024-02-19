@@ -1,5 +1,7 @@
 import {
   Box,
+  Card,
+  CardBody,
   Center,
   Container,
   Divider,
@@ -28,18 +30,18 @@ export default function AuthLayout({
           <Image priority={true} src={logo} alt={'taqseem'} height={logoDims} width={0} />
         </Flex>
         <Flex>
-          <Box w={'100%'}
-            justifyContent={'center'}
-            display='flex'
-            flexDirection='column'
-            marginX={{ base: 0, md: 2 }}
-            padding={{ base: 4, md: 6 }}
-            borderWidth='0.1rem'
-            borderColor={'gray.700'}
-            borderRadius='0.5rem'
-            mb={6}>
-          {children}
-          </Box>
+          <Card w={'100%'}
+            variant={'infoCard'}
+            boxShadow={'dark-lg'}>
+            <CardBody
+              justifyContent={'center'}
+              display='flex'
+              flexDirection='column'
+              marginX={{ base: 0, md: 2 }}
+              padding={{ base: 4, md: 6 }}>
+              {children}
+            </CardBody>
+          </Card>
         </Flex>
       </Flex>
     </Container>

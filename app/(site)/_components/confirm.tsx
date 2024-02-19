@@ -67,6 +67,7 @@ export default function Confirm({ onClose, isOpen, callback, mode }: ConfirmProp
   return (
     <AlertDialog
       motionPreset='slideInBottom'
+      variant={'confirm'}
       leastDestructiveRef={cancelRef}
       onClose={onClose}
       isOpen={isOpen}

@@ -48,7 +48,7 @@ export default function GroupAddUser(
 
   return (
     <Box p={1}>
-      <Heading marginX={4} size='sm' fontWeight='light'>Add a new User</Heading>
+      <Heading marginX={4} size='xs' fontWeight='light'>Add a new User</Heading>
       <FormControl isInvalid={!!errors?.email}>
         <VStack>
           <HStack mt={4}
@@ -57,6 +57,8 @@ export default function GroupAddUser(
             alignContent={'center'}
             onSubmit={handleSubmit(onSubmit)}>
             <Input
+              size={'sm'}
+              rounded={'md'}
               id='email'
               variant='outline'
               placeholder='Enter user email'
@@ -70,7 +72,8 @@ export default function GroupAddUser(
             />
             <Button
               w='50%'
-              variant={'login'}
+              fontSize={'xs'}
+              size='sm' variant={"login"}
               isLoading={isSubmitting}
               type='submit'>
               Add User

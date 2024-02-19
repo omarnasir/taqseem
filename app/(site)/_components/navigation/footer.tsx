@@ -1,8 +1,10 @@
+ import { usePathname } from 'next/navigation'
+
 import {
-  Flex,
   Link,
   Button,
   Text,
+  Icon,
   Container,
 } from '@chakra-ui/react';
 import {
@@ -15,25 +17,27 @@ import {
 
 export default function Footer() {
   const linkItems = [
-    { name: 'Home', href: '/', icon: MdHomeFilled },
+    { name: 'Home', href: '/dashboard', icon: MdHomeFilled },
     { name: 'Groups', href: '/groups', icon: MdGroup },
     { name: 'Activity', href: '/activity', icon: MdNotifications },
     { name: 'Profile', href: '/profile', icon: MdPerson },
   ]
-
+  const pathname = usePathname()
+  
   return (
     <Container flexDirection='row' display='flex' w='100%'
       paddingX={0}
       justifyContent={'space-evenly'}>
       {linkItems.map((linkItem, index) => (
-        <Button key={index} href={linkItem.href} as={Link} w='100%'
-          size={'lg'} h='9vh'
-          alignSelf={'center'}
+        <Button key={index} href={linkItem.href} as={Link} w='100%' h='100%'
           variant='none'
-          colorScheme='loginbtn'
+          borderTopColor={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 'teal.500' : 'transparent'}
+          borderTopWidth={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 1 : 0}
+          borderRadius={0}
           flexDirection={'column'}>
-          <linkItem.icon size={25} />
-          <Text mt={2} fontSize={'sm'} fontWeight={300}>{linkItem.name}</Text>
+          <Icon as={linkItem.icon}/>
+          <Text mt={2} fontSize={{base: 'xs', md: 'sm'}}
+          fontWeight={300}>{linkItem.name}</Text>
         </Button>
       ))}
     </Container>

@@ -47,7 +47,7 @@ export default function AddGroup({ groups, setGroups }: {
 
   return (
     <Box p={1} mt={6}>
-      <Heading marginX={4} size='sm' fontWeight='light'>Create a new Group</Heading>
+      <Heading marginX={4} size='xs' fontWeight='light'>Create a new Group</Heading>
       <FormControl isInvalid={!!errors?.group}>
         <VStack>
           <HStack mt={4}
@@ -58,6 +58,8 @@ export default function AddGroup({ groups, setGroups }: {
             onSubmit={handleSubmit(onSubmit)}>
             <Input
               id='name'
+              size={'sm'}
+              rounded={'md'}
               placeholder='Name of your group'
               {...register('name', {
                 required: 'This is required',
@@ -67,7 +69,9 @@ export default function AddGroup({ groups, setGroups }: {
                 }
               })}
             />
-            <Button w='50%' isLoading={isSubmitting} type='submit' size='md' variant={"login"}>
+            <Button w='50%' isLoading={isSubmitting} type='submit' 
+              fontSize={'xs'}
+              size='sm' variant={"add"}>
               Create
             </Button>
           </HStack>

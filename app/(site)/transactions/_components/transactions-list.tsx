@@ -23,8 +23,8 @@ function DateDisplay({ paidAt }: { paidAt: TTransactionWithDetails['paidAt'] }) 
   });
   return (
     <VStack w={cardItemWidths['date']} spacing={0} fontSize={'sm'}>
-      <Text color={'#999999'} >{date.split(' ')[1]}</Text>
-      <Text color={'#dedede'}>{date.split(' ')[0]}</Text>
+      <Text color='whiteAlpha.600' >{date.split(' ')[1]}</Text>
+      <Text color='whiteAlpha.800'>{date.split(' ')[0]}</Text>
     </VStack>
   )
 }
@@ -36,7 +36,7 @@ function AmountDisplay({ transactionDetails, userId }:
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
       <HStack>
         <Text color={amount > 0 ? 'green.500' : 'red.500'}
-          fontSize={'1.25rem'} fontWeight={'00'}>
+          fontSize={'1.25rem'} fontWeight={'300'} letterSpacing={'normal'}>
           {amount > 0 ? '+' : ''}{amount.toFixed(2)}</Text>
         <Text color={amount > 0 ? 'green.500' : 'red.500'} opacity={0.7}>€</Text>
       </HStack>
@@ -54,8 +54,8 @@ function SummaryDisplay({ transaction, users }:
   const name = users!.find(user => user.id === transaction.paidById)?.name;
   return (
     <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'} pl={2}>
-      <Text textAlign={'start'} fontSize={'1rem'}>{transaction.name}</Text>
-      <Text color={'#808080'} textAlign={'start'} fontSize={'0.65rem'}>
+      <Text textAlign={'start'} fontSize={'1rem'} color='whiteAlpha.800'>{transaction.name}</Text>
+      <Text color='whiteAlpha.500' textAlign={'start'} fontSize={'0.65rem'}>
         {name + ' paid ' + transaction.amount + ' €'}
       </Text>
     </VStack>

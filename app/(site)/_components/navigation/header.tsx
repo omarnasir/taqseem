@@ -16,6 +16,7 @@ export default function Header(
   return (
     <Container flexDirection='row' display='flex' w='100%'
       justifyContent={'space-between'}
+      backdropFilter={'blur(20px)'}
       alignItems={'center'}>
       <IconButton mr={4}
         icon={<MdOutlineArrowLeft size={40} />}
