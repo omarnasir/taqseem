@@ -46,7 +46,7 @@ export default function Register() {
           Register
         </Button>
       </FormProvider>
-      <Flex direction={'row'} justifyContent={'center'} mt={4}>
+      <Flex direction={'row'} justifyContent={'center'} mt={6}>
         <Link href='/auth/login' ml={2} color={'gray.300'}>Already have an account? Login here</Link>
       </Flex>
     </FormControl>

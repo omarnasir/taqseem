@@ -20,7 +20,7 @@ export default function Footer() {
     { name: 'Home', href: '/dashboard', icon: MdHomeFilled },
     { name: 'Groups', href: '/groups', icon: MdGroup },
     { name: 'Activity', href: '/activity', icon: MdNotifications },
-    { name: 'Profile', href: '/profile', icon: MdPerson },
+    // { name: 'Profile', href: '/profile', icon: MdPerson },
   ]
   const pathname = usePathname()
   
@@ -32,11 +32,11 @@ export default function Footer() {
         <Button key={index} href={linkItem.href} as={Link} w='100%' h='100%'
           variant='none'
           borderTopColor={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 'teal.500' : 'transparent'}
-          borderTopWidth={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 1 : 0}
+          borderTopWidth={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 2 : 0}
           borderRadius={0}
           flexDirection={'column'}>
-          <Icon as={linkItem.icon}/>
-          <Text mt={2} fontSize={{base: 'xs', md: 'sm'}}
+          <Icon as={linkItem.icon} boxSize={{base: 5, md: 6}} />
+          <Text mt={2} fontSize={{base: 'xs', md: 'sm'}} display={{base: 'none', md: 'block'}}
           fontWeight={300}>{linkItem.name}</Text>
         </Button>
       ))}

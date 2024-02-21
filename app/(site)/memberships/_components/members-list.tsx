@@ -56,37 +56,34 @@ export default function GroupMembersList({ group, users, setUsers
     <Stack direction={'column'} spacing={4} mb={6}>
       <Text fontSize='lg' fontWeight='400'>Members - {group.name}</Text>
       <Text fontSize='sm' fontWeight='300'>Add or remove members.</Text>
-      <SimpleGrid spacing={4} columns={2}>
+      <SimpleGrid spacing={2}>
         {users.length > 0 ? users.map((user) => (
           <Card key={user.id}
-            size={'sm'}
+            size={'xs'}
             variant={'infoCard'}>
-            <CardBody mt={2}>
-              <HStack justifyContent={'space-around'} w='100%'>
-                <CustomCardIcon icon={MdPerson} />
-                <Heading w='70%' borderBottom={'1px solid'}
-                  pb={4} ml={1}
-                  borderColor={'whiteAlpha.200'}
-                  fontSize={'1rem'}
-                  fontFamily={'body'}
-                  fontWeight={200}>{user.name}</Heading>
+            <CardBody paddingY={4}>
+              <HStack justifyContent={'space-between'} w='100%'>
+                <CustomCardIcon icon={MdPerson} styleProps={{ marginX: '4' }} />
+                <Heading w='40%'
+                  fontSize={'lg'}
+                  fontWeight={400}>{user.name}</Heading>
+                {(group.createdById === sessionData?.user?.id ||
+                  user.id === sessionData?.user?.id) &&
+                  <VStack w='30%'>
+                    <Button leftIcon={<MdPersonRemove />}
+                      w='100%'
+                      variant={'delete'}
+                      fontSize={'sm'}
+                      onClick={onOpen}>
+                      Remove
+                    </Button>
+                    <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                      onRemoveUser(user.id); onClose();
+                    }} mode="removeUser" />
+                  </VStack>
+                }
               </HStack>
             </CardBody>
-            {(group.createdById === sessionData?.user?.id ||
-              user.id === sessionData?.user?.id) &&
-              <CardFooter w='100%' pt={2} justifyContent={'flex-end'}>
-                <Button leftIcon={<MdPersonRemove />} size='sm'
-                  width={{ base: '70%', sm: '50%' }}
-                  variant={'delete'}
-                  fontSize={'0.8rem'}
-                  onClick={onOpen}>
-                  Remove
-                </Button>
-                <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                  onRemoveUser(user.id); onClose();
-                }} mode="removeUser" />
-              </CardFooter>
-            }
           </Card>
         )) : <Text>No members</Text>}
       </SimpleGrid>

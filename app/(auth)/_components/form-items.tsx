@@ -14,8 +14,9 @@ function EmailFormItem() {
 
   return (
     <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
-      <FormLabel htmlFor={id}>Email</FormLabel>
+      <FormLabel letterSpacing={'wide'} htmlFor={id}>Email</FormLabel>
       <Input
+        variant={'login'}
         {...register(id, {
           required: "Email is required",
           pattern: {
@@ -37,8 +38,9 @@ function PasswordFormItem() {
 
   return (
     <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
-      <FormLabel htmlFor={id}>Password</FormLabel>
+      <FormLabel letterSpacing={'wide'} htmlFor={id}>Password</FormLabel>
       <Input
+        variant={'login'}
         {...register(id, {
           required: "Password is required",
           minLength: {
@@ -59,8 +61,9 @@ function NameFormItem() {
 
   return (
     <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
-      <FormLabel htmlFor={id}>Name</FormLabel>
+      <FormLabel letterSpacing={'wide'} htmlFor={id}>Name</FormLabel>
       <Input
+        variant={'login'}
         {...register(id, {
           required: "Please enter your name.",
           minLength: {

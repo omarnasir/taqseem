@@ -69,7 +69,7 @@ export default function GroupTransactions() {
             <Text fontSize='lg' fontWeight='300'>{group?.name}</Text>
           </VStack>
           <Button width={'6.5rem'} variant={'add'} size={'sm'}
-            leftIcon={<MdAdd font-size='16px'/>}
+            leftIcon={<MdAdd />}
             fontSize={'xs'} onClick={()=> {setSelectedTransaction(undefined); onClick(); onOpen();}}
             {...buttonProps}>Add</Button>
         </HStack>
@@ -87,9 +87,7 @@ export default function GroupTransactions() {
                   }
                 }>
                 <DateDisplay paidAt={transaction.paidAt} />
-                <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='6'
-                color='whiteAlpha.700'
-                 />
+                <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='5' color='whiteAlpha.700'/>
                 <SummaryDisplay transaction={transaction} users={group?.users!} />
                 <AmountDisplay transactionDetails={transaction.transactionDetails} userId={sessionData!.user.id} />
               </ListItem>

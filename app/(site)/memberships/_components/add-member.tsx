@@ -70,12 +70,9 @@ export default function GroupAddUser(
                 },
               })}
             />
-            <Button
-              w='50%'
+            <Button w='50%' isLoading={isSubmitting} type='submit' 
               fontSize={'xs'}
-              size='sm' variant={"login"}
-              isLoading={isSubmitting}
-              type='submit'>
+              size='sm' variant={"add"}>
               Add User
             </Button>
           </HStack>

@@ -22,9 +22,9 @@ function DateDisplay({ paidAt }: { paidAt: TTransactionWithDetails['paidAt'] }) 
     month: 'short',
   });
   return (
-    <VStack w={cardItemWidths['date']} spacing={0} fontSize={'sm'}>
-      <Text color='whiteAlpha.600' >{date.split(' ')[1]}</Text>
-      <Text color='whiteAlpha.800'>{date.split(' ')[0]}</Text>
+    <VStack w={cardItemWidths['date']} spacing={0} fontSize={'xs'}>
+      <Text color='whiteAlpha.700' >{date.split(' ')[1]}</Text>
+      <Text color='whiteAlpha.700'>{date.split(' ')[0]}</Text>
     </VStack>
   )
 }
@@ -36,13 +36,13 @@ function AmountDisplay({ transactionDetails, userId }:
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
       <HStack>
         <Text color={amount > 0 ? 'green.500' : 'red.500'}
-          fontSize={'1.25rem'} fontWeight={'300'} letterSpacing={'normal'}>
+          fontSize={'lg'} letterSpacing={'tight'}>
           {amount > 0 ? '+' : ''}{amount.toFixed(2)}</Text>
-        <Text color={amount > 0 ? 'green.500' : 'red.500'} opacity={0.7}>€</Text>
+        <Text color={amount > 0 ? 'green.500' : 'red.500'}>€</Text>
       </HStack>
-      <Text fontSize={'0.65rem'}
-        color={amount > 0 ? 'green.500' : 'red.500'} opacity={0.9}
-        fontWeight={'300'}>
+      <Text fontSize={'2xs'}
+        color={amount > 0 ? 'green.400' : 'red.400'} opacity={0.65}
+        fontWeight={'300'} letterSpacing={'tight'}>
         you {amount > 0 ? 'lent' : 'borrowed'}
       </Text>
     </VStack>
@@ -53,9 +53,10 @@ function SummaryDisplay({ transaction, users }:
   { transaction: TTransactionWithDetails, users: UserBasicData[] }) {
   const name = users!.find(user => user.id === transaction.paidById)?.name;
   return (
-    <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'} pl={2}>
-      <Text textAlign={'start'} fontSize={'1rem'} color='whiteAlpha.800'>{transaction.name}</Text>
-      <Text color='whiteAlpha.500' textAlign={'start'} fontSize={'0.65rem'}>
+    <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'}>
+      <Text textAlign={'start'} letterSpacing={'wide'} fontSize={'md'} color='whiteAlpha.900'>
+        {transaction.name}</Text>
+      <Text color='whiteAlpha.600' textAlign={'start'} fontSize={'2xs'}>
         {name + ' paid ' + transaction.amount + ' €'}
       </Text>
     </VStack>

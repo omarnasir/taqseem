@@ -8,13 +8,14 @@ const baseStyle = definePartsStyle({
   list: {
    // _dark or _light
     _dark: {
-      '--menu-bg': 'colors.itemBgGray',
+      '--menu-bg': 'rgb(40,41,44)',
       'minWidth': '150px',
+      'border': 'none'
     },
   },
   item: {
-    _dark: {
-    },
+    _dark: { 
+    }
   }
 })
 

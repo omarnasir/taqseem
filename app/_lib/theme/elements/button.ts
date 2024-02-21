@@ -35,6 +35,7 @@ export const buttonTheme = defineStyleConfig({
     headerButton: {
       fontSize: 'lg',
       color: 'whiteAlpha.700',
+      bg: 'transparent',
     },
     previous: {
       bg: 'rgb(50,50,50)',

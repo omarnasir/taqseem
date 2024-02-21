@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"
-import { Box } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 
 import { getMembershipsByGroupId } from "@/app/(site)/memberships/_lib/memberships-service";
 import GroupMembersList from "./_components/members-list"
@@ -29,9 +29,9 @@ export default function GroupPage() {
 
   return (
     loading ? <Loading /> :
-      <Box w='100%'>
+    <Flex direction={"column"} w="inherit">
         <GroupMembersList group={group} users={users} setUsers={setUsers} />
         <GroupAddUser group={group} users={users} setUsers={setUsers} />
-      </Box>
+      </Flex>
   )
 }

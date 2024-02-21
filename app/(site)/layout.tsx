@@ -14,7 +14,10 @@ export default function SiteLayout({
 
   const heights = {
     header: '8vh',
-    footer: '9vh',
+    footer: {
+      base: '7.5vh',
+      md: '8vh',
+    }
   };
 
   return (
@@ -35,7 +38,14 @@ export default function SiteLayout({
       <Container
         flexDirection={'column'}
         position='absolute'
-        overflow={'auto'}
+        overflow={'scroll'}
+        mt={1}
+        sx={{
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          scrollbarWidth: 'none',
+        }}
         pb={heights.footer}
         top={heights.header}
         bottom={heights.footer}>
@@ -47,6 +57,8 @@ export default function SiteLayout({
         borderTopRadius={'3xl'}
         borderTopWidth={0}
         bg='bgFooter'
+        borderBottomWidth={2}
+        borderBottomColor='whiteAlpha.200'
         w='100%'
         position='absolute'
         overflow={'hidden'}

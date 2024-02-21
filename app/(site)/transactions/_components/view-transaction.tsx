@@ -14,6 +14,13 @@ import {
   HStack,
   useDisclosure,
   Box,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerBody,
+  Drawer,
+  DrawerFooter,
+  DrawerCloseButton,
+  DrawerContent,
 } from "@chakra-ui/react"
 
 import { FormProvider, useForm } from "react-hook-form";
@@ -36,18 +43,19 @@ import {
 } from "./form-items";
 import { type GroupWithMembers } from "@/app/_types/model/groups"
 import { createTransaction, updateTransaction, deleteTransaction } from "@/app/(site)/transactions/_lib/transactions-service"
-import { 
-  type TCreateTransaction, 
-  type TCreateTransactionDetails, 
+import {
+  type TCreateTransaction,
+  type TCreateTransactionDetails,
   type TUpdateTransaction,
-  type TTransactionWithDetails } 
-from "@/app/_types/model/transactions";
+  type TTransactionWithDetails
+}
+  from "@/app/_types/model/transactions";
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/(site)/_components/confirm";
 
 
 export default function TransactionView(
-  { group, disclosureProps, isOpen, onClose, setRefreshTransactions, transactionWithDetails}: {
+  { group, disclosureProps, isOpen, onClose, setRefreshTransactions, transactionWithDetails }: {
     group: GroupWithMembers,
     disclosureProps: any,
     isOpen: boolean,
@@ -103,6 +111,7 @@ export default function TransactionView(
   } = methods
 
   async function onSubmit(values: TFormTransaction) {
+    console.log('called')
     const everyone = values[TransactionFormIds.everyone] as boolean;
     const totalAmount = parseFloat(values[TransactionFormIds.amount]);
     let userDetails: TCreateTransactionDetails[];
@@ -136,7 +145,7 @@ export default function TransactionView(
     })
     // Build the transaction object
     const transaction: TUpdateTransaction | TCreateTransaction = {
-      id: values.id? values.id : undefined,
+      id: values.id ? values.id : undefined,
       name: values[TransactionFormIds.name],
       amount: totalAmount,
       groupId: group.id,
@@ -173,60 +182,65 @@ export default function TransactionView(
 
   return (
     <FormProvider {...methods}>
-      <Modal
+      <Drawer
+        size={'full'}
+        placement={'bottom'}
         variant={'transaction'}
-        blockScrollOnMount={false}
         isOpen={isOpen}
         onClose={() => onClose(reset, defaultValues)}
-        {...disclosureProps}
-        size={{ xl: 'lg', base: 'lg', "2xl": 'xl' }}>
-        <ModalHeader padding={0}/>
-        <ModalOverlay />
-        <ModalContent marginX={2}
-          position={'absolute'} top={{base: '-10vh', md: '0'}}
-          as='form' onSubmit={handleSubmit(onSubmit)}>
-          <ModalCloseButton/>
-          <ModalBody>
-            <FormItemId />
-            <FormItemName />
-            <FormItemDateTime />
-            <HStack>
-              <FormItemCategory />
-              <FormItemSubCategory />
-            </HStack>
-            <FormItemPaidBy {...{ users: users }} />
-            <FormItemAmount />
-            <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
-            <FormItemNote />
-          </ModalBody>
-          <ModalFooter>
-            <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-              {transactionWithDetails ?
-                <>
-                  <Button size={'sm'} fontWeight={'600'} w={'7rem'}
-                    textAlign={'center'} variant={'delete'}
-                    onClick={onOpenRemoveTransaction}>
-                    Delete
-                  </Button>
-                  <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
-                    onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
-                  }} mode="removeTransaction" />
-                </> :
-                <Button size={'sm'} fontWeight={'400'} w={'7rem'}
-                  textAlign={'center'} variant={'outline'} textColor='whiteAlpha.600'
-                  onClick={() => reset(defaultValues)}>
-                  Clear
-                </Button>}
-              <Button size={'sm'} w={'7rem'} fontWeight={'600'}
-                variant={'add'} textColor='black'
-                isDisabled={!isValid || !isDirty}
-                isLoading={methods.formState.isSubmitting} type='submit'>
-                {transactionWithDetails ? 'Update' : 'Add'}
-              </Button>
-            </Flex>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+        {...disclosureProps}>
+        <DrawerOverlay />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DrawerContent maxW={'200px'}>
+            <DrawerHeader mb={-3} fontSize={'md'} letterSpacing={'wide'} fontWeight={400}
+              color={'whiteAlpha.580'}
+              borderBottomWidth={1} 
+              borderColor={transactionWithDetails ? 'orange.500' : 'teal.500'}>
+              {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
+              <DrawerCloseButton />
+            </DrawerHeader>
+            <DrawerBody>
+              <FormItemId />
+              <FormItemName />
+              <FormItemDateTime />
+              <HStack>
+                <FormItemCategory />
+                <FormItemSubCategory />
+              </HStack>
+              <FormItemPaidBy {...{ users: users }} />
+              <FormItemAmount />
+              <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
+              <FormItemNote />
+            </DrawerBody>
+            <DrawerFooter>
+              <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
+                {transactionWithDetails ?
+                  <>
+                    <Button size={'sm'} fontWeight={'600'} w={'7rem'}
+                      textAlign={'center'} variant={'delete'}
+                      onClick={onOpenRemoveTransaction}>
+                      Delete
+                    </Button>
+                    <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
+                      onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
+                    }} mode="removeTransaction" />
+                  </> :
+                  <Button size={'sm'} fontWeight={'400'} w={'7rem'}
+                    textAlign={'center'} variant={'outline'} textColor='whiteAlpha.600'
+                    onClick={() => reset(defaultValues)}>
+                    Clear
+                  </Button>}
+                <Button size={'sm'} w={'7rem'} fontWeight={'600'}
+                  variant={'add'}
+                  isDisabled={!isValid || !isDirty}
+                  isLoading={methods.formState.isSubmitting} type='submit'>
+                  {transactionWithDetails ? 'Update' : 'Add'}
+                </Button>
+              </Flex>
+            </DrawerFooter>
+          </DrawerContent>
+        </form>
+      </Drawer>
     </FormProvider>
   )
 }

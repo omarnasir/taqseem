@@ -38,7 +38,7 @@ export default function AuthLayout({
               display='flex'
               flexDirection='column'
               marginX={{ base: 0, md: 2 }}
-              padding={{ base: 4, md: 6 }}>
+              padding={6}>
               {children}
             </CardBody>
           </Card>

@@ -33,7 +33,7 @@ export default function Signin() {
 
   return (
     <FormControl as='form' onSubmit={handleSubmit(onSubmit)}>
-      <Heading textAlign={'left'} fontSize={'xl'} mb={4} fontWeight={'light'}>Login</Heading>
+      <Heading textAlign={'left'} fontSize={'lg'} mb={4} fontWeight={'light'}>Login</Heading>
       <Divider mb={4} />
       <FormProvider {...methods}>
         <EmailFormItem />
@@ -42,7 +42,7 @@ export default function Signin() {
           Login
         </Button>
       </FormProvider>
-      <Flex direction={'row'} justifyContent={'center'} mt={4}>
+      <Flex direction={'row'} justifyContent={'center'} mt={6}>
         <Link href='/register' ml={2} color={'gray.300'}>New User? Register here</Link>
       </Flex>
     </FormControl>

@@ -10,10 +10,11 @@ const transaction = definePartsStyle({
   item: {
     alignItems: 'center',
     marginBottom: 2,
-    rounded: 'lg',
-    padding: 2,
+    rounded: 'md',
+    paddingY: 3,
+    paddingX: 4,
     backgroundColor: 'bgListItem',
-    backdropFilter: 'blur(10px)',
+
   },
 })
 

@@ -1,7 +1,8 @@
 import { useRouter } from 'next/navigation';
 
-import { Image, Button, Flex, Link, IconButton, Container, Spacer } from "@chakra-ui/react";
-import { MdOutlineArrowLeft } from "react-icons/md";
+import { Image, Link, IconButton, Container, Spacer } from "@chakra-ui/react";
+import { MdOutlineArrowLeft, MdOutlineMenu
+ } from "react-icons/md";
 import NavbarMenu from './menu';
 
 
@@ -25,7 +26,7 @@ export default function Header(
         variant='headerButton'></IconButton>
       <Link href='/' alignSelf='center'>
         <Image
-          w='50px'
+          w='42px'
           objectFit='fill'
           src='/logo.png'
           alt={'taqseem'} />

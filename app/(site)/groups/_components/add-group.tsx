@@ -72,7 +72,7 @@ export default function AddGroup({ groups, setGroups }: {
             <Button w='50%' isLoading={isSubmitting} type='submit' 
               fontSize={'xs'}
               size='sm' variant={"add"}>
-              Create
+              Create Group
             </Button>
           </HStack>
           {errors?.group &&
