@@ -5,24 +5,16 @@ const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(parts.keys)
 
 const transaction = definePartsStyle({
+  header: {
+  },
   dialog: {
     _dark: {
-      bg: 'bgModal',
-      color: 'white',
-      width: {
-        base: '100%',
-        md: '70%',
-        lg: '60%',
-        xl: '40vw',
-      },
-      left: 'auto !important',
-      right: 'auto !important',
+      bg: 'rgba(88, 87, 92, 0.22)',
+      backdropFilter: 'blur(10px)'
     },
   },
   body: {
-    _dark: {
-      color: 'whiteAlpha.800',
-    },
+
   },
   overlay: {
     _dark: {

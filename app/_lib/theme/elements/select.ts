@@ -11,8 +11,12 @@ const custom = definePartsStyle({
     boxShadow: "0 6px 8px 0px rgba(0,0,0,0.25)",
   },
   field: {
+    paddingLeft: 2,
     background: "transparent",
-    paddingLeft: 0,
+    fontSize: {
+      base: "md",
+      md: "lg",
+    },
   }
 })
 

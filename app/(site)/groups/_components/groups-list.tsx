@@ -17,7 +17,7 @@ import { deleteGroup } from '@/app/(site)/groups/_lib/group-service';
 import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
 import Confirm from '@/app/(site)/_components/confirm';
-import CustomCardIcon from '@/app/(site)/_components/cardIcon';
+import { CustomCardIcon } from '@/app/(site)/_components/cardIcon';
 
 
 export default function GroupsList(

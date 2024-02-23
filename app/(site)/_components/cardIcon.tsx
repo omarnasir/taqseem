@@ -4,8 +4,8 @@ import {
   FlexProps
 } from '@chakra-ui/react'
 
-export default function CustomCardIcon({ icon, styleProps }: { icon: any, styleProps?: FlexProps  }) {
-  return (
+function CustomCardIcon({ icon, styleProps }: { icon: any, styleProps?: FlexProps  }) {
+return (
     <Flex
       bg={'whiteAlpha.400'}
       opacity={0.7}
@@ -17,4 +17,26 @@ export default function CustomCardIcon({ icon, styleProps }: { icon: any, styleP
       <Icon as={icon} alignSelf={'center'} boxSize={5}/>
     </Flex>
   )
+}
+
+function CustomFormIcon({ icon, styleProps }: { icon: any, styleProps?: FlexProps  }) {
+  return (
+    <Flex
+      opacity={0.7}
+      justifySelf={'center'}
+      rounded={'full'}
+      boxSize={6}
+      width={'2.2rem'}
+      height={'2rem'}
+      justifyContent={'center'}
+      {...styleProps}
+    >
+      <Icon as={icon} alignSelf={'center'} boxSize={4}/>
+    </Flex>
+  )
+}
+
+export {
+  CustomCardIcon,
+  CustomFormIcon
 }

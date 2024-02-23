@@ -6,15 +6,31 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const custom = definePartsStyle({
   group: {
-    background: "rgba(80, 80, 80, 0.25)",
-    borderRadius: "8px",
+    borderBottom: "1px solid",
+    borderBottomColor: "whiteAlpha.200",
+    borderRadius: "0",
+  },
+  addon: {
+    textColor: "whiteAlpha.500",
+    letterSpacing: "tighter",
+    fontWeight: 400,
+    marginLeft: -2,
+    fontSize: {
+      base: "md",
+      md: "md",
+    }
   },
   field: {
+    paddingLeft: 2,
+    borderRadius: "none",
+    fontSize: {
+      base: "md",
+      md: "lg",
+    },
     _invalid: {
       borderColor: "rgba(155, 25, 30, 1)",
       borderBottomWidth: "2px",
     },
-    paddingLeft: 0,
     background: "transparent",
     _focus: {
       borderColor: "gray",

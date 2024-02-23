@@ -27,7 +27,7 @@ import Confirm from "@/app/(site)/_components/confirm";
 import { type UserBasicData } from "@/app/_types/model/users";
 import { GroupData } from "@/app/_types/model/groups";
 import { useSession } from "next-auth/react";
-import CustomCardIcon from "../../_components/cardIcon";
+import { CustomCardIcon } from "@/app/(site)/_components/cardIcon";
 
 type GroupDetailsProps = {
   group: GroupData,

@@ -10,8 +10,12 @@ const custom = definePartsStyle({
       borderColor: "rgba(155, 25, 30, 1)",
       borderBottomWidth: "2px",
     },
-    paddingLeft: 0,
+    fontSize: {
+      base: "md",
+      md: "lg",
+    },
     background: "transparent",
+    paddingLeft: "2",
     borderLeftRadius: "0px",
     _disabled: {
       background: "rgba(5,5,5, 1)",

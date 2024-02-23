@@ -15,8 +15,8 @@ export const buttonTheme = defineStyleConfig({
     add: {
       borderColor: 'whiteAlpha.200',
       borderWidth: '0.05rem',
-      bg: 'whiteAlpha.200',
-      color: 'cyan.200',
+      bg: 'teal.300',
+      color: 'black',
       opacity: 0.80,
       fontWeight: 500,
       boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)',
@@ -24,6 +24,13 @@ export const buttonTheme = defineStyleConfig({
         bg: 'whiteAlpha.300',
         textColor: 'black',
       },
+    },
+    update: {
+      bg: 'orange.300',
+      color: 'black',
+      opacity: 0.80,
+      fontWeight: 500,
+      boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)',
     },
     delete: {
       bg: 'whiteAlpha.200',
@@ -46,6 +53,14 @@ export const buttonTheme = defineStyleConfig({
       opacity: 0.80,
       fontWeight: 500,
       boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)',
+    },
+    formNavigation: {
+      color: 'whiteAlpha.800',
+      opacity: 0.80,
+      fontWeight: 500,
+      _disabled: {
+        color: 'whiteAlpha.300',
+      },
     }
   }
 })

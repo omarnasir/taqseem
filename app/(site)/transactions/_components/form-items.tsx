@@ -19,6 +19,7 @@ import {
   Box,
   InputRightElement,
   InputLeftAddon,
+  Icon,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
@@ -30,6 +31,7 @@ import { UserBasicData } from "@/app/_types/model/users";
 import { type TCreateTransaction, type TCreateTransactionDetails } from "@/app/_types/model/transactions";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
 
+import {CustomFormIcon} from "@/app/(site)/_components/cardIcon";
 
 enum TransactionFormIds {
   id = 'id',
@@ -62,7 +64,7 @@ interface TFormTransaction extends Omit<TCreateTransaction, "transactionDetails"
 function FormItemId() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.id} isInvalid={Boolean(errors[TransactionFormIds.id])} mb={3}>
+    <FormControl id={TransactionFormIds.id} isInvalid={Boolean(errors[TransactionFormIds.id])} marginY={3}>
       <Input {...register(TransactionFormIds.id, {
         required: false
       })}
@@ -74,18 +76,20 @@ function FormItemId() {
 function FormItemName() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.name} isInvalid={Boolean(errors[TransactionFormIds.name])} mb={3}>
-      <FormLabel htmlFor={TransactionFormIds.name}>Name</FormLabel>
-      <InputGroup variant={"custom"}>
-        <InputLeftAddon>
-          <MdDriveFileRenameOutline />
-        </InputLeftAddon>
-        <Input {...register(TransactionFormIds.name, {
-          required: 'You must enter a name',
-        })}
-          placeholder='Give a name to the transaction' />
-      </InputGroup>
+    <FormControl id={TransactionFormIds.name} isInvalid={Boolean(errors[TransactionFormIds.name])} marginBottom={3}>
+      <HStack>
+        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"teal.600"}}/>
+        <InputGroup variant={"custom"}>
+          <InputLeftAddon>
+            <Text alignSelf={'center'}>Name</Text>
+          </InputLeftAddon>
+          <Input {...register(TransactionFormIds.name, {
+            required: 'You must enter a name',
+          })}
+            placeholder='Name' />
+        </InputGroup>
       <FormErrorMessage>{errors[TransactionFormIds.name]?.message?.toString()}</FormErrorMessage>
+      </HStack>
     </FormControl>
   )
 }
@@ -127,7 +131,7 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[],  })
 
   return (
     <Box>
-      <FormLabel>Split</FormLabel>
+      <FormLabel variant={'transaction'}>Split</FormLabel>
       <Checkbox size={'md'} h='2rem' as={Button}
         mb={2}
         variant={'transactionEveryone'}
@@ -276,12 +280,13 @@ function FormItemAmount() {
   const { formState: { errors }, control } = useFormContext()
 
   return (
-    <FormControl id={TransactionFormIds.amount} isInvalid={Boolean(errors[TransactionFormIds.amount])} mb={3}>
-      <FormLabel htmlFor={TransactionFormIds.amount}>Amount</FormLabel>
+    <FormControl id={TransactionFormIds.amount} isInvalid={Boolean(errors[TransactionFormIds.amount])} marginY={3}>
+      <HStack>
+        <CustomFormIcon icon={MdEuroSymbol} styleProps={{bg:"green.600"}}/>
       <InputGroup variant={"custom"}>
-        <InputLeftAddon>
-          <MdEuroSymbol />
-        </InputLeftAddon>
+      <InputLeftAddon>
+        <Text alignSelf={'center'}>Amount</Text>
+      </InputLeftAddon>
         <Controller
           name={TransactionFormIds.amount}
           control={control}
@@ -308,13 +313,14 @@ function FormItemAmount() {
               <NumberInputField
                 ref={ref}
                 name={name}
-                fontWeight={'light'}
+                fontSize={'lg'}
               />
             </NumberInput>
           )}
         />
       </InputGroup>
       <FormErrorMessage>{errors[TransactionFormIds.amount]?.message?.toString()}</FormErrorMessage>
+      </HStack>
     </FormControl>
   )
 }
@@ -322,12 +328,13 @@ function FormItemAmount() {
 function FormItemSubCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.subCategory} isInvalid={Boolean(errors[TransactionFormIds.subCategory])} mb={3}>
-      <FormLabel htmlFor={TransactionFormIds.subCategory}>Sub-category</FormLabel>
+    <FormControl id={TransactionFormIds.subCategory} isInvalid={Boolean(errors[TransactionFormIds.subCategory])} marginY={3}>
+      <HStack>
+        <CustomFormIcon icon={MdOutlineCategory} styleProps={{bg:"red.600"}}/>
       <InputGroup variant={"custom"}>
-        <InputLeftAddon>
-          <MdOutlineCategory />
-        </InputLeftAddon>
+      <InputLeftAddon>
+        <Text alignSelf={'center'}>SubCategory</Text>
+      </InputLeftAddon>
         <Select {...register(TransactionFormIds.subCategory, {
           required: true,
           valueAsNumber: true
@@ -342,6 +349,7 @@ function FormItemSubCategory() {
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[TransactionFormIds.subCategory]?.message?.toString()}</FormErrorMessage>
+      </HStack>
     </FormControl>
   )
 }
@@ -349,11 +357,12 @@ function FormItemSubCategory() {
 function FormItemCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.category} isInvalid={Boolean(errors[TransactionFormIds.category])} mb={3}>
-      <FormLabel htmlFor={TransactionFormIds.category}>Category</FormLabel>
+    <FormControl id={TransactionFormIds.category} isInvalid={Boolean(errors[TransactionFormIds.category])} marginY={3}>
+      <HStack>
+        <CustomFormIcon icon={MdCategory} styleProps={{bg:"red.600"}}/>
       <InputGroup variant={"custom"}>
         <InputLeftAddon>
-          <MdCategory />
+          <Text alignSelf={'center'}>Category</Text>
         </InputLeftAddon>
         <Select {...register(TransactionFormIds.category, {
           required: true,
@@ -369,6 +378,7 @@ function FormItemCategory() {
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[TransactionFormIds.category]?.message?.toString()}</FormErrorMessage>
+      </HStack>
     </FormControl>
   )
 }
@@ -376,11 +386,12 @@ function FormItemCategory() {
 function FormItemDateTime() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.paidAt} isInvalid={Boolean(errors[TransactionFormIds.paidAt])} mb={3}>
-      <FormLabel htmlFor={TransactionFormIds.paidAt}>Date</FormLabel>
+    <FormControl id={TransactionFormIds.paidAt} isInvalid={Boolean(errors[TransactionFormIds.paidAt])} marginY={3}>
+      <HStack>
+        <CustomFormIcon icon={MdCalendarMonth} styleProps={{bg:"yellow.600"}}/>
       <InputGroup variant={"custom"}>
         <InputLeftAddon>
-          <MdCalendarMonth />
+          <Text alignSelf={'center'}>Date</Text>
         </InputLeftAddon>
         <Input {...register(TransactionFormIds.paidAt, {
           required: true,
@@ -392,6 +403,7 @@ function FormItemDateTime() {
           defaultValue={formatDateToString(new Date())} />
       </InputGroup>
       <FormErrorMessage>{errors[TransactionFormIds.paidAt]?.message?.toString()}</FormErrorMessage>
+      </HStack>
     </FormControl>
   )
 }
@@ -399,11 +411,12 @@ function FormItemDateTime() {
 function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.paidById} isInvalid={Boolean(errors[TransactionFormIds.paidById])} mb={3}>
-      <FormLabel htmlFor={TransactionFormIds.paidById}>Paid by</FormLabel>
+    <FormControl id={TransactionFormIds.paidById} isInvalid={Boolean(errors[TransactionFormIds.paidById])} marginY={3}>
+      <HStack>
+        <CustomFormIcon icon={MdCategory} styleProps={{bg:"purple.600"}}/>
       <InputGroup variant={"custom"}>
         <InputLeftAddon>
-          <MdCategory />
+          <Text alignSelf={'center'}>Paid By</Text>
         </InputLeftAddon>
         <Select {...register(TransactionFormIds.paidById, {
           required: true,
@@ -417,6 +430,32 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[TransactionFormIds.paidById]?.message?.toString()}</FormErrorMessage>
+      </HStack>
+    </FormControl>
+  )
+}
+
+function FormItemNote() {
+  const { formState: { errors }, register } = useFormContext()
+  const id = TransactionFormIds.notes
+  return (
+    <FormControl id={id} isInvalid={Boolean(errors[id])} marginY={3}>
+      <HStack>
+        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"orange.600",
+        width: "2.5rem",
+      }}/>
+      <InputGroup variant={"custom"}>
+        <Textarea {...register(id, {
+          required: false
+        })}
+          placeholder='Add a note'
+          background={"transparent"}
+          borderWidth={0}
+          resize={"none"}
+        />
+      </InputGroup>
+      <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
+      </HStack>
     </FormControl>
   )
 }
@@ -436,30 +475,6 @@ function processTransactionDetails(transactionDetails: TFormTransactionDetails[]
     usersWithoutInputAmount,
     sum
   }
-}
-
-function FormItemNote() {
-  const { formState: { errors }, register } = useFormContext()
-  const id = TransactionFormIds.notes
-  return (
-    <FormControl id={id} isInvalid={Boolean(errors[id])} mb={3}>
-      <FormLabel htmlFor={id}>Name</FormLabel>
-      <InputGroup variant={"custom"}>
-        <InputLeftAddon>
-          <MdDriveFileRenameOutline />
-        </InputLeftAddon>
-        <Textarea {...register(id, {
-          required: false
-        })}
-          placeholder='Add a note'
-          background={"transparent"}
-          borderWidth={0}
-          resize={"none"}
-        />
-      </InputGroup>
-      <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
-    </FormControl>
-  )
 }
 
 function formatDateToString(date: Date) {

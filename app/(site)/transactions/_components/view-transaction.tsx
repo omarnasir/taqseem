@@ -1,19 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 
 import {
   Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
   Flex,
-  HStack,
   useDisclosure,
-  Box,
   DrawerHeader,
   DrawerOverlay,
   DrawerBody,
@@ -21,7 +12,16 @@ import {
   DrawerFooter,
   DrawerCloseButton,
   DrawerContent,
+  IconButton,
+  Slide,
+  ScaleFade,
+  Fade,
+  SlideFade,
 } from "@chakra-ui/react"
+import {
+  MdArrowCircleLeft,
+  MdArrowCircleRight
+} from "react-icons/md"
 
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -68,6 +68,13 @@ export default function TransactionView(
   const { data: sessionData } = useSession();
   const { addToast } = CustomToast();
   const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
+
+  const { isOpen: isOpenPageTwo, onOpen: onOpenPageTwo, onClose: onClosePageTwo } = useDisclosure(
+    { defaultIsOpen: false }
+  )
+  const { isOpen: isOpenPageOne, onOpen: onOpenPageOne, onClose: onClosePageOne } = useDisclosure(
+    { defaultIsOpen: true }
+  )
 
   async function onRemoveTransaction(id: number) {
     const res = await deleteTransaction({ id: id, groupId: group!.id, userId: sessionData!.user.id })
@@ -183,63 +190,117 @@ export default function TransactionView(
   return (
     <FormProvider {...methods}>
       <Drawer
-        size={'full'}
-        placement={'bottom'}
+        size={'md'}
+        placement="bottom"
         variant={'transaction'}
         isOpen={isOpen}
-        onClose={() => onClose(reset, defaultValues)}
+        onClose={() => { onClose(reset, defaultValues), onClosePageTwo(), onOpenPageOne() }}
         {...disclosureProps}>
         <DrawerOverlay />
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DrawerContent maxW={'200px'}>
-            <DrawerHeader mb={-3} fontSize={'md'} letterSpacing={'wide'} fontWeight={400}
-              color={'whiteAlpha.580'}
-              borderBottomWidth={1} 
-              borderColor={transactionWithDetails ? 'orange.500' : 'teal.500'}>
-              {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
-              <DrawerCloseButton />
-            </DrawerHeader>
-            <DrawerBody>
-              <FormItemId />
-              <FormItemName />
-              <FormItemDateTime />
-              <HStack>
+        <DrawerContent height='92vh' width={{ base: '100%', md: 'lg', lg:'xl' }} margin='auto'>
+        <Flex as='form'
+         direction={'column'} onSubmit={handleSubmit(onSubmit)}>
+          <DrawerHeader fontSize={'md'} letterSpacing={'wide'} fontWeight={400}
+            color={'whiteAlpha.580'}
+            borderBottomWidth={1}
+            textAlign={'center'}
+            borderColor={transactionWithDetails ? 'orange.500' : 'teal.500'}>
+            {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
+            <DrawerCloseButton />
+          </DrawerHeader>
+          <DrawerBody>
+            <ScaleFade in={isOpenPageOne}>
+              <Flex direction={'column'}
+                display={isOpenPageTwo ? 'none' : 'flex'}>
+                <FormItemId />
+                <FormItemName />
+                <FormItemDateTime />
                 <FormItemCategory />
                 <FormItemSubCategory />
-              </HStack>
-              <FormItemPaidBy {...{ users: users }} />
-              <FormItemAmount />
-              <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
-              <FormItemNote />
-            </DrawerBody>
-            <DrawerFooter>
-              <Flex direction={'row'} justifyContent={'space-between'} w='100%'>
-                {transactionWithDetails ?
-                  <>
-                    <Button size={'sm'} fontWeight={'600'} w={'7rem'}
-                      textAlign={'center'} variant={'delete'}
-                      onClick={onOpenRemoveTransaction}>
-                      Delete
-                    </Button>
-                    <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
-                      onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
-                    }} mode="removeTransaction" />
-                  </> :
-                  <Button size={'sm'} fontWeight={'400'} w={'7rem'}
-                    textAlign={'center'} variant={'outline'} textColor='whiteAlpha.600'
-                    onClick={() => reset(defaultValues)}>
-                    Clear
-                  </Button>}
-                <Button size={'sm'} w={'7rem'} fontWeight={'600'}
-                  variant={'add'}
-                  isDisabled={!isValid || !isDirty}
-                  isLoading={methods.formState.isSubmitting} type='submit'>
-                  {transactionWithDetails ? 'Update' : 'Add'}
-                </Button>
+                <FormItemPaidBy {...{ users: users }} />
+                <FormItemAmount />
+                <FormItemNote />
               </Flex>
-            </DrawerFooter>
-          </DrawerContent>
-        </form>
+            </ScaleFade>
+            <ScaleFade in={isOpenPageTwo}>
+              <Flex direction={'column'}
+                display={isOpenPageOne ? 'none' : 'flex'}
+              >
+                <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
+              </Flex>
+            </ScaleFade>
+          </DrawerBody>
+          <DrawerFooter>
+            <Flex direction={'row'} justifyContent={'flex-end'} mb={4}
+              position={'fixed'}
+              bottom={16}
+              right={0}
+              left={0}
+              zIndex={999}
+            >
+              <IconButton size={'md'} w={'3rem'} fontWeight={'600'}
+                variant={'formNavigation'}
+                aria-label="Back"
+                as={MdArrowCircleLeft}
+                isDisabled={!isOpenPageTwo}
+                onClick={() => {
+                  if (isOpenPageTwo) {
+                    onClosePageTwo();
+                    onOpenPageOne();
+                  }
+                }}>
+                Back
+              </IconButton>
+              <IconButton size={'md'} w={'3rem'} fontWeight={'600'}
+                variant={'formNavigation'}
+                aria-label="Next"
+                as={MdArrowCircleRight}
+                isDisabled={!isOpenPageOne}
+                onClick={() => {
+                  if (isOpenPageOne) {
+                    onClosePageOne();
+                    onOpenPageTwo();
+                  }
+                }}>
+                Next
+              </IconButton>
+            </Flex>
+          </DrawerFooter>
+          <DrawerFooter>
+            <Flex direction={'row'} justifyContent={'space-between'}
+              position={'fixed'}
+              bottom={16}
+              right={0}
+              left={0}
+              borderTopWidth={1}
+              borderTopColor={'whiteAlpha.200'}
+            >
+              {transactionWithDetails &&
+                <Button size={'md'} fontWeight={'600'} w={'7rem'}
+                  textAlign={'center'} variant={'delete'}
+                  position={'fixed'}
+                  left={4}
+                  bottom={4}
+                  onClick={onOpenRemoveTransaction}>
+                  Delete
+                  <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
+                    onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
+                  }} mode="removeTransaction" />
+                </Button>
+              }
+              <Button size={'md'} w={'7rem'} fontWeight={'600'}
+                variant={transactionWithDetails ? 'update' : 'add'}
+                position={'fixed'}
+                right={4}
+                bottom={4}
+                isDisabled={!isValid || !isDirty}
+                isLoading={methods.formState.isSubmitting} type='submit'>
+                {transactionWithDetails ? 'Update' : 'Add'}
+              </Button>
+            </Flex>
+          </DrawerFooter>
+        </Flex>
+        </DrawerContent>
       </Drawer>
     </FormProvider>
   )
