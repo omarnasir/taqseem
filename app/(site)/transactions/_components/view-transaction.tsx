@@ -17,10 +17,30 @@ import {
   ScaleFade,
   Fade,
   SlideFade,
+  HStack,
+  Box,
+  Spacer,
+  Stack,
+  Text,
 } from "@chakra-ui/react"
+
+import {
+  Step,
+  StepDescription,
+  StepIcon,
+  StepIndicator,
+  StepNumber,
+  StepSeparator,
+  StepStatus,
+  StepTitle,
+  Stepper,
+  useSteps,
+} from '@chakra-ui/react'
+
 import {
   MdArrowCircleLeft,
-  MdArrowCircleRight
+  MdArrowCircleRight,
+  MdDelete
 } from "react-icons/md"
 
 import { FormProvider, useForm } from "react-hook-form";
@@ -53,6 +73,10 @@ import {
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/(site)/_components/confirm";
 
+const steps = [
+  { title: 'Fill in details' },
+  { title: 'Decide how to split' },
+]
 
 export default function TransactionView(
   { group, disclosureProps, isOpen, onClose, setRefreshTransactions, transactionWithDetails }: {
@@ -76,6 +100,11 @@ export default function TransactionView(
     { defaultIsOpen: true }
   )
 
+  const { activeStep, setActiveStep } = useSteps({
+    index: 0,
+    count: steps.length,
+  })
+
   async function onRemoveTransaction(id: number) {
     const res = await deleteTransaction({ id: id, groupId: group!.id, userId: sessionData!.user.id })
     if (res.success) {
@@ -93,7 +122,7 @@ export default function TransactionView(
     name: transactionWithDetails?.name || '',
     category: transactionWithDetails?.category || 0,
     subCategory: transactionWithDetails?.subCategory || 0,
-    amount: transactionWithDetails?.amount.toString() || '0',
+    amount: transactionWithDetails?.amount.toFixed(2) || '0',
     paidAt: transactionWithDetails?.paidAt ? formatDateToString(transactionWithDetails?.paidAt) : formatDateToString(new Date()),
     everyone: transactionWithDetails?.id ? false : true,
     transactionDetails: transactionWithDetails?.transactionDetails.map(detail => {
@@ -197,109 +226,97 @@ export default function TransactionView(
         onClose={() => { onClose(reset, defaultValues), onClosePageTwo(), onOpenPageOne() }}
         {...disclosureProps}>
         <DrawerOverlay />
-        <DrawerContent height='92vh' width={{ base: '100%', md: 'lg', lg:'xl' }} margin='auto'>
-        <Flex as='form'
-         direction={'column'} onSubmit={handleSubmit(onSubmit)}>
-          <DrawerHeader fontSize={'md'} letterSpacing={'wide'} fontWeight={400}
-            color={'whiteAlpha.580'}
-            borderBottomWidth={1}
-            textAlign={'center'}
-            borderColor={transactionWithDetails ? 'orange.500' : 'teal.500'}>
-            {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
-            <DrawerCloseButton />
-          </DrawerHeader>
-          <DrawerBody>
-            <ScaleFade in={isOpenPageOne}>
-              <Flex direction={'column'}
-                display={isOpenPageTwo ? 'none' : 'flex'}>
-                <FormItemId />
-                <FormItemName />
-                <FormItemDateTime />
-                <FormItemCategory />
-                <FormItemSubCategory />
-                <FormItemPaidBy {...{ users: users }} />
-                <FormItemAmount />
-                <FormItemNote />
-              </Flex>
-            </ScaleFade>
-            <ScaleFade in={isOpenPageTwo}>
-              <Flex direction={'column'}
-                display={isOpenPageOne ? 'none' : 'flex'}
-              >
-                <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
-              </Flex>
-            </ScaleFade>
-          </DrawerBody>
-          <DrawerFooter>
-            <Flex direction={'row'} justifyContent={'flex-end'} mb={4}
-              position={'fixed'}
-              bottom={16}
-              right={0}
-              left={0}
-              zIndex={999}
-            >
-              <IconButton size={'md'} w={'3rem'} fontWeight={'600'}
-                variant={'formNavigation'}
-                aria-label="Back"
-                as={MdArrowCircleLeft}
-                isDisabled={!isOpenPageTwo}
-                onClick={() => {
-                  if (isOpenPageTwo) {
-                    onClosePageTwo();
-                    onOpenPageOne();
-                  }
-                }}>
-                Back
-              </IconButton>
-              <IconButton size={'md'} w={'3rem'} fontWeight={'600'}
-                variant={'formNavigation'}
-                aria-label="Next"
-                as={MdArrowCircleRight}
-                isDisabled={!isOpenPageOne}
-                onClick={() => {
-                  if (isOpenPageOne) {
-                    onClosePageOne();
-                    onOpenPageTwo();
-                  }
-                }}>
-                Next
-              </IconButton>
-            </Flex>
-          </DrawerFooter>
-          <DrawerFooter>
-            <Flex direction={'row'} justifyContent={'space-between'}
-              position={'fixed'}
-              bottom={16}
-              right={0}
-              left={0}
+        <DrawerContent height='100vh' width={{ base: '100%', md: 'lg', lg: 'xl' }} margin='auto'>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <DrawerHeader fontSize={'md'} letterSpacing={'wide'} fontWeight={400}
+              color={'whiteAlpha.580'}
+              textAlign={'center'}>
+              {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
+              <DrawerCloseButton />
+            </DrawerHeader>
+            <DrawerBody overflow={'auto'} height='90vh' paddingBottom={'30vh'}>
+              <Stack>
+              <Stepper index={activeStep} size={'sm'} colorScheme="green">
+                {steps.map((step, index) => (
+                  <Step key={index}>
+                    <StepIndicator gap={'0'}>
+                      <StepStatus
+                        complete={<StepIcon />}
+                      />
+                    </StepIndicator>
+                    <StepSeparator />
+                  </Step>
+                ))}
+                </Stepper>
+                <HStack justifyContent={'center'}>
+                  <Text textColor={'whiteAlpha.700'} letterSpacing={'wide'} fontWeight={300}>
+                    Step {activeStep + 1}:
+                  </Text>
+                  <Text>{steps[activeStep].title}</Text>
+                </HStack>
+              </Stack>
+              <ScaleFade in={isOpenPageOne}>
+                <Flex direction={'column'} display={isOpenPageTwo ? 'none' : 'flex'}>
+                  <FormItemId />
+                  <FormItemName />
+                  <FormItemDateTime />
+                  <FormItemCategory />
+                  <FormItemSubCategory />
+                  <FormItemPaidBy {...{ users: users }} />
+                  <FormItemAmount />
+                  <FormItemNote />
+                </Flex>
+              </ScaleFade>
+              <ScaleFade in={isOpenPageTwo}>
+                <Flex direction={'column'} display={isOpenPageOne ? 'none' : 'flex'}>
+                  <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
+                </Flex>
+              </ScaleFade>
+            </DrawerBody>
+            <DrawerFooter position={'absolute'}
+              zIndex={1700}
+              w={'100%'}
               borderTopWidth={1}
               borderTopColor={'whiteAlpha.200'}
-            >
-              {transactionWithDetails &&
-                <Button size={'md'} fontWeight={'600'} w={'7rem'}
-                  textAlign={'center'} variant={'delete'}
-                  position={'fixed'}
-                  left={4}
-                  bottom={4}
-                  onClick={onOpenRemoveTransaction}>
-                  Delete
-                  <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
-                    onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
-                  }} mode="removeTransaction" />
+              h='10vh'
+              overflow={'hidden'}
+              bottom={0}>
+              <HStack justifyContent={'space-around'} w='100%'>
+                {transactionWithDetails ?
+                  <>
+                    <IconButton size={'xs'} fontWeight={'600'} w={'20%'}
+                      aria-label="Delete"
+                      as={MdDelete}
+                      textAlign={'center'} variant={'delete'}
+                      onClick={onOpenRemoveTransaction} />
+                    <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
+                      onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
+                    }} mode="removeTransaction" />
+                  </> : <Box w={'20%'} />
+                }
+                <HStack w={'55%'} justifyContent={'center'}>
+                  <IconButton size={'sm'} w={'3rem'} fontWeight={'600'}
+                    variant={'formNavigation'}
+                    aria-label="Back"
+                    as={MdArrowCircleLeft}
+                    isDisabled={isOpenPageOne}
+                    onClick={() => { setActiveStep(0), onClosePageTwo(), onOpenPageOne() }} />
+                  <IconButton size={'sm'} w={'3rem'} fontWeight={'600'}
+                    variant={'formNavigation'}
+                    aria-label="Next"
+                    as={MdArrowCircleRight}
+                    isDisabled={isOpenPageTwo}
+                    onClick={() => { setActiveStep(1), onClosePageOne(), onOpenPageTwo() }} />
+                </HStack>
+                <Button size={'sm'} w={'25%'} fontWeight={'600'}
+                  variant={transactionWithDetails ? 'update' : 'add'}
+                  isDisabled={!isValid || !isDirty}
+                  isLoading={methods.formState.isSubmitting} type='submit'>
+                  {transactionWithDetails ? 'Update' : 'Add'}
                 </Button>
-              }
-              <Button size={'md'} w={'7rem'} fontWeight={'600'}
-                variant={transactionWithDetails ? 'update' : 'add'}
-                position={'fixed'}
-                right={4}
-                bottom={4}
-                isDisabled={!isValid || !isDirty}
-                isLoading={methods.formState.isSubmitting} type='submit'>
-                {transactionWithDetails ? 'Update' : 'Add'}
-              </Button>
-            </Flex>
-          </DrawerFooter>
-        </Flex>
+              </HStack>
+            </DrawerFooter>
+          </form>
         </DrawerContent>
       </Drawer>
     </FormProvider>

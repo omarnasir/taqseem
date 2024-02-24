@@ -79,7 +79,7 @@ function FormItemName() {
     <FormControl id={TransactionFormIds.name} isInvalid={Boolean(errors[TransactionFormIds.name])} marginBottom={3}>
       <HStack>
         <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"teal.600"}}/>
-        <InputGroup variant={"custom"}>
+        <InputGroup variant={"transaction"}>
           <InputLeftAddon>
             <Text alignSelf={'center'}>Name</Text>
           </InputLeftAddon>
@@ -130,8 +130,7 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[],  })
   }, [replace, setValue, getValues, onOpen, remove])
 
   return (
-    <Box>
-      <FormLabel variant={'transaction'}>Split</FormLabel>
+    <Box mt={3}>
       <Checkbox size={'md'} h='2rem' as={Button}
         mb={2}
         variant={'transactionEveryone'}
@@ -168,7 +167,7 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[],  })
       <FormControl id={TransactionFormIds.everyone}
         isInvalid={Boolean(errors[TransactionFormIds.everyone])}>
         <FormErrorMessage>{errors[TransactionFormIds.everyone]?.message?.toString()}</FormErrorMessage>
-        <Collapse in={isOpen} animateOpacity>
+        <Collapse in={isOpen}>
           <VStack alignItems={'center'} marginX={1}>
             {fields.map((field, index) => (
               <FormItemAmountDetailsUser
@@ -235,11 +234,11 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
             }
           }}
           render={({ field: { ref, name, value, ...restField } }) => (
-            <InputGroup variant={"custom"} w='50%'>
+            <InputGroup variant={"transaction"} w='50%'>
               <InputLeftAddon>
                 <MdEuroSymbol size={'0.75rem'} />
               </InputLeftAddon>
-              <NumberInput size={'md'} {...restField} variant={'custom'}
+              <NumberInput size={'md'} {...restField} variant={'transaction'}
                 value={value < 0 ? value : value || ''}
                 isValidCharacter={(char) => {
                   return (char >= '0' && char <= '9') || char === '.' || char === ','
@@ -249,6 +248,11 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
                   return value.replace(',', '.')
                 }}
                 format={(value) => {
+                  // Count precision
+                  const [val, precision] = value.toString().split('.')
+                  if (precision && precision.length > 2) {
+                    return val + ',' + precision.slice(0, 2)
+                  }
                   return value.toString().replace('.', ',')
                 }}
               >
@@ -283,7 +287,7 @@ function FormItemAmount() {
     <FormControl id={TransactionFormIds.amount} isInvalid={Boolean(errors[TransactionFormIds.amount])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdEuroSymbol} styleProps={{bg:"green.600"}}/>
-      <InputGroup variant={"custom"}>
+      <InputGroup variant={"transaction"}>
       <InputLeftAddon>
         <Text alignSelf={'center'}>Amount</Text>
       </InputLeftAddon>
@@ -297,7 +301,7 @@ function FormItemAmount() {
             }
           }}
           render={({ field: { ref, name, ...restField } }) => (
-            <NumberInput w='100%' variant={'custom'}
+            <NumberInput w='100%' variant={'transaction'}
               {...restField}
               isValidCharacter={(char) => {
                 return (char >= '0' && char <= '9') || char === '.' || char === ','
@@ -331,7 +335,7 @@ function FormItemSubCategory() {
     <FormControl id={TransactionFormIds.subCategory} isInvalid={Boolean(errors[TransactionFormIds.subCategory])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdOutlineCategory} styleProps={{bg:"red.600"}}/>
-      <InputGroup variant={"custom"}>
+      <InputGroup variant={"transaction"}>
       <InputLeftAddon>
         <Text alignSelf={'center'}>SubCategory</Text>
       </InputLeftAddon>
@@ -360,7 +364,7 @@ function FormItemCategory() {
     <FormControl id={TransactionFormIds.category} isInvalid={Boolean(errors[TransactionFormIds.category])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdCategory} styleProps={{bg:"red.600"}}/>
-      <InputGroup variant={"custom"}>
+      <InputGroup variant={"transaction"}>
         <InputLeftAddon>
           <Text alignSelf={'center'}>Category</Text>
         </InputLeftAddon>
@@ -389,7 +393,7 @@ function FormItemDateTime() {
     <FormControl id={TransactionFormIds.paidAt} isInvalid={Boolean(errors[TransactionFormIds.paidAt])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdCalendarMonth} styleProps={{bg:"yellow.600"}}/>
-      <InputGroup variant={"custom"}>
+      <InputGroup variant={"transaction"}>
         <InputLeftAddon>
           <Text alignSelf={'center'}>Date</Text>
         </InputLeftAddon>
@@ -414,7 +418,7 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
     <FormControl id={TransactionFormIds.paidById} isInvalid={Boolean(errors[TransactionFormIds.paidById])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdCategory} styleProps={{bg:"purple.600"}}/>
-      <InputGroup variant={"custom"}>
+      <InputGroup variant={"transaction"}>
         <InputLeftAddon>
           <Text alignSelf={'center'}>Paid By</Text>
         </InputLeftAddon>
@@ -439,18 +443,15 @@ function FormItemNote() {
   const { formState: { errors }, register } = useFormContext()
   const id = TransactionFormIds.notes
   return (
-    <FormControl id={id} isInvalid={Boolean(errors[id])} marginY={3}>
+    <FormControl id={id} isInvalid={Boolean(errors[id])} marginTop={8}>
       <HStack>
-        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"orange.600",
-        width: "2.5rem",
-      }}/>
-      <InputGroup variant={"custom"}>
+        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"orange.600",}}/>
+      <InputGroup variant={"transactionNote"}>
         <Textarea {...register(id, {
           required: false
         })}
           placeholder='Add a note'
           background={"transparent"}
-          borderWidth={0}
           resize={"none"}
         />
       </InputGroup>

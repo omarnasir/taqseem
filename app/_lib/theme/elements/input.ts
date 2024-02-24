@@ -7,13 +7,13 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const custom = definePartsStyle({
   group: {
     borderBottom: "1px solid",
-    borderBottomColor: "whiteAlpha.200",
+    borderBottomColor: "whiteAlpha.300",
     borderRadius: "0",
   },
   addon: {
-    textColor: "whiteAlpha.500",
+    textColor: "whiteAlpha.700",
     letterSpacing: "tighter",
-    fontWeight: 400,
+    fontWeight: 300,
     marginLeft: -2,
     fontSize: {
       base: "md",
@@ -42,6 +42,21 @@ const custom = definePartsStyle({
   }
 })
 
+const transaction  = definePartsStyle(
+  custom,
+)
+
+const transactionNote = definePartsStyle({
+  ...custom,
+  group: {
+    ...custom.group,
+    border: "1px solid",
+    borderWidth: "1px",
+    borderColor: "whiteAlpha.300",
+    borderRadius: "md",
+  },
+})
+
 const login = definePartsStyle({
   field: {
     _invalid: {
@@ -61,7 +76,8 @@ const login = definePartsStyle({
 
 export const inputTheme = defineMultiStyleConfig({
   variants: {
-    custom,
+    transaction,
+    transactionNote,
     login,
   },
 })

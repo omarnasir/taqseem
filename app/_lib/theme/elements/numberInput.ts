@@ -30,4 +30,4 @@ const custom = definePartsStyle({
   }
 })
 
-export const numberTheme = defineMultiStyleConfig({ variants: { custom } })
+export const numberTheme = defineMultiStyleConfig({ variants: { transaction: custom } })

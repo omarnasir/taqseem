@@ -17,6 +17,7 @@ import { numberTheme } from "./elements/numberInput"
 import { selectTheme } from "./elements/select"
 import { listTheme } from "./elements/list"
 import { drawerTheme } from "./elements/drawer"
+import { accordionTheme } from "./elements/accordion"
 
 const fonts = {
 	...chakraTheme.fonts,
@@ -36,7 +37,7 @@ const customTheme = extendTheme({ config, fonts },
 			itemBgGray: '#101010',
 			// bg: 'linear-gradient(135deg, rgb(32,31,35) 0%, rgb(25,25,31) 55%, rgb(23,22,26) 85%)',
 			// bg: 'linear-gradient(135deg, rgb(30,29,33) 0%, rgb(19,20,25) 25%, rgb(25,25,30) 50% , rgb(19,20,25) 75%, rgb(30,29,33) 100%)',
-			bg: 'rgba(22,21,26, 1)',
+			bg: 'rgba(19,18,23, 1)',
 			// bg: 'rgba(31,31,33, 1)',
 			// bgFooter: 'linear-gradient(205deg, rgb(20,19,19) 20%, rgb(35,35,35) 100%)',
 			// bgCard: 'linear-gradient(135deg, rgba(25,25,25, 0.25) 0%, rgba(55,55,55, 0.20) 100%)',
@@ -86,6 +87,7 @@ const customTheme = extendTheme({ config, fonts },
 			Card: cardTheme,
 			List: listTheme,
 			Drawer: drawerTheme,
+			Accordion: accordionTheme,
 		}
 	})
 
