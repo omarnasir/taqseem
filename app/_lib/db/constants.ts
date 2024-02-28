@@ -69,8 +69,15 @@ function getTransactionIcon(category: number): IconType {
   return Icon
 }
 
+enum StrategyEnum {
+  Everyone = 0,
+  Single = 1,
+  Multiple = 2
+}
+
 export {
   TransactionCategoryEnum,
   TransactionSubCategoryEnum,
+  StrategyEnum,
   getTransactionIcon
 }

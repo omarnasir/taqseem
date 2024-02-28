@@ -6,33 +6,29 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const transactionStrategy = definePartsStyle({
   control: {
-    marginRight: 3,
-    border: 'none',
     _checked: {
       bg: 'none',
+      opacity: 0.8,
       _hover: {
         bg: 'transparent',
       },
     },
+    height: '2rem',
+    borderRadius: 'md',
+    borderWidth: '1px',
+    width: '2rem',
+    alignSelf: 'center',
+    marginRight: 3,
   },
   container: {
-    bg: 'whiteAlpha.200',
+    paddingX: 0,
+    bg: 'transparent !important',
     justifyContent: 'flex-start',
     width: '100%',
-    opacity: 0.8,
-    _checked: {
-      border: 'none',
-      opacity: 1,
-    }
+    fontWeight: 400,
   },
   label: {
     fontSize: 'md',
-    fontWeight: 500,
-    letterSpacing: 'tight',
-    color: 'whiteAlpha.800',
-    _checked: {
-      color: 'black',
-    }
   },
   icon: {
     fontSize: 'md',
@@ -41,48 +37,49 @@ const transactionStrategy = definePartsStyle({
 
 const transactionStrategyEveryone = definePartsStyle({
   ...transactionStrategy,
-  container: {
-    ...transactionStrategy.container,
+  control: {
+    ...transactionStrategy.control,
     _checked: {
-      ...transactionStrategy.container._checked,
+      ...transactionStrategy.control._checked,
+      border: 'none',
       bg: 'whiteAlpha.800 !important',
     },
   },
   label: {
-    ...transactionStrategy.label,
-    _checked: {
-      color: 'black',
-    },
+    color: 'whiteAlpha.800',
   }
 })
 
 const transactionStrategyThem = definePartsStyle({
   ...transactionStrategy,
-  container: {
-    ...transactionStrategy.container,
+  control: {
+    ...transactionStrategy.control,
     _checked: {
-      ...transactionStrategy.container._checked,
-      bg: 'green.300 !important',
+      ...transactionStrategy.control._checked,
+      border: 'none',
+      bg: 'green.400 !important',
+      opacity: 0.8,
     },
   },
   label: {
-    ...transactionStrategy.label,
     color: 'green.300',
-    opacity: 0.8,
   }
 })
 
 const transactionStrategyYou = definePartsStyle({
   ...transactionStrategy,
-  container: {
-    ...transactionStrategy.container,
+  control: {
+    ...transactionStrategy.control,
+    borderColor: 'red.400 !important',
+    opacity: 0.8,
+    borderWidth: '1px',
     _checked: {
-      ...transactionStrategy.container._checked,
-      bg: 'red.300 !important',
+      ...transactionStrategy.control._checked,
+      border: 'none',
+      bg: 'red.400 !important',
     },
   },
   label: {
-    ...transactionStrategy.label,
     color: 'red.300',
   }
 })

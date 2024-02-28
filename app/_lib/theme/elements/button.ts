@@ -33,8 +33,8 @@ export const buttonTheme = defineStyleConfig({
       boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)',
     },
     delete: {
-
-      color: 'red.300',
+      bg: 'red.300',
+      color: 'black',
       opacity: 0.80,
       fontWeight: 500,
       boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)',
@@ -61,6 +61,7 @@ export const buttonTheme = defineStyleConfig({
       _disabled: {
         color: 'whiteAlpha.300',
       },
+      fontSize: '2rem',
     }
   }
 })

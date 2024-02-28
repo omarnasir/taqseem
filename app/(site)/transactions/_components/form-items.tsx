@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Input,
   Text,
@@ -12,14 +12,14 @@ import {
   Checkbox,
   Button,
   FormControl,
-  FormLabel,
   FormErrorMessage,
-  useDisclosure,
-  Collapse,
-  Box,
   InputRightElement,
   InputLeftAddon,
-  Icon,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
@@ -32,12 +32,13 @@ import { type TCreateTransaction, type TCreateTransactionDetails } from "@/app/_
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
 
 import {CustomFormIcon} from "@/app/(site)/_components/cardIcon";
+import { useSession } from "next-auth/react";
 
 enum TransactionFormIds {
   id = 'id',
   name = 'name',
   amount = 'amount',
-  everyone = 'everyone',
+  strategy = 'strategy',
   transactionDetails = 'transactionDetails',
   category = 'category',
   subCategory = 'subCategory',
@@ -50,12 +51,16 @@ enum TransactionDetailsFormIds {
   userId = 'userId',
   amount = 'amount'
 }
+
+// This type defines the Transaction details form data that will be sent to the server
+// We will also reuse this type to define the form data that will be received from the server
 type TFormTransactionDetails = Omit<TCreateTransactionDetails, "amount"> & {
   amount: string
 }
 
+// This type defines the main Transaction form data that will be sent to the server
+// We will also reuse this type to define the form data that will be received from the server
 interface TFormTransaction extends Omit<TCreateTransaction, "transactionDetails" | "amount"> {
-  everyone: boolean,
   amount: string,
   transactionDetails: TFormTransactionDetails[]
 }
@@ -64,7 +69,7 @@ interface TFormTransaction extends Omit<TCreateTransaction, "transactionDetails"
 function FormItemId() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.id} isInvalid={Boolean(errors[TransactionFormIds.id])} marginY={3}>
+    <FormControl id={TransactionFormIds.id} isInvalid={Boolean(errors[TransactionFormIds.id])}>
       <Input {...register(TransactionFormIds.id, {
         required: false
       })}
@@ -75,6 +80,7 @@ function FormItemId() {
 
 function FormItemName() {
   const { formState: { errors }, register } = useFormContext()
+
   return (
     <FormControl id={TransactionFormIds.name} isInvalid={Boolean(errors[TransactionFormIds.name])} marginBottom={3}>
       <HStack>
@@ -94,99 +100,124 @@ function FormItemName() {
   )
 }
 
-function FormItemTransactionDetails({ users } : { users: UserBasicData[],  }) 
+function TransactionStrategyDecisionCheckbox({ user, index }: { user: UserBasicData, index: number }) {
+  const { data: sessionData } = useSession();
+  const { getValues, setValue } = useFormContext();
+  const strategy = getValues(TransactionFormIds.strategy);
+  const amount = parseFloat(getValues(TransactionFormIds.amount) || 0).toFixed(2);
+
+  const isUserSessionUser = useMemo(() => user.id === sessionData?.user.id, [user.id, sessionData?.user.id]);
+  const variant = useMemo(() => isUserSessionUser ? 'transactionStrategyYou' : 'transactionStrategyThem', [isUserSessionUser]);
+  
+  return (
+    <Checkbox size={'md'} as={Button} variant={variant}
+    onChange={() => {
+        setValue(TransactionFormIds.strategy, index + 1)
+      }}
+      defaultChecked={strategy === index + 1}
+      isChecked={strategy === index + 1}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{amount}
+    </Checkbox>
+  )
+}
+
+function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  }) 
 {
   const { formState: { errors },
     register,
+    unregister,
     control,
-    clearErrors,
     setValue,
     getValues } = useFormContext()
-  const methods = useFieldArray({
+  const { fields, replace } = useFieldArray({
     control,
     name: TransactionFormIds.transactionDetails,
   })
-  const { fields, remove, replace } = methods
-  const everyone = useWatch({
+  const strategy = useWatch({
     control,
-    name: TransactionFormIds.everyone,
+    name: TransactionFormIds.strategy,
   });
-  const { isOpen, onClose, onOpen } = useDisclosure(
-    { defaultIsOpen: false }
-  )
+  const amount = parseFloat(getValues(TransactionFormIds.amount) || 0)
 
   useEffect(() => {
-    const transactionDetails = getValues(TransactionFormIds.transactionDetails) as TFormTransaction[TransactionFormIds.transactionDetails]
-    if (transactionDetails) {
-      replace(transactionDetails.map(detail => {
+    const receivedTransactionDetails = getValues(TransactionFormIds.transactionDetails) as TFormTransaction[TransactionFormIds.transactionDetails]
+    if (strategy === -1) {
+      replace(receivedTransactionDetails.map(detail => {
         return {
           userId: detail.userId,
-          amount: detail.amount.toString()
+          amount: detail.amount
         }
-      }));
-      onOpen();
+      }))
     }
-    else {setValue(TransactionFormIds.everyone, true); remove();}
-  }, [replace, setValue, getValues, onOpen, remove])
+  }, [replace, getValues, strategy])
 
   return (
-    <Box mt={3}>
-      <Checkbox size={'md'} h='2rem' as={Button}
-        mb={2}
-        variant={'transactionEveryone'}
-        isChecked={everyone}
-        {...register(TransactionFormIds.everyone, {
-          required: false,
-          onChange: (e) => {
-            clearErrors(TransactionFormIds.everyone);
-            if (e.target.checked) {remove(), onClose()}
-            else {replace(users.map(user => ({ id: user.id, amount: null }))), onOpen()}
-          },
-          validate: (value) => {
-            if (!value) {
-              const transactionDetails = getValues(TransactionFormIds.transactionDetails) as TFormTransaction[TransactionFormIds.transactionDetails]
-              if (transactionDetails) {
-                const { selectedUsers, usersWithoutInputAmount, sum } = processTransactionDetails(transactionDetails)
-                if (selectedUsers.length === 0) return 'You must select at least one user'
-                const totalAmount = parseFloat(getValues(TransactionFormIds.amount))
-
-                if (sum > totalAmount) {
-                  return 'The sum of the amounts is greater than the total amount'
-                }
-                if (sum === totalAmount && usersWithoutInputAmount.length > 0) {
-                  return 'Some users are not participating in the transaction'
-                }
-                if (sum < totalAmount && usersWithoutInputAmount.length === 0) {
-                  return 'Exact user amounts must add up to total amount'
-                }
-              }
-            }
-            return true
-          }
-        })}>Everyone</Checkbox>
-      <FormControl id={TransactionFormIds.everyone}
-        isInvalid={Boolean(errors[TransactionFormIds.everyone])}>
-        <FormErrorMessage>{errors[TransactionFormIds.everyone]?.message?.toString()}</FormErrorMessage>
-        <Collapse in={isOpen}>
-          <VStack alignItems={'center'} marginX={1}>
-            {fields.map((field, index) => (
-              <FormItemAmountDetailsUser
-                key={field.id}
-                registerAmount={`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.amount}`}
-                registerUserId={`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.userId}`}
-                user={users[index]}
-                index={index} />
-            ))}
-          </VStack>
-        </Collapse>
-      </FormControl>
-    </Box>
+    <FormControl id={TransactionFormIds.strategy} isInvalid={Boolean(errors[TransactionFormIds.strategy])} marginBottom={3}>
+      <HStack width={'100%'} {...register(TransactionFormIds.strategy,
+          { required: false, }
+        )}>
+      <Accordion width={'100%'}  defaultIndex={strategy === -1 ? [1] : [0]} variant='transaction'>
+        <AccordionItem>
+          <h2>
+            <AccordionButton onClick={() => unregister(TransactionFormIds.transactionDetails)}>
+              <Text alignSelf={'center'}>Based on People</Text>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel>
+            {/* TODO: Change Checkbox to a custom Radio group */}
+            <VStack width={'100%'} spacing={3}>
+              <Checkbox size={'md'} as={Button} variant={'transactionStrategyEveryone'}
+                onChange={() => {
+                  setValue(TransactionFormIds.strategy, 0)
+                }}
+                defaultChecked={strategy === 0}
+                isChecked={strategy === 0}>Everyone owes €{(amount / users.length).toFixed(2)}</Checkbox>
+              {users.map((user, index) =>
+                user.id !== getValues(TransactionFormIds.paidById) &&
+                <TransactionStrategyDecisionCheckbox key={user.id} user={user} index={index}/>
+              )}
+            </VStack>
+          </AccordionPanel>
+        </AccordionItem>
+        <AccordionItem>
+          <h2>
+            <AccordionButton onClick={() => {
+              replace(users.map(user => ({ id: user.id, amount: null })));
+              setValue(TransactionFormIds.strategy, -1);
+            }}>
+              <Text alignSelf={'center'}>Or specify what everyone owes:</Text>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel>
+            <Text alignSelf={'center'} fontSize={'xs'} fontWeight={'light'} mb={3}>
+              You can leave the amount for a user empty if you want us to calculate it for you.
+            </Text>
+            <FormControl id={TransactionFormIds.transactionDetails}
+              isInvalid={Boolean(errors[TransactionFormIds.transactionDetails])}>
+              <VStack alignItems={'center'} marginX={1}>
+                {fields.map((field, index) => (
+                  <FormItemAmountDetailsUser
+                    key={field.id}
+                    registerAmount={`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.amount}`}
+                    registerUserId={`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.userId}`}
+                    user={users[index]}
+                    index={index} />
+                ))}
+              </VStack>
+              <FormErrorMessage>{errors[TransactionFormIds.transactionDetails]?.message?.toString()}</FormErrorMessage>
+            </FormControl>
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
+      </HStack>
+    </FormControl>
   )
 }
 
 function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user }:
   { user: UserBasicData, index: number, registerAmount: string, registerUserId: string }) {
-  const { resetField, formState: { errors },unregister, control, register, getValues } = useFormContext()
+  const { resetField, formState: { errors },unregister, control, register, getValues, clearErrors } = useFormContext()
   
   const userAmount = getValues(`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.amount}`);
   const [selected, setSelected] = useState<boolean>(userAmount !== undefined)
@@ -230,16 +261,22 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
           rules={{
             required: false,
             validate: (value) => {
-              if (value <= 0 && (value !== '' && value !== null)) return 'Amount must be greater than 0'
+              if (value <= 0 && (value !== '' && value !== null)) {
+                return 'Amount must be greater than 0'
+              }
             }
           }}
-          render={({ field: { ref, name, value, ...restField } }) => (
+          render={({ field: { ref, name, value, onChange, ...restField } }) => (
             <InputGroup variant={"transaction"} w='50%'>
               <InputLeftAddon>
                 <MdEuroSymbol size={'0.75rem'} />
               </InputLeftAddon>
               <NumberInput size={'md'} {...restField} variant={'transaction'}
                 value={value < 0 ? value : value || ''}
+                onChange={(value) => {
+                  onChange(value);
+                  clearErrors(TransactionFormIds.transactionDetails)
+                }}
                 isValidCharacter={(char) => {
                   return (char >= '0' && char <= '9') || char === '.' || char === ','
                 }}
@@ -315,6 +352,7 @@ function FormItemAmount() {
               }}
             >
               <NumberInputField
+                placeholder="0"
                 ref={ref}
                 name={name}
                 fontSize={'lg'}
@@ -441,13 +479,12 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
 
 function FormItemNote() {
   const { formState: { errors }, register } = useFormContext()
-  const id = TransactionFormIds.notes
   return (
-    <FormControl id={id} isInvalid={Boolean(errors[id])} marginTop={8}>
+    <FormControl id={TransactionFormIds.notes} isInvalid={Boolean(errors[TransactionFormIds.notes])} marginTop={8}>
       <HStack>
         <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"orange.600",}}/>
       <InputGroup variant={"transactionNote"}>
-        <Textarea {...register(id, {
+        <Textarea {...register(TransactionFormIds.notes, {
           required: false
         })}
           placeholder='Add a note'
@@ -455,27 +492,10 @@ function FormItemNote() {
           resize={"none"}
         />
       </InputGroup>
-      <FormErrorMessage>{errors[id]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[TransactionFormIds.notes]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
-}
-
-function processTransactionDetails(transactionDetails: TFormTransactionDetails[])
-  : {
-    selectedUsers: TFormTransactionDetails[],
-    usersWithoutInputAmount: TFormTransactionDetails[],
-    sum: number
-  } {
-  const selectedUsers = transactionDetails.filter((transactionDetails) => transactionDetails.amount !== undefined)
-  const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => (selectedUser.amount === null))
-  const sum = transactionDetails.reduce((acc: number, item) => acc + (parseFloat(item.amount) || 0), 0)
-
-  return {
-    selectedUsers,
-    usersWithoutInputAmount,
-    sum
-  }
 }
 
 function formatDateToString(date: Date) {
@@ -494,12 +514,11 @@ export {
   FormItemId,
   FormItemName,
   FormItemAmount,
-  FormItemTransactionDetails,
+  FormItemTransactionStrategy,
   FormItemCategory,
   FormItemSubCategory,
   FormItemDateTime,
   FormItemPaidBy,
   FormItemNote,
-  processTransactionDetails,
   formatDateToString
 }

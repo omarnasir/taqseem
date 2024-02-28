@@ -6,17 +6,24 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const transaction = definePartsStyle({
   root: {
+    borderRadius: 'lg',
+    borderWidth: '1px',
+    borderColor: 'whiteAlpha.300',
+
   },
   container: {
     border: 'none',
   },
   panel: {
-    padding: 0,
-    marginTop: -6,
+    marginTop: 3,
   },
   button: {
     width: '100%',
-    justifyContent: 'center',
+    _expanded: {
+      bg: 'whiteAlpha.100',
+    },
+    height: '3rem',
+    justifyContent: 'space-between',
   },
   icon: {
     color: 'gray.500',

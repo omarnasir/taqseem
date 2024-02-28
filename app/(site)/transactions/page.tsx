@@ -33,7 +33,7 @@ export default function GroupTransactions() {
 
   const { data: sessionData } = useSession();
   const [transactions, setTransactions] = useState<TTransactionWithDetails[]>([]);
-  const { isOpen, onClose: onCloseDisclosure, onOpen, getDisclosureProps, getButtonProps } = useDisclosure()
+  const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure()
   const [group, setGroup] = useState<GroupWithMembers>();
   const [refreshTransactions, setRefreshTransactions] = useState<string>('');
   const [selectedTransaction, setSelectedTransaction] = useState<TTransactionWithDetails>();
@@ -42,11 +42,6 @@ export default function GroupTransactions() {
   const disclosureProps = getDisclosureProps({
     transaction: selectedTransaction,
   });
-
-  const onClose = (callback: any, callbackProps?: any) => {
-    onCloseDisclosure();
-    callback(callbackProps);
-  }
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -70,7 +65,7 @@ export default function GroupTransactions() {
           </VStack>
           <Button width={'6.5rem'} variant={'add'} size={'sm'}
             leftIcon={<MdAdd />}
-            fontSize={'xs'} onClick={()=> {setSelectedTransaction(undefined); onClick(); onOpen();}}
+            fontSize={'xs'} onClick={()=> {setSelectedTransaction(undefined); onClick()}}
             {...buttonProps}>Add</Button>
         </HStack>
         <Divider marginY={1} />
@@ -83,7 +78,6 @@ export default function GroupTransactions() {
                   () => {
                     setSelectedTransaction(transaction);
                     onClick();
-                    onOpen();
                   }
                 }>
                 <DateDisplay paidAt={transaction.paidAt} />
@@ -93,14 +87,16 @@ export default function GroupTransactions() {
               </ListItem>
             ))}
         </List >
-        <TransactionView 
-        {...{
-          disclosureProps,
-          isOpen, onClose,
-          group: group!,
-          setRefreshTransactions,
-          transactionWithDetails: selectedTransaction,
-        }} />
+        {isOpen &&
+          <TransactionView
+            {...{
+              disclosureProps,
+              isOpen, onCloseDrawer: onClose,
+              group: group!,
+              setRefreshTransactions,
+              transactionWithDetails: selectedTransaction,
+            }} />
+        }
       </VStack>
   )
 }
