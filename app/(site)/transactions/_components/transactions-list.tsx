@@ -4,7 +4,7 @@ import {
   HStack,
 } from '@chakra-ui/react'
 
-import { type TTransactionWithDetails } from "@/app/_types/model/transactions";
+import { type TransactionWithDetails } from "@/app/_types/model/transactions";
 import { type UserBasicData } from "@/app/_types/model/users";
 import { useMemo } from 'react';
 
@@ -16,7 +16,7 @@ const cardItemWidths = {
   delete: '5%',
 }
 
-function DateDisplay({ paidAt }: { paidAt: TTransactionWithDetails['paidAt'] }) {
+function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
   const date = useMemo(() => {
     return new Date(paidAt).toLocaleDateString('en-gb', {
       day: '2-digit',
@@ -32,7 +32,7 @@ function DateDisplay({ paidAt }: { paidAt: TTransactionWithDetails['paidAt'] }) 
 }
 
 function AmountDisplay({ transactionDetails, userId }:
-  { transactionDetails: TTransactionWithDetails['transactionDetails'], userId: string }) {
+  { transactionDetails: TransactionWithDetails['transactionDetails'], userId: string }) {
   const amount = useMemo(() =>
     transactionDetails.find(td => td.userId === userId)?.amount as number
     , [transactionDetails, userId]);
@@ -54,7 +54,7 @@ function AmountDisplay({ transactionDetails, userId }:
 }
 
 function SummaryDisplay({ transaction, users }:
-  { transaction: TTransactionWithDetails, users: UserBasicData[] }) {
+  { transaction: TransactionWithDetails, users: UserBasicData[] }) {
   const name = useMemo(() =>
     users!.find(user => user.id === transaction.paidById)?.name
     , [users, transaction.paidById]);
