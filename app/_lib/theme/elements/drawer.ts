@@ -6,23 +6,23 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const transaction = definePartsStyle({
   header: {
-    bg: 'rgb(17,17,17)',
+
   },
   dialog: {
     _dark: {
-      bg: 'rgba(88, 87, 92, 0.15)',
-      backdropFilter: 'blur(10px)'
+      bg: 'rgba(78, 77, 82, 0.1)',
+      backdropFilter: 'blur(20px)'
     },
   },
   body: {
     
   },
   footer: {
-    bg: 'rgb(17,17,17)',
+
   },
   overlay: {
     _dark: {
-      bg: 'blackAlpha.900',
+      bg: 'blackAlpha.700'
     },
   }
 })

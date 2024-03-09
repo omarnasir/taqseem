@@ -34,7 +34,9 @@ import {
   MdChevronLeft as IconPrev,
   MdChevronRight as IconNext,
   MdDelete,
-  MdOutlineSync
+  MdOutlineSync,
+  MdCircle,
+  MdAdd
 } from "react-icons/md"
 
 import { FormProvider, useForm } from "react-hook-form";
@@ -274,7 +276,7 @@ export default function TransactionView(
       onClose={() => { onCloseDrawer(), onClosePageTwo(), onOpenPageOne() }}
       {...disclosureProps}>
       <DrawerOverlay />
-      <DrawerContent height='100vh' width={{ base: '100%', md: 'lg', lg: 'xl' }} margin='auto'>
+      <DrawerContent height='100vh' width={{ base: '100%', sm: 'xl'}} margin='auto'>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DrawerHeader
@@ -288,6 +290,7 @@ export default function TransactionView(
                       <StepIndicator>
                         <StepStatus
                           complete={<StepIcon />}
+                          active={<MdCircle size={'0.2rem'}/>}
                         />
                       </StepIndicator>
                       <StepSeparator />
@@ -333,7 +336,7 @@ export default function TransactionView(
               <HStack justifyContent={'space-around'} w='100%'>
                 {transactionWithDetails ?
                   <>
-                    <Button size={'sm'} w={'25%'}
+                    <Button size={'sm'} w={'30%'}
                       leftIcon={<MdDelete size={'1rem'} />}
                       textAlign={'center'} variant={'delete'}
                       onClick={onOpenRemoveTransaction}>Delete</Button>
@@ -342,7 +345,7 @@ export default function TransactionView(
                     }} mode="removeTransaction" />
                   </> : <Box w={'30%'} />
                 }
-                <HStack w={'50%'} justifyContent={'center'}>
+                <HStack w={'40%'} justifyContent={'center'}>
                   <IconButton
                     variant={'formNavigation'}
                     aria-label="Back"
@@ -356,8 +359,8 @@ export default function TransactionView(
                     isDisabled={isOpenPageTwo}
                     onClick={() => { setActiveStep(1), onClosePageOne(), onOpenPageTwo() }} />
                 </HStack>
-                <Button size={'sm'} w={'25%'}
-                  leftIcon={<MdOutlineSync size={'1rem'} />}
+                <Button size={'sm'} w={'30%'}
+                  leftIcon={transactionWithDetails ? <MdOutlineSync size={'1.2rem'} /> : <MdAdd size={'1.2rem'}/>}
                   variant={transactionWithDetails ? 'update' : 'add'}
                   isDisabled={!isValid || !isDirty || isOpenPageOne}
                   isLoading={methods.formState.isSubmitting} type='submit'>

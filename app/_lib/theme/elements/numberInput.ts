@@ -6,6 +6,7 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const custom = definePartsStyle({
   field: {
+    borderRadius: "none",
     _invalid: {
       borderColor: "rgba(155, 25, 30, 1)",
       borderBottomWidth: "2px",

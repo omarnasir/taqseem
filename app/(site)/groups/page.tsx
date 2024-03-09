@@ -1,5 +1,5 @@
 "use client";
-import { Flex } from "@chakra-ui/react";
+import { Divider, Flex, Stack, Text, VStack } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -30,9 +30,15 @@ export default function GroupsPage() {
   return loading ? (
     <Loading />
   ) : (
-    <Flex direction={"column"} w="inherit">
+    <Stack direction={'column'} spacing={4} display={'flex'}>
+      <VStack alignItems={'flex-start'} paddingX={{base: 0, md: 3}}>
+        <Text fontSize='lg' fontWeight='400'>Groups</Text>
+        <Text fontSize='sm' fontWeight='300'>Manage your groups.</Text>
+      </VStack>
+      <Divider />
       <GroupsList {...{ groups: groups, setGroups: setGroups }} />
+      <Divider />
       <AddGroup {...{ groups: groups, setGroups: setGroups }} />
-    </Flex>
+    </Stack >
   );
 }

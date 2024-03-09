@@ -8,6 +8,10 @@ import {
   Button,
   Box,
   VStack,
+  Card,
+  CardBody,
+  CardHeader,
+  CardFooter,
 } from "@chakra-ui/react";
 
 import { useForm, FieldValues } from "react-hook-form"
@@ -46,42 +50,39 @@ export default function AddGroup({ groups, setGroups }: {
   }
 
   return (
-    <Box p={1} mt={6}>
-      <Heading marginX={4} size='xs' fontWeight='light'>Create a new Group</Heading>
+    <Card size={{ base: 'xs', md: 'sm' }} variant={'createCard'}>
+      <CardHeader>
+        <Heading fontSize='md' fontWeight={'light'}>Create a new Group</Heading>
+      </CardHeader>
       <FormControl isInvalid={!!errors?.group}>
-        <VStack>
-          <HStack mt={4}
-            as='form' w={'100%'}
-            flexDirection={'row'}
-            alignContent={'center'}
-            justifyContent={'center'}
-            onSubmit={handleSubmit(onSubmit)}>
-            <Input
-              id='name'
-              size={'sm'}
-              rounded={'md'}
-              placeholder='Name of your group'
-              {...register('name', {
-                required: 'This is required',
-                minLength: {
-                  value: 3,
-                  message: 'Name must be at least 3 characters long',
-                }
-              })}
-            />
-            <Button w='50%' isLoading={isSubmitting} type='submit' 
-              fontSize={'xs'}
-              size='sm' variant={"add"}>
-              Create Group
-            </Button>
-          </HStack>
+        <CardBody as='form' w={'100%'}
+          onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            id='name'
+            size={'sm'}
+            marginRight={3}
+            rounded={'md'}
+            placeholder='Name of your group'
+            {...register('name', {
+              required: 'This is required',
+              minLength: {
+                value: 3,
+                message: 'Name must be at least 3 characters long',
+              }
+            })}
+          />
+          <Button w='50%' isLoading={isSubmitting} type='submit'
+            fontSize={'xs'}
+            size='sm' variant={"add"}>
+            Create Group
+          </Button>
           {errors?.group &&
             <FormErrorMessage >
               {errors.group.message?.toString()}
             </FormErrorMessage>
           }
-        </VStack>
+        </CardBody>
       </FormControl>
-    </Box>
+    </Card>
   );
 }

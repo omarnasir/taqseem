@@ -53,41 +53,33 @@ export default function GroupMembersList({ group, users, setUsers
   }
 
   return (
-    <Stack direction={'column'} spacing={4} mb={6}>
-      <Text fontSize='lg' fontWeight='400'>Members - {group.name}</Text>
-      <Text fontSize='sm' fontWeight='300'>Add or remove members.</Text>
-      <SimpleGrid spacing={2}>
+      <SimpleGrid spacing={1}>
         {users.length > 0 ? users.map((user) => (
           <Card key={user.id}
-            size={'xs'}
+            size={{ base: 'xs', md: 'sm' }}
             variant={'infoCard'}>
-            <CardBody paddingY={4}>
-              <HStack justifyContent={'space-between'} w='100%'>
-                <CustomCardIcon icon={MdPerson} styleProps={{ marginX: '4' }} />
-                <Heading w='40%'
-                  fontSize={'lg'}
-                  fontWeight={400}>{user.name}</Heading>
-                {(group.createdById === sessionData?.user?.id ||
-                  user.id === sessionData?.user?.id) &&
-                  <VStack w='30%'>
-                    <Button leftIcon={<MdPersonRemove />}
-                      w='100%'
-                      variant={'delete'}
-                      fontSize={'sm'}
-                      onClick={onOpen}>
-                      Remove
-                    </Button>
-                    <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                      onRemoveUser(user.id); onClose();
-                    }} mode="removeUser" />
-                  </VStack>
-                }
-              </HStack>
+            <CardBody>
+              <CustomCardIcon icon={MdPerson} styleProps={{ marginRight: '4'}} />
+              <Heading w='75%'
+                fontSize={'md'}
+                fontWeight={400}>{user.name}</Heading>
+              {(group.createdById === sessionData?.user?.id ||
+                user.id === sessionData?.user?.id) &&
+                <VStack w='25%'>
+                  <Button leftIcon={<MdPersonRemove />}
+                    w='100%'
+                    variant={'delete'}
+                    onClick={onOpen}>
+                    Remove
+                  </Button>
+                  <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                    onRemoveUser(user.id); onClose();
+                  }} mode="removeUser" />
+                </VStack>
+              }
             </CardBody>
           </Card>
         )) : <Text>No members</Text>}
       </SimpleGrid>
-    </Stack>
-
   );
 }

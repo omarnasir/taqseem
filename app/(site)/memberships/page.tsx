@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Divider, Flex, Stack, Text, VStack } from "@chakra-ui/react";
 
 import { getMembershipsByGroupId } from "@/app/(site)/memberships/_lib/memberships-service";
 import GroupMembersList from "./_components/members-list"
@@ -16,7 +16,7 @@ export default function GroupPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [users, setUsers] = useState<UserBasicData[]>([]);
   // get params from route query
-  const group : GroupData = JSON.parse(useSearchParams().get('data')!)
+  const group: GroupData = JSON.parse(useSearchParams().get('data')!)
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -29,9 +29,15 @@ export default function GroupPage() {
 
   return (
     loading ? <Loading /> :
-    <Flex direction={"column"} w="inherit">
+      <Stack direction={'column'} spacing={4} display={'flex'}>
+        <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }}>
+          <Text fontSize='lg' fontWeight='400'>Members - {group.name}</Text>
+          <Text fontSize='sm' fontWeight='300'>Add or remove members.</Text>
+        </VStack>
+        <Divider />
         <GroupMembersList group={group} users={users} setUsers={setUsers} />
+        <Divider />
         <GroupAddUser group={group} users={users} setUsers={setUsers} />
-      </Flex>
+      </Stack>
   )
 }

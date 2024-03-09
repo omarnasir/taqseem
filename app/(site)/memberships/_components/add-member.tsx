@@ -2,6 +2,9 @@
 import {
   Box,
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   FormControl,
   FormErrorMessage,
   HStack,
@@ -47,42 +50,40 @@ export default function GroupAddUser(
   }
 
   return (
-    <Box p={1}>
-      <Heading marginX={4} size='xs' fontWeight='light'>Add a new User</Heading>
+    <Card size={{ base: 'xs', md: 'sm' }} variant={'createCard'}>
+      <CardHeader>
+        <Heading fontSize='md' fontWeight={'light'}>Add a new User</Heading>
+      </CardHeader>
       <FormControl isInvalid={!!errors?.email}>
-        <VStack>
-          <HStack mt={4}
-            as='form' w='100%'
-            flexDirection={'row'}
-            alignContent={'center'}
-            onSubmit={handleSubmit(onSubmit)}>
-            <Input
-              size={'sm'}
-              rounded={'md'}
-              id='email'
-              variant='outline'
-              placeholder='Enter user email'
-              {...register('email', {
-                required: 'This is required',
-                pattern: {
-                  value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-                  message: 'Invalid email address',
-                },
-              })}
-            />
-            <Button w='50%' isLoading={isSubmitting} type='submit' 
-              fontSize={'xs'}
-              size='sm' variant={"add"}>
-              Add User
-            </Button>
-          </HStack>
+        <CardBody as='form' w={'100%'}
+          onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            size={'sm'}
+            marginRight={3}
+            rounded={'md'}
+            id='email'
+            variant='outline'
+            placeholder='Enter user email'
+            {...register('email', {
+              required: 'This is required',
+              pattern: {
+                value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                message: 'Invalid email address',
+              },
+            })}
+          />
+          <Button w='50%' isLoading={isSubmitting} type='submit'
+            fontSize={'xs'}
+            size='sm' variant={"add"}>
+            Add User
+          </Button>
           {errors?.email &&
             <FormErrorMessage alignSelf={'flex-start'}>
               {errors.email.message?.toString()}
             </FormErrorMessage>
           }
-        </VStack>
+        </CardBody>
       </FormControl>
-    </Box>
+    </Card>
   );
 }

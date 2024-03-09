@@ -8,13 +8,14 @@ function CustomCardIcon({ icon, styleProps }: { icon: any, styleProps?: FlexProp
 return (
     <Flex
       bg={'whiteAlpha.400'}
-      opacity={0.7}
-      rounded={'full'}
-      boxSize={8}
+      opacity={0.5}
+      rounded={'md'}
+      w={'3rem'}
+      h={'2rem'}
       justifyContent={'center'}
       {...styleProps}
     >
-      <Icon as={icon} alignSelf={'center'} boxSize={5}/>
+      <Icon as={icon} alignSelf={'center'} boxSize={4}/>
     </Flex>
   )
 }
