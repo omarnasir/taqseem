@@ -14,7 +14,7 @@ const infoCard = definePartsStyle({
     paddingY: 2,
     direction: 'column',
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   }
 })

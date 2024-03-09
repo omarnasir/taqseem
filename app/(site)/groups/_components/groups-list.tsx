@@ -5,9 +5,8 @@ import {
   Card,
   CardBody,
   Heading,
-  Text,
-  Stack, Button, HStack,
-  useDisclosure, SimpleGrid, VStack, ButtonGroup
+  Button, 
+  useDisclosure, SimpleGrid, ButtonGroup
 } from '@chakra-ui/react'
 
 import { MdPersonRemove, MdManageAccounts, MdGroups } from "react-icons/md"
