@@ -76,14 +76,14 @@ function processUserDetailsByStrategy(values: TFormTransaction, users: UserBasic
   const strategy = values[TransactionFormIds.strategy] as number;
   const totalAmount = parseFloat(values[TransactionFormIds.amount]);
   const paidById = values[TransactionFormIds.paidById];
-  const transactionDetails = values[TransactionFormIds.transactionDetails] as TFormTransactionDetails[];
+  const transactionDetails = values[TransactionFormIds.transactionDetails];
   // Strategy 0: Split equally
   if (strategy === 0) {
     const userAmount = totalAmount / users.length
     return users.map(user => {
       return {
         userId: user.id,
-        amount: userAmount
+        amount: user.id === paidById ? userAmount : -userAmount
       }
     })
   }
@@ -94,12 +94,12 @@ function processUserDetailsByStrategy(values: TFormTransaction, users: UserBasic
         case users[strategy - 1].id:
           return {
             userId: user.id,
-            amount: totalAmount
+            amount: -totalAmount
           }
         case paidById:
           return {
             userId: user.id,
-            amount: -totalAmount
+            amount: totalAmount
           }
         default:
           return {
@@ -115,7 +115,6 @@ function processUserDetailsByStrategy(values: TFormTransaction, users: UserBasic
     const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => (selectedUser.amount === null || selectedUser.amount === ''))
     const sum = transactionDetails.reduce((acc: number, item) => acc + (parseFloat(item.amount) || 0), 0)
     let error: string = '';
-    console.log(selectedUsers, usersWithoutInputAmount, sum, totalAmount)
     if (selectedUsers.length === 0) {
       error = 'You must select at least one user'
     }
@@ -133,12 +132,18 @@ function processUserDetailsByStrategy(values: TFormTransaction, users: UserBasic
     }
     const remainingAmount = totalAmount - sum;
     const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
-    return selectedUsers.map((selectedUser) => {
+    const userDetails: TCreateTransactionDetails[] = selectedUsers.map((selectedUser) => {
       return {
         userId: selectedUser.userId,
-        amount: (selectedUser.amount === null) ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
+        amount: (selectedUser.amount === '') ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
       }
     })
+    userDetails.forEach(user => {
+      if (user.userId !== values[TransactionFormIds.paidById]) {
+        user.amount = user.amount * -1
+      }
+    })
+    return userDetails
   }
 }
 
@@ -196,30 +201,18 @@ export default function TransactionView(
   const {
     handleSubmit,
     setError,
-    getValues,
     formState: { isDirty, isValid }
   } = methods
-
-  useEffect(() => {
-    console.log("Rerendering TransactionView")
-    console.log('Strategy', getValues(TransactionFormIds.strategy))
-  });
 
   async function onSubmit(values: TFormTransaction) {
     console.log('Submitted: ', values)
     const strategy = values[TransactionFormIds.strategy] as number;
     const totalAmount = parseFloat(values[TransactionFormIds.amount]);
-    const userDetails : TCreateTransactionDetails[] | string | undefined = processUserDetailsByStrategy(values, users);
+    const userDetails: TCreateTransactionDetails[] | string | undefined = processUserDetailsByStrategy(values, users);
     if (typeof userDetails === 'string') {
       setError(TransactionFormIds.transactionDetails, { message: userDetails as string })
       return
     }
-    // Multiply the non-paying user's amount by -1 to indicate that they are paying
-    userDetails.forEach(user => {
-      if (user.userId !== values[TransactionFormIds.paidById]) {
-        user.amount = user.amount * -1
-      }
-    })
     // Build the transaction object
     const transaction: TUpdateTransaction | TCreateTransaction = {
       id: values.id ? values.id : undefined,
@@ -235,8 +228,8 @@ export default function TransactionView(
       transactionDetails: userDetails!,
       notes: values[TransactionFormIds.notes]
     }
-    console.log(transaction)
     if (values.id) {
+      console.log('Updating transaction', transaction)
       const response = await updateTransaction(transaction as TUpdateTransaction);
       if (response.success) {
         onCloseDrawer();
@@ -247,6 +240,7 @@ export default function TransactionView(
       }
     }
     else {
+      console.log('Creating transaction', transaction)
       const response = await createTransaction(transaction as TCreateTransaction);
       if (response.success) {
         onCloseDrawer();
@@ -272,16 +266,16 @@ export default function TransactionView(
   }
 
   return (
-    <FormProvider {...methods}>
-      <Drawer
-        size={'md'}
-        placement="bottom"
-        variant={'transaction'}
-        isOpen={isOpen}
-        onClose={() => { onCloseDrawer(), onClosePageTwo(), onOpenPageOne() }}
-        {...disclosureProps}>
-        <DrawerOverlay />
-        <DrawerContent height='100vh' width={{ base: '100%', md: 'lg', lg: 'xl' }} margin='auto'>
+    <Drawer
+      size={'md'}
+      placement="bottom"
+      variant={'transaction'}
+      isOpen={isOpen}
+      onClose={() => { onCloseDrawer(), onClosePageTwo(), onOpenPageOne() }}
+      {...disclosureProps}>
+      <DrawerOverlay />
+      <DrawerContent height='100vh' width={{ base: '100%', md: 'lg', lg: 'xl' }} margin='auto'>
+        <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DrawerHeader
               color={'whiteAlpha.580'}
@@ -340,7 +334,7 @@ export default function TransactionView(
                 {transactionWithDetails ?
                   <>
                     <Button size={'sm'} w={'25%'}
-                      leftIcon={<MdDelete size={'1rem'}/>}
+                      leftIcon={<MdDelete size={'1rem'} />}
                       textAlign={'center'} variant={'delete'}
                       onClick={onOpenRemoveTransaction}>Delete</Button>
                     <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
@@ -363,17 +357,17 @@ export default function TransactionView(
                     onClick={() => { setActiveStep(1), onClosePageOne(), onOpenPageTwo() }} />
                 </HStack>
                 <Button size={'sm'} w={'25%'}
-                  leftIcon={<MdOutlineSync size={'1rem'}/>}
+                  leftIcon={<MdOutlineSync size={'1rem'} />}
                   variant={transactionWithDetails ? 'update' : 'add'}
-                  isDisabled={!isValid || !isDirty  || isOpenPageOne}
+                  isDisabled={!isValid || !isDirty || isOpenPageOne}
                   isLoading={methods.formState.isSubmitting} type='submit'>
                   {transactionWithDetails ? 'Update' : 'Add'}
                 </Button>
               </HStack>
             </DrawerFooter>
           </form>
-        </DrawerContent>
-      </Drawer>
-    </FormProvider>
+        </FormProvider>
+      </DrawerContent>
+    </Drawer>
   )
 }

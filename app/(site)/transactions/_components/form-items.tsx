@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Input,
   Text,
@@ -25,7 +25,7 @@ import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
   MdCalendarMonth, MdOutlineCategory, MdOutlineCancel
 } from "react-icons/md"
-import { useFormContext, FieldErrors, useFieldArray, Controller, useWatch } from "react-hook-form";
+import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-form";
 
 import { UserBasicData } from "@/app/_types/model/users";
 import { type TCreateTransaction, type TCreateTransactionDetails } from "@/app/_types/model/transactions";
@@ -45,11 +45,6 @@ enum TransactionFormIds {
   paidAt = 'paidAt',
   paidById = 'paidById',
   notes = 'notes'
-}
-
-enum TransactionDetailsFormIds {
-  userId = 'userId',
-  amount = 'amount'
 }
 
 // This type defines the Transaction details form data that will be sent to the server
@@ -100,22 +95,21 @@ function FormItemName() {
   )
 }
 
-function TransactionStrategyDecisionCheckbox({ user, index }: { user: UserBasicData, index: number }) {
+function TransactionStrategyDecisionCheckbox({ user, index, remove }: { user: UserBasicData, index: number, remove: any }) {
   const { data: sessionData } = useSession();
   const { getValues, setValue } = useFormContext();
-  const strategy = getValues(TransactionFormIds.strategy);
-  const amount = parseFloat(getValues(TransactionFormIds.amount) || 0).toFixed(2);
 
   const isUserSessionUser = useMemo(() => user.id === sessionData?.user.id, [user.id, sessionData?.user.id]);
   const variant = useMemo(() => isUserSessionUser ? 'transactionStrategyYou' : 'transactionStrategyThem', [isUserSessionUser]);
   
   return (
     <Checkbox size={'md'} as={Button} variant={variant}
-    onChange={() => {
+      onChange={() => {
+        remove()
         setValue(TransactionFormIds.strategy, index + 1)
       }}
-      defaultChecked={strategy === index + 1}
-      isChecked={strategy === index + 1}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{amount}
+      defaultChecked={getValues(TransactionFormIds.strategy) === index + 1}
+      isChecked={getValues(TransactionFormIds.strategy) === index + 1}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{parseFloat(getValues(TransactionFormIds.amount) || 0).toFixed(2)}
     </Checkbox>
   )
 }
@@ -124,11 +118,10 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
 {
   const { formState: { errors },
     register,
-    unregister,
     control,
     setValue,
     getValues } = useFormContext()
-  const { fields, replace } = useFieldArray({
+  const { fields, replace, update, remove } = useFieldArray({
     control,
     name: TransactionFormIds.transactionDetails,
   })
@@ -136,45 +129,38 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
     control,
     name: TransactionFormIds.strategy,
   });
-  const amount = parseFloat(getValues(TransactionFormIds.amount) || 0)
-
-  useEffect(() => {
-    const receivedTransactionDetails = getValues(TransactionFormIds.transactionDetails) as TFormTransaction[TransactionFormIds.transactionDetails]
-    if (strategy === -1) {
-      replace(receivedTransactionDetails.map(detail => {
-        return {
-          userId: detail.userId,
-          amount: detail.amount
-        }
-      }))
-    }
-  }, [replace, getValues, strategy])
 
   return (
     <FormControl id={TransactionFormIds.strategy} isInvalid={Boolean(errors[TransactionFormIds.strategy])} marginBottom={3}>
-      <HStack width={'100%'} {...register(TransactionFormIds.strategy,
-          { required: false, }
-        )}>
-      <Accordion width={'100%'}  defaultIndex={strategy === -1 ? [1] : [0]} variant='transaction'>
-        <AccordionItem>
-          <h2>
-            <AccordionButton onClick={() => unregister(TransactionFormIds.transactionDetails)}>
-              <Text alignSelf={'center'}>Based on People</Text>
-              <AccordionIcon />
-            </AccordionButton>
-          </h2>
+      <Input {...register(TransactionFormIds.strategy,
+        { required: false, valueAsNumber: true }
+      )} hidden disabled />
+      <HStack width={'100%'}>
+        <Accordion width={'100%'} defaultIndex={strategy === -1 ? [1] : [0]} variant='transaction'>
+          <AccordionItem>
+            <h2>
+              <AccordionButton onClick={() => {
+                remove()
+                setValue(TransactionFormIds.strategy, 0);
+              }}
+              >
+                <Text alignSelf={'center'}>Based on People</Text>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
           <AccordionPanel>
             {/* TODO: Change Checkbox to a custom Radio group */}
             <VStack width={'100%'} spacing={3}>
               <Checkbox size={'md'} as={Button} variant={'transactionStrategyEveryone'}
                 onChange={() => {
+                  remove()
                   setValue(TransactionFormIds.strategy, 0)
                 }}
                 defaultChecked={strategy === 0}
-                isChecked={strategy === 0}>Everyone owes €{(amount / users.length).toFixed(2)}</Checkbox>
+                isChecked={strategy === 0}>Everyone owes €{(parseFloat(getValues(TransactionFormIds.amount) || 0) / users.length).toFixed(2)}</Checkbox>
               {users.map((user, index) =>
                 user.id !== getValues(TransactionFormIds.paidById) &&
-                <TransactionStrategyDecisionCheckbox key={user.id} user={user} index={index}/>
+                <TransactionStrategyDecisionCheckbox key={user.id} user={user} index={index} remove={remove}/>
               )}
             </VStack>
           </AccordionPanel>
@@ -182,7 +168,10 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
         <AccordionItem>
           <h2>
             <AccordionButton onClick={() => {
-              replace(users.map(user => ({ id: user.id, amount: null })));
+              replace(users.map(user => ({ 
+                userId: user.id, 
+                amount: '' }
+              )));
               setValue(TransactionFormIds.strategy, -1);
             }}>
               <Text alignSelf={'center'}>Or specify what everyone owes:</Text>
@@ -199,10 +188,11 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
                 {fields.map((field, index) => (
                   <FormItemAmountDetailsUser
                     key={field.id}
-                    registerAmount={`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.amount}`}
-                    registerUserId={`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.userId}`}
+                    control={control}
+                    update={update}
                     user={users[index]}
-                    index={index} />
+                    index={index} 
+                    value={field}/>
                 ))}
               </VStack>
               <FormErrorMessage>{errors[TransactionFormIds.transactionDetails]?.message?.toString()}</FormErrorMessage>
@@ -215,34 +205,22 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
   )
 }
 
-function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user }:
-  { user: UserBasicData, index: number, registerAmount: string, registerUserId: string }) {
-  const { resetField, formState: { errors },unregister, control, register, getValues, clearErrors } = useFormContext()
+function FormItemAmountDetailsUser({ index, update, value, control, user }:
+  { user: UserBasicData, index: number, control: any, update: any, value: any }) {
+  const { clearErrors, getFieldState } = useFormContext()
   
-  const userAmount = getValues(`${TransactionFormIds.transactionDetails}.${index}.${TransactionDetailsFormIds.amount}`);
-  const [selected, setSelected] = useState<boolean>(userAmount !== undefined)
+  const registerAmount = useMemo(() => `${TransactionFormIds.transactionDetails}.${index}.amount`, [index]);
 
-  function extractNestedErrors(errors: FieldErrors<TFormTransaction>) {
-    const nestedErrors = errors[TransactionFormIds.transactionDetails]?.[index]?.amount
-    return nestedErrors ? nestedErrors?.message?.toString() : ''
-  }
-
-  function checkIsFormAmountInvalid(errors: FieldErrors<TFormTransaction>) {
-    return errors[TransactionFormIds.transactionDetails]?.[index]?.amount ? true : false
-  }
+  const [selected, setSelected] = useState<boolean>(value.amount !== undefined)
 
   return (
     <FormControl id={registerAmount}
-      isInvalid={Boolean(checkIsFormAmountInvalid(errors))}>
-        <Input {...register(registerUserId, {
-          required: false,
-          value: user.id
-        })}
-          hidden />
+      isInvalid={getFieldState(registerAmount).invalid}>
       <HStack>
         <Checkbox onChange={(e) => {
           setSelected(e.target.checked);
-          if (!e.target.checked) unregister(registerAmount)
+          if (!e.target.checked) update(index, { ...value, amount: undefined });
+          else update(index, { ...value, amount: '' });
         }}
           defaultChecked={selected}
           colorScheme={'gray'}
@@ -254,28 +232,24 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
             fontSize={'md'}
             fontWeight={'light'}>{user.name}</Text>
         </Checkbox>
-        <Controller
-          name={registerAmount}
-          control={control}
-          disabled={!selected}
-          rules={{
-            required: false,
-            validate: (value) => {
-              if (value <= 0 && (value !== '' && value !== null)) {
-                return 'Amount must be greater than 0'
-              }
-            }
-          }}
-          render={({ field: { ref, name, value, onChange, ...restField } }) => (
-            <InputGroup variant={"transaction"} w='50%'>
-              <InputLeftAddon>
-                <MdEuroSymbol size={'0.75rem'} />
-              </InputLeftAddon>
-              <NumberInput size={'md'} {...restField} variant={'transaction'}
-                value={value < 0 ? value : value || ''}
-                onChange={(value) => {
-                  onChange(value);
-                  clearErrors(TransactionFormIds.transactionDetails)
+        <InputGroup variant={"transaction"} w='50%'>
+          <InputLeftAddon>
+            <MdEuroSymbol size={'0.75rem'} />
+          </InputLeftAddon>
+          <Controller
+            name={registerAmount}
+            control={control}
+            disabled={!selected}
+            rules={{
+              required: false,
+              validate: (value) => value > 0 || value === ''
+            }}
+            render={({ field: { ref, name,onChange, ...restField } }) => (
+              <NumberInput size={'md'} variant={'transaction'}
+                {...restField} 
+                onChange={(value) =>{
+                  getFieldState(TransactionFormIds.transactionDetails).invalid && clearErrors(TransactionFormIds.transactionDetails)
+                  onChange(value)
                 }}
                 isValidCharacter={(char) => {
                   return (char >= '0' && char <= '9') || char === '.' || char === ','
@@ -301,17 +275,14 @@ function FormItemAmountDetailsUser({ index, registerAmount, registerUserId, user
                   textIndent={'0.5rem'}
                 />
                 <InputRightElement color={'gray.500'}
-                  onClick={() => resetField(registerAmount,
-                    {
-                      defaultValue: null,
-                    })}>
+                  onClick={() => update(index, {...value, amount: ''})}>
                   <MdOutlineCancel size={'1rem'} />
                 </InputRightElement>
-              </NumberInput>
-            </InputGroup>)} />
+              </NumberInput>)} />
+        </InputGroup>
       </HStack >
       <FormErrorMessage>
-        {extractNestedErrors(errors)}
+        {getFieldState(registerAmount).error?.message?.toString()}
       </FormErrorMessage>
     </FormControl>
   )
