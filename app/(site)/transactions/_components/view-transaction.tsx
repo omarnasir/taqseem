@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useSession } from "next-auth/react";
 
 import {
@@ -18,9 +18,6 @@ import {
   Box,
   Stack,
   Text,
-} from "@chakra-ui/react"
-
-import {
   Step,
   StepIcon,
   StepIndicator,
@@ -28,7 +25,7 @@ import {
   StepStatus,
   Stepper,
   useSteps,
-} from '@chakra-ui/react'
+} from "@chakra-ui/react"
 
 import {
   MdChevronLeft as IconPrev,
@@ -42,9 +39,6 @@ import {
 import { FormProvider, useForm } from "react-hook-form";
 
 import {
-  type TFormTransaction,
-  type TFormTransactionDetails,
-  TransactionFormIds,
   FormItemId,
   FormItemAmount,
   FormItemTransactionStrategy,
@@ -53,18 +47,18 @@ import {
   FormItemDateTime,
   FormItemName,
   FormItemPaidBy,
-  FormItemNote,
-  formatDateToString
+  FormItemNote
 } from "./form-items";
 import { type GroupWithMembers } from "@/app/_types/model/groups"
 import { createTransaction, updateTransaction, deleteTransaction } from "@/app/(site)/transactions/_lib/transactions-service"
 import {
-  type TCreateTransaction,
-  type TCreateTransactionDetails,
-  type TUpdateTransaction,
-  type TTransactionWithDetails
+  type CreateTransaction,
+  type CreateTransactionDetails,
+  type UpdateTransaction,
+  type TransactionWithDetails
 }
   from "@/app/_types/model/transactions";
+import { TransactionFormIdEnum as FormIdEnum, FormTransaction, getTransactionFormDefaultValues, mapFormToTransaction, mapTransactionToForm, formatDateToString } from "@/app/(site)/transactions/_lib/transactions-helper";
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/(site)/_components/confirm";
 import { UserBasicData } from "@/app/_types/model/users";
@@ -74,11 +68,11 @@ const steps = [
   { title: 'Decide how to split' },
 ]
 
-function processUserDetailsByStrategy(values: TFormTransaction, users: UserBasicData[]): TCreateTransactionDetails[] | string | undefined {
-  const strategy = values[TransactionFormIds.strategy] as number;
-  const totalAmount = parseFloat(values[TransactionFormIds.amount]);
-  const paidById = values[TransactionFormIds.paidById];
-  const transactionDetails = values[TransactionFormIds.transactionDetails];
+function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicData[]): CreateTransactionDetails[] | string | undefined {
+  const strategy = values[FormIdEnum.strategy] as number;
+  const totalAmount = parseFloat(values[FormIdEnum.amount]);
+  const paidById = values[FormIdEnum.paidById];
+  const transactionDetails = values[FormIdEnum.transactionDetails];
   // Strategy 0: Split equally
   if (strategy === 0) {
     const userAmount = totalAmount / users.length
@@ -134,14 +128,14 @@ function processUserDetailsByStrategy(values: TFormTransaction, users: UserBasic
     }
     const remainingAmount = totalAmount - sum;
     const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
-    const userDetails: TCreateTransactionDetails[] = selectedUsers.map((selectedUser) => {
+    const userDetails: CreateTransactionDetails[] = selectedUsers.map((selectedUser) => {
       return {
         userId: selectedUser.userId,
         amount: (selectedUser.amount === '') ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
       }
     })
     userDetails.forEach(user => {
-      if (user.userId !== values[TransactionFormIds.paidById]) {
+      if (user.userId !== values[FormIdEnum.paidById]) {
         user.amount = user.amount * -1
       }
     })
@@ -157,7 +151,7 @@ export default function TransactionView(
     isOpen: boolean,
     onCloseDrawer: () => void,
     setRefreshTransactions: React.Dispatch<React.SetStateAction<string>>,
-    transactionWithDetails?: TTransactionWithDetails,
+    transactionWithDetails?: TransactionWithDetails,
   }
 ) {
   const users = group.users!;
@@ -177,27 +171,11 @@ export default function TransactionView(
     count: steps.length,
   })
 
-  const defaultValues: TFormTransaction = useMemo(() => ({
-    id: transactionWithDetails?.id || undefined,
-    name: transactionWithDetails?.name || '',
-    category: transactionWithDetails?.category || 0,
-    subCategory: transactionWithDetails?.subCategory || 0,
-    amount: transactionWithDetails?.amount.toFixed(2) || '',
-    paidAt: transactionWithDetails?.paidAt ? formatDateToString(transactionWithDetails?.paidAt) : formatDateToString(new Date()),
-    strategy: transactionWithDetails?.strategy || 0,
-    transactionDetails: transactionWithDetails?.transactionDetails.map(detail => {
-      return {
-        userId: detail.userId,
-        amount: (detail.amount < 0 ? detail.amount * -1 : detail.amount).toString()
-      }
-    }) || [],
-    groupId: group.id,
-    createdById: transactionWithDetails?.createdById || sessionData!.user.id,
-    notes: transactionWithDetails?.notes || '',
-    paidById: transactionWithDetails?.paidById || sessionData!.user.id,
-  }), [sessionData, group, transactionWithDetails]);
+  const defaultValues: FormTransaction = useMemo(() => (
+    transactionWithDetails ? mapTransactionToForm(transactionWithDetails) : getTransactionFormDefaultValues(group.id, sessionData!.user.id)
+  ), [sessionData, group, transactionWithDetails]);
 
-  const methods = useForm<TFormTransaction>({
+  const methods = useForm<FormTransaction>({
     values: defaultValues
   });
   const {
@@ -206,33 +184,18 @@ export default function TransactionView(
     formState: { isDirty, isValid }
   } = methods
 
-  async function onSubmit(values: TFormTransaction) {
+  async function onSubmit(values: FormTransaction) {
     console.log('Submitted: ', values)
-    const strategy = values[TransactionFormIds.strategy] as number;
-    const totalAmount = parseFloat(values[TransactionFormIds.amount]);
-    const userDetails: TCreateTransactionDetails[] | string | undefined = processUserDetailsByStrategy(values, users);
+    const userDetails: CreateTransactionDetails[] | string | undefined = processUserDetailsByStrategy(values, users);
     if (typeof userDetails === 'string') {
-      setError(TransactionFormIds.transactionDetails, { message: userDetails as string })
+      setError(FormIdEnum.transactionDetails, { message: userDetails as string })
       return
     }
     // Build the transaction object
-    const transaction: TUpdateTransaction | TCreateTransaction = {
-      id: values.id ? values.id : undefined,
-      name: values[TransactionFormIds.name],
-      amount: totalAmount,
-      groupId: group.id,
-      strategy: strategy,
-      createdById: sessionData!.user.id,
-      paidById: values[TransactionFormIds.paidById],
-      subCategory: values[TransactionFormIds.subCategory],
-      category: values[TransactionFormIds.category],
-      paidAt: new Date(values[TransactionFormIds.paidAt]!).toISOString(),
-      transactionDetails: userDetails!,
-      notes: values[TransactionFormIds.notes]
-    }
+    const transaction = mapFormToTransaction(values, userDetails as CreateTransactionDetails[], group.id)
     if (values.id) {
       console.log('Updating transaction', transaction)
-      const response = await updateTransaction(transaction as TUpdateTransaction);
+      const response = await updateTransaction(transaction as UpdateTransaction);
       if (response.success) {
         onCloseDrawer();
         setRefreshTransactions(Date.now().toString());
@@ -243,7 +206,7 @@ export default function TransactionView(
     }
     else {
       console.log('Creating transaction', transaction)
-      const response = await createTransaction(transaction as TCreateTransaction);
+      const response = await createTransaction(transaction as CreateTransaction);
       if (response.success) {
         onCloseDrawer();
         setRefreshTransactions(Date.now().toString());

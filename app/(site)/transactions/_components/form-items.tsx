@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Input,
   Text,
@@ -28,44 +29,16 @@ import {
 import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-form";
 
 import { UserBasicData } from "@/app/_types/model/users";
-import { type TCreateTransaction, type TCreateTransactionDetails } from "@/app/_types/model/transactions";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
-
-import {CustomFormIcon} from "@/app/(site)/_components/cardIcon";
-import { useSession } from "next-auth/react";
-
-enum TransactionFormIds {
-  id = 'id',
-  name = 'name',
-  amount = 'amount',
-  strategy = 'strategy',
-  transactionDetails = 'transactionDetails',
-  category = 'category',
-  subCategory = 'subCategory',
-  paidAt = 'paidAt',
-  paidById = 'paidById',
-  notes = 'notes'
-}
-
-// This type defines the Transaction details form data that will be sent to the server
-// We will also reuse this type to define the form data that will be received from the server
-type TFormTransactionDetails = Omit<TCreateTransactionDetails, "amount"> & {
-  amount: string
-}
-
-// This type defines the main Transaction form data that will be sent to the server
-// We will also reuse this type to define the form data that will be received from the server
-interface TFormTransaction extends Omit<TCreateTransaction, "transactionDetails" | "amount"> {
-  amount: string,
-  transactionDetails: TFormTransactionDetails[]
-}
+import { TransactionFormIdEnum as FormIdEnum, formatDateToString } from "@/app/(site)/transactions/_lib/transactions-helper";
+import { CustomFormIcon } from "@/app/(site)/_components/cardIcon";
 
 
 function FormItemId() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.id} isInvalid={Boolean(errors[TransactionFormIds.id])}>
-      <Input {...register(TransactionFormIds.id, {
+    <FormControl id={FormIdEnum.id} isInvalid={Boolean(errors[FormIdEnum.id])}>
+      <Input {...register(FormIdEnum.id, {
         required: false
       })}
         hidden disabled />
@@ -77,19 +50,19 @@ function FormItemName() {
   const { formState: { errors }, register } = useFormContext()
 
   return (
-    <FormControl id={TransactionFormIds.name} isInvalid={Boolean(errors[TransactionFormIds.name])} marginBottom={3}>
+    <FormControl id={FormIdEnum.name} isInvalid={Boolean(errors[FormIdEnum.name])} marginBottom={3}>
       <HStack>
         <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"teal.600"}}/>
         <InputGroup variant={"transaction"}>
           <InputLeftAddon>
             <Text alignSelf={'center'}>Name</Text>
           </InputLeftAddon>
-          <Input {...register(TransactionFormIds.name, {
+          <Input {...register(FormIdEnum.name, {
             required: 'You must enter a name',
           })}
             placeholder='Name' />
         </InputGroup>
-      <FormErrorMessage>{errors[TransactionFormIds.name]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIdEnum.name]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
@@ -106,10 +79,10 @@ function TransactionStrategyDecisionCheckbox({ user, index, remove }: { user: Us
     <Checkbox size={'md'} as={Button} variant={variant}
       onChange={() => {
         remove()
-        setValue(TransactionFormIds.strategy, index + 1)
+        setValue(FormIdEnum.strategy, index + 1)
       }}
-      defaultChecked={getValues(TransactionFormIds.strategy) === index + 1}
-      isChecked={getValues(TransactionFormIds.strategy) === index + 1}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{parseFloat(getValues(TransactionFormIds.amount) || 0).toFixed(2)}
+      defaultChecked={getValues(FormIdEnum.strategy) === index + 1}
+      isChecked={getValues(FormIdEnum.strategy) === index + 1}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{parseFloat(getValues(FormIdEnum.amount) || 0).toFixed(2)}
     </Checkbox>
   )
 }
@@ -123,16 +96,16 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
     getValues } = useFormContext()
   const { fields, replace, update, remove } = useFieldArray({
     control,
-    name: TransactionFormIds.transactionDetails,
+    name: FormIdEnum.transactionDetails,
   })
   const strategy = useWatch({
     control,
-    name: TransactionFormIds.strategy,
+    name: FormIdEnum.strategy,
   });
 
   return (
-    <FormControl id={TransactionFormIds.strategy} isInvalid={Boolean(errors[TransactionFormIds.strategy])} marginBottom={3}>
-      <Input {...register(TransactionFormIds.strategy,
+    <FormControl id={FormIdEnum.strategy} isInvalid={Boolean(errors[FormIdEnum.strategy])} marginBottom={3}>
+      <Input {...register(FormIdEnum.strategy,
         { required: false, valueAsNumber: true }
       )} hidden disabled />
       <HStack width={'100%'}>
@@ -141,7 +114,7 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
             <h2>
               <AccordionButton onClick={() => {
                 remove()
-                setValue(TransactionFormIds.strategy, 0);
+                setValue(FormIdEnum.strategy, 0);
               }}
               >
                 <Text alignSelf={'center'}>Based on People</Text>
@@ -154,12 +127,12 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
               <Checkbox size={'md'} as={Button} variant={'transactionStrategyEveryone'}
                 onChange={() => {
                   remove()
-                  setValue(TransactionFormIds.strategy, 0)
+                  setValue(FormIdEnum.strategy, 0)
                 }}
                 defaultChecked={strategy === 0}
-                isChecked={strategy === 0}>Everyone owes €{(parseFloat(getValues(TransactionFormIds.amount) || 0) / users.length).toFixed(2)}</Checkbox>
+                isChecked={strategy === 0}>Everyone owes €{(parseFloat(getValues(FormIdEnum.amount) || 0) / users.length).toFixed(2)}</Checkbox>
               {users.map((user, index) =>
-                user.id !== getValues(TransactionFormIds.paidById) &&
+                user.id !== getValues(FormIdEnum.paidById) &&
                 <TransactionStrategyDecisionCheckbox key={user.id} user={user} index={index} remove={remove}/>
               )}
             </VStack>
@@ -172,7 +145,7 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
                 userId: user.id, 
                 amount: '' }
               )));
-              setValue(TransactionFormIds.strategy, -1);
+              setValue(FormIdEnum.strategy, -1);
             }}>
               <Text alignSelf={'center'}>Or specify what everyone owes:</Text>
               <AccordionIcon />
@@ -182,8 +155,8 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
             <Text alignSelf={'center'} fontSize={'xs'} fontWeight={'light'} mb={3}>
               You can leave the amount for a user empty if you want us to calculate it for you.
             </Text>
-            <FormControl id={TransactionFormIds.transactionDetails}
-              isInvalid={Boolean(errors[TransactionFormIds.transactionDetails])}>
+            <FormControl id={FormIdEnum.transactionDetails}
+              isInvalid={Boolean(errors[FormIdEnum.transactionDetails])}>
               <VStack alignItems={'center'} marginX={1}>
                 {fields.map((field, index) => (
                   <FormItemAmountDetailsUser
@@ -195,7 +168,7 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
                     value={field}/>
                 ))}
               </VStack>
-              <FormErrorMessage>{errors[TransactionFormIds.transactionDetails]?.message?.toString()}</FormErrorMessage>
+              <FormErrorMessage>{errors[FormIdEnum.transactionDetails]?.message?.toString()}</FormErrorMessage>
             </FormControl>
           </AccordionPanel>
         </AccordionItem>
@@ -209,7 +182,7 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
   { user: UserBasicData, index: number, control: any, update: any, value: any }) {
   const { clearErrors, getFieldState } = useFormContext()
   
-  const registerAmount = useMemo(() => `${TransactionFormIds.transactionDetails}.${index}.amount`, [index]);
+  const registerAmount = useMemo(() => `${FormIdEnum.transactionDetails}.${index}.amount`, [index]);
 
   const [selected, setSelected] = useState<boolean>(value.amount !== undefined)
 
@@ -248,7 +221,7 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
               <NumberInput size={'md'} variant={'transaction'}
                 {...restField} 
                 onChange={(value) =>{
-                  getFieldState(TransactionFormIds.transactionDetails).invalid && clearErrors(TransactionFormIds.transactionDetails)
+                  getFieldState(FormIdEnum.transactionDetails).invalid && clearErrors(FormIdEnum.transactionDetails)
                   onChange(value)
                 }}
                 isValidCharacter={(char) => {
@@ -292,7 +265,7 @@ function FormItemAmount() {
   const { formState: { errors }, control } = useFormContext()
 
   return (
-    <FormControl id={TransactionFormIds.amount} isInvalid={Boolean(errors[TransactionFormIds.amount])} marginY={3}>
+    <FormControl id={FormIdEnum.amount} isInvalid={Boolean(errors[FormIdEnum.amount])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdEuroSymbol} styleProps={{bg:"green.600"}}/>
       <InputGroup variant={"transaction"}>
@@ -300,7 +273,7 @@ function FormItemAmount() {
         <Text alignSelf={'center'}>Amount</Text>
       </InputLeftAddon>
         <Controller
-          name={TransactionFormIds.amount}
+          name={FormIdEnum.amount}
           control={control}
           rules={{
             required: 'No amount specified',
@@ -332,7 +305,7 @@ function FormItemAmount() {
           )}
         />
       </InputGroup>
-      <FormErrorMessage>{errors[TransactionFormIds.amount]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIdEnum.amount]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
@@ -341,14 +314,14 @@ function FormItemAmount() {
 function FormItemSubCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.subCategory} isInvalid={Boolean(errors[TransactionFormIds.subCategory])} marginY={3}>
+    <FormControl id={FormIdEnum.subCategory} isInvalid={Boolean(errors[FormIdEnum.subCategory])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdOutlineCategory} styleProps={{bg:"red.600"}}/>
       <InputGroup variant={"transaction"}>
       <InputLeftAddon>
         <Text alignSelf={'center'}>SubCategory</Text>
       </InputLeftAddon>
-        <Select {...register(TransactionFormIds.subCategory, {
+        <Select {...register(FormIdEnum.subCategory, {
           required: true,
           valueAsNumber: true
         })}
@@ -361,7 +334,7 @@ function FormItemSubCategory() {
 
         </Select>
       </InputGroup>
-      <FormErrorMessage>{errors[TransactionFormIds.subCategory]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIdEnum.subCategory]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
@@ -370,14 +343,14 @@ function FormItemSubCategory() {
 function FormItemCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.category} isInvalid={Boolean(errors[TransactionFormIds.category])} marginY={3}>
+    <FormControl id={FormIdEnum.category} isInvalid={Boolean(errors[FormIdEnum.category])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdCategory} styleProps={{bg:"red.600"}}/>
       <InputGroup variant={"transaction"}>
         <InputLeftAddon>
           <Text alignSelf={'center'}>Category</Text>
         </InputLeftAddon>
-        <Select {...register(TransactionFormIds.category, {
+        <Select {...register(FormIdEnum.category, {
           required: true,
           valueAsNumber: true
         })}
@@ -390,7 +363,7 @@ function FormItemCategory() {
 
         </Select>
       </InputGroup>
-      <FormErrorMessage>{errors[TransactionFormIds.category]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIdEnum.category]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
@@ -399,14 +372,14 @@ function FormItemCategory() {
 function FormItemDateTime() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.paidAt} isInvalid={Boolean(errors[TransactionFormIds.paidAt])} marginY={3}>
+    <FormControl id={FormIdEnum.paidAt} isInvalid={Boolean(errors[FormIdEnum.paidAt])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdCalendarMonth} styleProps={{bg:"yellow.600"}}/>
       <InputGroup variant={"transaction"}>
         <InputLeftAddon>
           <Text alignSelf={'center'}>Date</Text>
         </InputLeftAddon>
-        <Input {...register(TransactionFormIds.paidAt, {
+        <Input {...register(FormIdEnum.paidAt, {
           required: true,
         })}
           textAlign={'left'}
@@ -415,7 +388,7 @@ function FormItemDateTime() {
           type='date'
           defaultValue={formatDateToString(new Date())} />
       </InputGroup>
-      <FormErrorMessage>{errors[TransactionFormIds.paidAt]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIdEnum.paidAt]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
@@ -424,14 +397,14 @@ function FormItemDateTime() {
 function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.paidById} isInvalid={Boolean(errors[TransactionFormIds.paidById])} marginY={3}>
+    <FormControl id={FormIdEnum.paidById} isInvalid={Boolean(errors[FormIdEnum.paidById])} marginY={3}>
       <HStack>
         <CustomFormIcon icon={MdCategory} styleProps={{bg:"purple.600"}}/>
       <InputGroup variant={"transaction"}>
         <InputLeftAddon>
           <Text alignSelf={'center'}>Paid By</Text>
         </InputLeftAddon>
-        <Select {...register(TransactionFormIds.paidById, {
+        <Select {...register(FormIdEnum.paidById, {
           required: true,
         })}
           title="Select a user">
@@ -442,7 +415,7 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
           ))}
         </Select>
       </InputGroup>
-      <FormErrorMessage>{errors[TransactionFormIds.paidById]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIdEnum.paidById]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
@@ -451,11 +424,11 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
 function FormItemNote() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={TransactionFormIds.notes} isInvalid={Boolean(errors[TransactionFormIds.notes])} marginTop={8}>
+    <FormControl id={FormIdEnum.notes} isInvalid={Boolean(errors[FormIdEnum.notes])} marginTop={8}>
       <HStack>
         <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"orange.600",}}/>
       <InputGroup variant={"transactionNote"}>
-        <Textarea {...register(TransactionFormIds.notes, {
+        <Textarea {...register(FormIdEnum.notes, {
           required: false
         })}
           placeholder='Add a note'
@@ -463,25 +436,13 @@ function FormItemNote() {
           resize={"none"}
         />
       </InputGroup>
-      <FormErrorMessage>{errors[TransactionFormIds.notes]?.message?.toString()}</FormErrorMessage>
+      <FormErrorMessage>{errors[FormIdEnum.notes]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
 }
 
-function formatDateToString(date: Date) {
-  const formattedDate = new Date(date).toLocaleDateString('en-ca', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
-  })
-  return formattedDate
-}
-
 export {
-  type TFormTransaction,
-  type TFormTransactionDetails,
-  TransactionFormIds,
   FormItemId,
   FormItemName,
   FormItemAmount,
@@ -490,6 +451,5 @@ export {
   FormItemSubCategory,
   FormItemDateTime,
   FormItemPaidBy,
-  FormItemNote,
-  formatDateToString
+  FormItemNote
 }
