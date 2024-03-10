@@ -4,7 +4,7 @@ import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(inputAnatomy.keys)
 
-const custom = definePartsStyle({
+export const base = definePartsStyle({
   group: {
     borderBottom: "1px solid",
     borderBottomColor: "whiteAlpha.300",
@@ -42,14 +42,10 @@ const custom = definePartsStyle({
   }
 })
 
-const transaction  = definePartsStyle(
-  custom,
-)
-
 const transactionNote = definePartsStyle({
-  ...custom,
+  ...base,
   group: {
-    ...custom.group,
+    ...base.group,
     border: "1px solid",
     borderWidth: "1px",
     borderColor: "whiteAlpha.300",
@@ -76,7 +72,7 @@ const login = definePartsStyle({
 
 export const inputTheme = defineMultiStyleConfig({
   variants: {
-    transaction,
+    transaction: base,
     transactionNote,
     login,
   },

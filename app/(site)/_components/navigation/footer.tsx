@@ -30,10 +30,9 @@ export default function Footer() {
       justifyContent={'space-evenly'}>
       {linkItems.map((linkItem, index) => (
         <Button key={index} href={linkItem.href} as={Link} w='100%' h='100%'
-          variant='none'
+          variant='footer'
           borderTopColor={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 'teal.500' : 'transparent'}
           borderTopWidth={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 2 : 0}
-          borderRadius={0}
           flexDirection={'column'}>
           <Icon as={linkItem.icon} boxSize={{base: 5, md: 6}} />
           <Text mt={2} fontSize={{base: 'xs', md: 'sm'}} display={{base: 'none', md: 'block'}}

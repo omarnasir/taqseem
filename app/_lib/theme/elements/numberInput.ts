@@ -1,34 +1,18 @@
+import { base } from './input'
+
 import { numberInputAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 
 const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(numberInputAnatomy.keys)
 
-const custom = definePartsStyle({
+const transaction = definePartsStyle({
   field: {
-    borderRadius: "none",
-    _invalid: {
-      borderColor: "rgba(155, 25, 30, 1)",
-      borderBottomWidth: "2px",
-    },
-    fontSize: {
-      base: "md",
-      md: "lg",
-    },
-    background: "transparent",
-    paddingLeft: "2",
-    borderLeftRadius: "0px",
+    ...base.field,
     _disabled: {
       background: "rgba(5,5,5, 1)",
-    },
-    _focus: {
-      borderColor: "gray",
-      borderBottomWidth: "1px",
-    },
-    _autofill: {
-      transition: "background-color 5000s ease-in-out 0s",
     },
   }
 })
 
-export const numberTheme = defineMultiStyleConfig({ variants: { transaction: custom } })
+export const numberTheme = defineMultiStyleConfig({ variants: { transaction } })
