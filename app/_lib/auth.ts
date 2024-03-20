@@ -6,8 +6,11 @@ import prisma from "@/app/_lib/db/prisma"
 
 import { verifyPassword } from "@/app/_lib/utils/hashing"
 
+import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next"
+import type { NextAuthOptions } from "next-auth"
+import { getServerSession } from "next-auth"
 
-export const auth = NextAuth({
+export const config = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -66,4 +69,11 @@ export const auth = NextAuth({
       return session
     }
   }
-})
+} satisfies NextAuthOptions
+
+// Use it in server contexts
+export function authServer(...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []) {
+  return getServerSession(...args, config)
+}
+
+export const auth = NextAuth(config) 

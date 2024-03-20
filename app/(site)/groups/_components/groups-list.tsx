@@ -1,3 +1,4 @@
+"use client"
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -20,11 +21,8 @@ import { CustomCardIcon } from '@/app/(site)/_components/cardIcon';
 
 
 export default function GroupsList(
-  { groups, setGroups }:
-    {
-      groups: GroupData[],
-      setGroups: React.Dispatch<React.SetStateAction<GroupData[]>>
-    }) {
+  { groups }: { groups: GroupData[] }) 
+{
   const { data: sessionData } = useSession();
   const router = useRouter();
 
@@ -36,7 +34,7 @@ export default function GroupsList(
     if (res.success) {
       const groupName = groups.find(g => g.id === id)?.name
       addToast(`Group ${groupName} removed`, null, 'success')
-      setGroups(groups.filter(group => group.id !== id))
+      router.refresh()
     }
     else {
       addToast('Cannot delete group.', res.error, 'error')
@@ -57,7 +55,7 @@ export default function GroupsList(
                 href={`/transactions?id=${group.id}`}
                 fontSize={'md'} letterSpacing={'wide'}
                 fontWeight={100}>{group.name}</Heading>
-              {group.createdById === sessionData!.user.id &&
+              {group.createdById === sessionData?.user.id &&
                 <ButtonGroup w='50%'>
                   <Button leftIcon={<MdManageAccounts />}
                     w='100%'

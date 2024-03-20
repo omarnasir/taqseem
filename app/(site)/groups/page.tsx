@@ -1,44 +1,21 @@
-"use client";
-import { Divider, Flex, Stack, Text, VStack } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+"use server";
+import { authServer } from "@/app/_lib/auth";
 
-import GroupsList from "./_components/groups-list";
-import AddGroup from "./_components/add-group";
-import { getAllGroupsByUserId } from "@/app/(site)/groups/_lib/user-service";
+import GroupsView from "./_components/view";
+import { getGroupsByUserId } from "@/app/_data/users";
 
-import { type GroupData } from "@/app/_types/model/groups";
-import Loading from "@/app/(site)/loading";
+export default async function GroupsPage() {
+  const session = await authServer();
+  let data;
 
-export default function GroupsPage() {
-  const { data: sessionData } = useSession();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [groups, setGroups] = useState<GroupData[]>([]);
+  try {
+    data = await getGroupsByUserId(session?.user?.id)
+  }
+  catch (e) {
+    console.error(e);
+  }
 
-  useEffect(() => {
-    if (sessionData) {
-      const fetchGroups = async () => {
-        await getAllGroupsByUserId(sessionData.user.id).then((res) => {
-          setGroups(res.data);
-          setLoading(false);
-        });
-      };
-      fetchGroups();
-    }
-  }, [sessionData]);
-
-  return loading ? (
-    <Loading />
-  ) : (
-    <Stack direction={'column'} spacing={4} display={'flex'}>
-      <VStack alignItems={'flex-start'} paddingX={{base: 0, md: 3}}>
-        <Text fontSize='lg' fontWeight='400'>Groups</Text>
-        <Text fontSize='sm' fontWeight='300'>Manage your groups.</Text>
-      </VStack>
-      <Divider />
-      <GroupsList {...{ groups: groups, setGroups: setGroups }} />
-      <Divider />
-      <AddGroup {...{ groups: groups, setGroups: setGroups }} />
-    </Stack >
+  return (data &&
+    <GroupsView groups={data} />
   );
 }

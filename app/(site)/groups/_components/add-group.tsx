@@ -1,32 +1,27 @@
 'use client'
+import { useRouter } from 'next/navigation'
 import {
   Heading,
   FormControl,
   FormErrorMessage,
   Input,
-  HStack,
   Button,
-  Box,
-  VStack,
   Card,
   CardBody,
   CardHeader,
-  CardFooter,
 } from "@chakra-ui/react";
 
 import { useForm, FieldValues } from "react-hook-form"
 import { useSession } from "next-auth/react";
 
 import { createGroup } from "@/app/(site)/groups/_lib/group-service";
-import { type GroupData } from "@/app/_types/model/groups";
 import { CustomToast } from "@/app/_components/toast";
 
 
-export default function AddGroup({ groups, setGroups }: {
-  groups: GroupData[],
-  setGroups: React.Dispatch<React.SetStateAction<GroupData[]>>
-}) {
+export default function AddGroup() 
+{
   const { data: sessionData } = useSession();
+  const router = useRouter();
 
   const { addToast } = CustomToast();
 
@@ -42,7 +37,7 @@ export default function AddGroup({ groups, setGroups }: {
       name: values.name,
     })
     if (response.success) {
-      setGroups([...groups, response.data!])
+      router.refresh()
     }
     else {
       addToast("Error creating group", response.error, "error")
