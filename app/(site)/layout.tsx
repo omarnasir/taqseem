@@ -39,7 +39,7 @@ export default function SiteLayout({
         flexDirection={'column'}
         position='absolute'
         overflow={'scroll'}
-        mt={1}
+        pt={heights.header}
         sx={{
           '&::-webkit-scrollbar': {
             display: 'none',
@@ -47,7 +47,7 @@ export default function SiteLayout({
           scrollbarWidth: 'none',
         }}
         pb={heights.footer}
-        top={heights.header}
+        top={0}
         bottom={heights.footer}>
         {children}
       </Container>

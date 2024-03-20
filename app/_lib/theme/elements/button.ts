@@ -26,9 +26,22 @@ export const buttonTheme = defineStyleConfig({
         textColor: 'black',
       },
     },
+    new: {
+      position: 'fixed',
+      alignSelf: 'flex-end',
+      zIndex: 10,
+      rounded: 'full',
+      bottom: '10vh',
+      bg: 'gray.300',
+      _disabled: {
+        bg: 'whiteAlpha.300',
+        textColor: 'black',
+      },
+
+    },
     add: {
       borderColor: 'whiteAlpha.200',
-      bg: 'whiteAlpha.800',
+      bg: 'gray.300',
       _disabled: {
         bg: 'whiteAlpha.300',
         textColor: 'black',

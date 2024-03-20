@@ -10,7 +10,7 @@ const transaction = definePartsStyle({
   },
   dialog: {
     _dark: {
-      bg: 'rgba(78, 77, 82, 0.1)',
+      bg: 'rgba(77, 77, 90, 0.2)',
       backdropFilter: 'blur(20px)'
     },
   },
@@ -22,7 +22,7 @@ const transaction = definePartsStyle({
   },
   overlay: {
     _dark: {
-      bg: 'blackAlpha.700'
+      bg: 'blackAlpha.800',
     },
   }
 })

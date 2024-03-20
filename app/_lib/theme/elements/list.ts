@@ -9,7 +9,7 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const transaction = definePartsStyle({
   item: {
     alignItems: 'center',
-    marginBottom: 2,
+    marginY: 2,
     rounded: 'md',
     paddingY: 3,
     paddingX: 4,
