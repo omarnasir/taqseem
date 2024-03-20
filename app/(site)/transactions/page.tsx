@@ -6,25 +6,25 @@ import { useSession } from 'next-auth/react';
 import { MdAdd } from "react-icons/md"
 
 import TransactionView from "./_components/view-transaction"
-import { AmountDisplay, DateDisplay, cardItemWidths, SummaryDisplay } from "./_components/transactions-list"
-import { type TTransactionWithDetails } from "@/app/_types/model/transactions";
+import { AmountDisplay, DateDisplay, cardItemWidths, SummaryDisplay } from "./_components/card-items"
+import { type TransactionWithDetails } from "@/app/_types/model/transactions";
 import { GroupWithMembers } from "@/app/_types/model/groups"
 import { getGroupDetails } from "@/app/(site)/groups/_lib/group-service"
-import { getTransactionsByUserAndGroupId } from "@/app/(site)/transactions/_lib/transactions-service";
+import { getTransactionsByUserAndGroupId, type GroupedTransactions } from "@/app/(site)/transactions/_lib/transactions-service";
 import Loading from "@/app/(site)/loading"
 import { getTransactionIcon } from "@/app/_lib/db/constants";
 
 import {
   Divider,
-  HStack,
-  VStack,
   Text,
   useDisclosure,
-  Button,
   ListItem,
   List,
   ListIcon,
+  Flex,
+  IconButton,
 } from "@chakra-ui/react"
+
 
 export default function GroupTransactions() {
   // get params from the router using url search
@@ -32,12 +32,12 @@ export default function GroupTransactions() {
   const groupId = searchParams.get('id');
 
   const { data: sessionData } = useSession();
-  const [transactions, setTransactions] = useState<TTransactionWithDetails[]>([]);
+  const [transactions, setTransactions] = useState<GroupedTransactions>([]);
   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure()
   const [group, setGroup] = useState<GroupWithMembers>();
   const [refreshTransactions, setRefreshTransactions] = useState<string>('');
-  const [selectedTransaction, setSelectedTransaction] = useState<TTransactionWithDetails>();
-  
+  const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
+
   const { onClick, buttonProps } = getButtonProps();
   const disclosureProps = getDisclosureProps({
     transaction: selectedTransaction,
@@ -50,53 +50,56 @@ export default function GroupTransactions() {
     }
     const fetchTransactions = async () => {
       const res = await getTransactionsByUserAndGroupId(groupId!, sessionData?.user.id!)
-      setTransactions(res.data);
+      if (res.data) setTransactions(res.data);
     }
     fetchGroupDetails();
     fetchTransactions();
   }, [groupId, sessionData, refreshTransactions]);
 
-  return (
-    group == undefined ? <Loading /> :
-      <VStack w='100%'>
-        <HStack w='100%' justifyContent={'space-between'}>
-          <VStack alignItems={'flex-start'}>
-            <Text fontSize='lg' fontWeight='300'>{group?.name}</Text>
-          </VStack>
-          <Button width={'6.5rem'} variant={'add'} size={'sm'}
-            leftIcon={<MdAdd />}
-            fontSize={'xs'} onClick={()=> {setSelectedTransaction(undefined); onClick()}}
-            {...buttonProps}>Add</Button>
-        </HStack>
-        <Divider marginY={1} />
-        <List w='100%' variant={'transaction'}>
-          {!!transactions &&
-            transactions.map((transaction) => (
-              <ListItem w='100%' key={transaction.id}
-                flexDirection={'row'} display={'flex'} justifyContent={'space-between'}
-                onClick={
-                  () => {
-                    setSelectedTransaction(transaction);
-                    onClick();
-                  }
-                }>
-                <DateDisplay paidAt={transaction.paidAt} />
-                <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='5' color='whiteAlpha.700'/>
-                <SummaryDisplay transaction={transaction} users={group?.users!} />
-                <AmountDisplay transactionDetails={transaction.transactionDetails} userId={sessionData!.user.id} />
-              </ListItem>
-            ))}
+  return (group == undefined ? <Loading /> :
+    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
+      <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
+        position={'sticky'} top={'-40px'}>{group?.name}</Text>
+      <IconButton variant={'new'} size={'lg'}
+          icon={<MdAdd />} 
+          onClick={() => { setSelectedTransaction(undefined); onClick() }}
+          {...buttonProps}>new</IconButton>
+      {transactions.map((yearData, index) => (
+        <List w='100%' variant={'transaction'} key={index}>
+          <Divider marginY={1} />
+          <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={600} color={'whiteAlpha.800'}>{yearData.year}</Text>
+          {yearData.data.map((monthData) => (
+            <>
+              <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={300} color={'whiteAlpha.600'}>{monthData.monthName}</Text>
+              {monthData.data.map((transaction) => (
+                <ListItem w='100%' key={transaction.id}
+                  flexDirection={'row'} display={'flex'} justifyContent={'space-between'}
+                  onClick={
+                    () => {
+                      setSelectedTransaction(transaction)
+                      onClick();
+                    }
+                  }>
+                  <DateDisplay paidAt={transaction.paidAt} />
+                  <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='5' color='whiteAlpha.700' />
+                  <SummaryDisplay transaction={transaction} users={group?.users!} />
+                  <AmountDisplay transactionDetails={transaction.transactionDetails} userId={sessionData!.user.id} />
+                </ListItem>
+              ))}
+            </>
+          ))}
         </List >
-        {isOpen &&
-          <TransactionView
-            {...{
-              disclosureProps,
-              isOpen, onCloseDrawer: onClose,
-              group: group!,
-              setRefreshTransactions,
-              transactionWithDetails: selectedTransaction,
-            }} />
-        }
-      </VStack>
+      ))}
+      {isOpen &&
+        <TransactionView
+          {...{
+            disclosureProps,
+            isOpen, onCloseDrawer: onClose,
+            group: group!,
+            setRefreshTransactions,
+            transactionWithDetails: selectedTransaction,
+          }} />
+      }
+    </Flex>
   )
 }

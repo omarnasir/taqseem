@@ -5,7 +5,16 @@ import {
 } from "@/app/_types/model/transactions";
 import { sendErrorResponse } from "@/app/api/error-response";
 
-type GETResponseType = NextResponse<{data: TransactionWithDetails[]} | undefined | null>
+export type GroupedTransactions = {
+  year: number,
+  data: {
+    month: number,
+    monthName: string,
+    data: TransactionWithDetails[]
+  }[]
+}[]
+
+type GETResponseType = NextResponse<{data: GroupedTransactions} | undefined | null>
 
 /**
  * GET /api/users/groups/transactions route
@@ -51,7 +60,27 @@ export async function GET(request: NextRequest):
       skip: cursor ? 1 : undefined
     });
     if (!transactions) throw new Error("No transactions found");
-    return NextResponse.json({ data: transactions }, { status: 200 });
+    
+    let groupedTransactions: GroupedTransactions = []
+    for (const transaction of transactions) {
+      const date = new Date(transaction.paidAt);
+      const month = date.getMonth()
+      const year = date.getFullYear()
+      if (!groupedTransactions.find((group) => group.year === year)) {
+        groupedTransactions.push({ year, data: [] })
+      }
+      const groupIndex = groupedTransactions.findIndex((group) => group.year === year)
+      if (!groupedTransactions[groupIndex].data.find((data) => data.month === month)) {
+        groupedTransactions[groupIndex].data.push({ month, monthName: date.toLocaleString('default', { month: 'long' }), data: [] })
+      }
+      const monthIndex = groupedTransactions[groupIndex].data.findIndex((data) => data.month === month)
+      groupedTransactions[groupIndex].data[monthIndex].data.push(transaction)
+    }
+    groupedTransactions.sort((a, b) => b.year - a.year)
+    for (const group of groupedTransactions) {
+      group.data.sort((a, b) => b.month - a.month)
+    }
+    return NextResponse.json({ data: groupedTransactions }, { status: 200 });
   } catch (e: any) {
     return sendErrorResponse({ statusText: e.message });
   }

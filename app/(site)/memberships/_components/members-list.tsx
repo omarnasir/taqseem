@@ -4,19 +4,10 @@ import {
   Text,
   CardBody,
   Card,
-  Flex,
-  Stack,
   useDisclosure,
-  Grid,
   SimpleGrid,
-  CardHeader,
   Heading,
-  CardFooter,
-  Spacer,
   VStack,
-  HStack,
-  Box,
-  Icon
 }
   from "@chakra-ui/react";
 import { MdPerson, MdPersonRemove } from 'react-icons/md'

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   VStack,
   Text,
@@ -6,14 +7,12 @@ import {
 
 import { type TransactionWithDetails } from "@/app/_types/model/transactions";
 import { type UserBasicData } from "@/app/_types/model/users";
-import { useMemo } from 'react';
 
 const cardItemWidths = {
-  date: '10%',
-  icon: '10%',
-  desc: '50%',
+  date: '7%',
+  icon: '15%',
+  desc: '53%',
   amount: '25%',
-  delete: '5%',
 }
 
 function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
@@ -68,6 +67,7 @@ function SummaryDisplay({ transaction, users }:
     </VStack>
   )
 }
+
 
 export {
   cardItemWidths,
