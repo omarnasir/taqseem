@@ -1,48 +1,30 @@
-import { getToken } from "next-auth/jwt"
-import { withAuth } from "next-auth/middleware"
-import { NextResponse } from "next/server"
+import NextAuth from 'next-auth';
+import { authConfig } from "@/auth"
 
-export default withAuth(
-  async function middleware(req) {
-    const token = await getToken({ req })
-    const isAuth = !!token
-    const isAuthPage =
-      req.nextUrl.pathname.startsWith("/login") ||
-      req.nextUrl.pathname.startsWith("/register")
-    const isHomeRoute = req.nextUrl.pathname === "/"
+const DEFAULT_REDIRECT = "/dashboard";
+const AUTH_ROUTES = ["/login", "/register"];
+const ROOT = "/";
 
-    if (isAuthPage) {
-      if (isAuth) {
-        return NextResponse.redirect(new URL("/dashboard", req.url))
-      }
-      return null
+const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
+  const { nextUrl } = req;
+
+  const isAuthenticated = !!req.auth;
+  const isAuthRoute = AUTH_ROUTES.includes(nextUrl.pathname);
+  const isRoot = nextUrl.pathname === ROOT;
+
+  if (isAuthenticated) {
+    if (isAuthRoute || isRoot) {
+      return Response.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
     }
-    else if (isHomeRoute && isAuth) {
-        return NextResponse.redirect(new URL("/dashboard", req.url))
-      }
-
-    if (!isAuth) {
-      let from = req.nextUrl.pathname;
-      if (req.nextUrl.search) {
-        from += req.nextUrl.search;
-      }
-      return NextResponse.redirect(
-        new URL(`/login?from=${encodeURIComponent(from)}`, req.url)
-      );
-    }
-  },
-  {
-    callbacks: {
-      async authorized() {
-        // This is a work-around for handling redirect on auth pages.
-        // We return true here so that the middleware function above
-        // is always called.
-        return true
-      },
-    },
   }
-)
+  if (!isAuthenticated && !isAuthRoute) {
+    return Response.redirect(new URL('/login', nextUrl));
+  }
+});
+
 
 export const config = {
-  matcher: ["/:path*", "/((?!api|_next|static|_next/image|favicon.ico).*)"]
+  matcher: ["/((?!api|_next|static|_next/image|favicon.ico).*)"]
 }

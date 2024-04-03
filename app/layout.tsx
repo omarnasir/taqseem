@@ -2,7 +2,7 @@ import './globals.css';
 
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'
-import { getServerSession } from 'next-auth';
+import { auth } from '@/auth';
 
 import AuthProvider from '@/app/_lib/providers/AuthProvider';
 import ChakraProvider from '@/app/_lib/providers/ChakraProvider';
@@ -18,7 +18,7 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const session = await getServerSession();
+	const session = await auth();
 
 	return (
 		<html lang="en" data-theme='dark'>

@@ -52,7 +52,7 @@ export default function NavbarMenu(props: {
             </MenuItem>
           ))}
           <MenuItem fontSize={'sm'} as='button' padding={4}
-          icon={<MdLogout />} onClick={handleSignOutAuth}>Logout</MenuItem>
+          icon={<MdLogout />} onClick={async () => await handleSignOutAuth()}>Logout</MenuItem>
         </MenuGroup>
       </MenuList>
     </Menu>

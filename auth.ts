@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import type { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from "next-auth/providers/credentials"
 
 import { PrismaAdapter } from "@auth/prisma-adapter"
@@ -6,21 +7,37 @@ import prisma from "@/app/_lib/db/prisma"
 
 import { verifyPassword } from "@/app/_lib/utils/hashing"
 
-import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next"
-import type { NextAuthOptions } from "next-auth"
-import { getServerSession } from "next-auth"
 
-export const config = {
-  adapter: PrismaAdapter(prisma),
+export const authConfig = {
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days  
   },
   pages: {
-    signIn: "/login",
+   signIn: "/login",
   },
+  callbacks: {
+   authorized({ auth }) {
+    const isAuthenticated = !!auth?.user;
+ 
+    return isAuthenticated;
+   },
+  },
+  providers: [],
+ } satisfies NextAuthConfig;
+
+
+
+ export const {
+  auth,
+  signIn,
+  signOut,
+  handlers: { GET, POST },
+ } = NextAuth({
+  ...authConfig,
+  adapter: PrismaAdapter(prisma),
+
   debug: true,
-  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       id: 'credentials',
@@ -29,7 +46,7 @@ export const config = {
         email: {},
         password: {}
       },
-      async authorize(credentials: any, req: any) {
+      async authorize(credentials: any) {
         try {
           // Add logic here to look up the user from the credentials supplied
           if (credentials.email === "" || credentials.password === "") {
@@ -69,11 +86,4 @@ export const config = {
       return session
     }
   }
-} satisfies NextAuthOptions
-
-// Use it in server contexts
-export function authServer(...args: [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]] | [NextApiRequest, NextApiResponse] | []) {
-  return getServerSession(...args, config)
-}
-
-export const auth = NextAuth(config) 
+})

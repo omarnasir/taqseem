@@ -1,2 +1,1 @@
-import { auth } from '@/app/_lib/auth';
-export { auth as GET, auth as POST };
+export { GET, POST } from '@/auth';

@@ -1,15 +1,15 @@
 "use server";
-import { authServer } from "@/app/_lib/auth";
+import { auth } from "@/auth";
 
 import GroupsView from "./_components/view";
 import { getGroupsByUserId } from "@/app/_data/users";
 
 export default async function GroupsPage() {
-  const session = await authServer();
+  const session = await auth();
   let data;
 
   try {
-    data = await getGroupsByUserId(session?.user?.id)
+    data = await getGroupsByUserId(session?.user?.id as string)
   }
   catch (e) {
     console.error(e);

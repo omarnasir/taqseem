@@ -22,11 +22,12 @@ export default function Signin() {
 
   async function onSubmit(values: FieldValues) {
     clearErrors()
-    const response = await handleSignInAuth({
-      email: values.email,
-      password: values.password,
-    })
-    if (!response) {
+    try {
+      await handleSignInAuth({
+        email: values.email,
+        password: values.password,
+      })
+    } catch (error) {
       addToast('Login Error. Check your details.', null, 'error');
     }
   }

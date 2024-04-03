@@ -1,4 +1,5 @@
-import { signIn, signOut } from 'next-auth/react';
+'use server'
+import { signIn, signOut } from '@/auth';
 import { type ServiceResponseType } from '@/app/_lib/base-service';
 
 type LoginData = {
@@ -13,17 +14,12 @@ type RegisterData = {
 
 async function handleSignInAuth(
   { email, password }: LoginData
-) : Promise<boolean> {
-  let response = await signIn('credentials', {
-    email: email,
-    password: password,
-    redirect: false,
-  });
-  if (response?.ok) {
-    window.location.href = '/dashboard'
-    return true
-  }
-  return false
+) {
+    await signIn('credentials', {
+      email: email,
+      password: password,
+      redirectTo: '/',
+    });
 }
 
 async function handlerRegisterAuth(
@@ -47,8 +43,8 @@ async function handlerRegisterAuth(
   return { success: false, error: response.statusText }
 }
 
-function handleSignOutAuth(): Promise<void> {
-  return signOut({ callbackUrl: '/' })
+async function handleSignOutAuth() {
+  await signOut()
 }
 
 export {
