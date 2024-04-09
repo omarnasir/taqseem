@@ -1,16 +1,18 @@
 'use server'
 import { signIn, signOut } from '@/auth';
-import { type ServiceResponseType } from '@/app/_lib/base-service';
+import { registerNewUser  } from '@/app/_db/auth-register';
 
 type LoginData = {
   email: FormDataEntryValue,
   password: FormDataEntryValue
 }
+
 type RegisterData = {
   name: FormDataEntryValue,
   email: FormDataEntryValue,
   password: FormDataEntryValue,
 }
+
 
 async function handleSignInAuth(
   { email, password }: LoginData
@@ -24,23 +26,22 @@ async function handleSignInAuth(
 
 async function handlerRegisterAuth(
   { name, email, password }: RegisterData
-): Promise<ServiceResponseType> {
-  const response = await fetch(`/api/auth/register`, {
-    method: 'POST',
-    body: JSON.stringify({
-      name: name,
-      email: email,
-      password: password,
-    }),
+): Promise<string | void> {
+  const response = await registerNewUser({
+    name: name.toString(),
+    email: email.toString(),
+    password: password.toString(),
   });
-  if (response.ok) {
+  if (response.status) {
     await handleSignInAuth({
       email: email,
       password: password,
     })
-    return { success: true }
   }
-  return { success: false, error: response.statusText }
+  else {
+    return response.message;
+  }
+
 }
 
 async function handleSignOutAuth() {

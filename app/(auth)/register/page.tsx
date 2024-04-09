@@ -26,8 +26,8 @@ export default function Register() {
       email: values.email,
       password: values.password,
     })
-    if (!response.success) {
-      addToast('Error in Registering', response.error, 'error');
+    if (response) {
+      addToast('Error in Registering', response, 'error');
     }
     else {
       addToast('Signup successful!', null, 'success')

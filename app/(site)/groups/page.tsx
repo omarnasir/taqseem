@@ -2,7 +2,7 @@
 import { auth } from "@/auth";
 
 import GroupsView from "./_components/view";
-import { getGroupsByUserId } from "@/app/_actions/users";
+import { getGroupsByUserId } from "@/app/_db/users";
 
 export default async function GroupsPage() {
   const session = await auth();
