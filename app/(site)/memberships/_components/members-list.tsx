@@ -14,11 +14,11 @@ import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
 import { deleteMembership } from "@/app/(site)/memberships/_lib/memberships-service";
 import { CustomToast } from "@/app/_components/toast";
-import Confirm from "@/app/(site)/_components/confirm";
+import Confirm from "@/app/_components/confirm";
 import { type UserBasicData } from "@/app/_types/model/users";
 import { GroupData } from "@/app/_types/model/groups";
 import { useSession } from "next-auth/react";
-import { CustomCardIcon } from "@/app/(site)/_components/cardIcon";
+import { CustomCardIcon } from "@/app/_components/cardIcon";
 
 type GroupDetailsProps = {
   group: GroupData,

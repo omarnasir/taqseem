@@ -1,3 +1,4 @@
+'use server'
 import prisma from "@/app/_lib/db/prisma";
 import { GroupData } from "@/app/_types/model/groups";
 

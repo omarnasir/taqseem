@@ -33,7 +33,7 @@ export default function AddGroup()
 
   async function onSubmit(values: FieldValues) {
     const response = await createGroup({
-      createdById: sessionData!.user.id,
+      createdById: sessionData?.user?.id as string,
       name: values.name,
     })
     if (response.success) {

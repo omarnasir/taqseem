@@ -60,7 +60,7 @@ import {
   from "@/app/_types/model/transactions";
 import { TransactionFormIdEnum as FormIdEnum, FormTransaction, getTransactionFormDefaultValues, mapFormToTransaction, mapTransactionToForm, formatDateToString } from "@/app/(site)/transactions/_lib/transactions-helper";
 import { CustomToast } from "@/app/_components/toast";
-import Confirm from "@/app/(site)/_components/confirm";
+import Confirm from "@/app/_components/confirm";
 import { UserBasicData } from "@/app/_types/model/users";
 
 const steps = [

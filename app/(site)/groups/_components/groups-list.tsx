@@ -16,8 +16,8 @@ import { type GroupData } from "@/app/_types/model/groups";
 import { deleteGroup } from '@/app/(site)/groups/_lib/group-service';
 import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
-import Confirm from '@/app/(site)/_components/confirm';
-import { CustomCardIcon } from '@/app/(site)/_components/cardIcon';
+import Confirm from '@/app/_components/confirm';
+import { CustomCardIcon } from '@/app/_components/cardIcon';
 
 
 export default function GroupsList(
@@ -30,7 +30,7 @@ export default function GroupsList(
   const { addToast } = CustomToast();
 
   async function onRemoveGroup(id: string) {
-    const res = await deleteGroup({ id: id, createdById: sessionData!.user.id })
+    const res = await deleteGroup({ id: id, createdById: sessionData?.user?.id as string })
     if (res.success) {
       const groupName = groups.find(g => g.id === id)?.name
       addToast(`Group ${groupName} removed`, null, 'success')
@@ -55,7 +55,7 @@ export default function GroupsList(
                 href={`/transactions?id=${group.id}`}
                 fontSize={'md'} letterSpacing={'wide'}
                 fontWeight={100}>{group.name}</Heading>
-              {group.createdById === sessionData?.user.id &&
+              {group.createdById === sessionData?.user?.id &&
                 <ButtonGroup w='50%'>
                   <Button leftIcon={<MdManageAccounts />}
                     w='100%'
