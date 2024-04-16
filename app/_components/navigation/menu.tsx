@@ -18,7 +18,7 @@ import {
   MenuItem,
   MenuList
 } from "@chakra-ui/react";
-import { handleSignOutAuth } from '@/app/(auth)/_lib/auth-service';
+import { signOutAction } from '@/app/(auth)/_lib/auth-actions';
 
 export default function NavbarMenu(props: {
   userName: string
@@ -52,7 +52,7 @@ export default function NavbarMenu(props: {
             </MenuItem>
           ))}
           <MenuItem fontSize={'sm'} as='button' padding={4}
-          icon={<MdLogout />} onClick={async () => await handleSignOutAuth()}>Logout</MenuItem>
+          icon={<MdLogout />} onClick={async () => await signOutAction()}>Logout</MenuItem>
         </MenuGroup>
       </MenuList>
     </Menu>

@@ -10,7 +10,7 @@ import {
 import { useForm, FieldValues, FormProvider } from "react-hook-form"
 
 import { NameFormItem, EmailFormItem, PasswordFormItem } from '@/app/(auth)/_components/form-items';
-import { handlerRegisterAuth } from '@/app/(auth)/_lib/auth-service';
+import { registerAction } from '@/app/(auth)/_lib/auth-actions';
 import { CustomToast } from '@/app/_components/toast';
 
 
@@ -21,7 +21,7 @@ export default function Register() {
   const { handleSubmit, formState } = methods
 
   async function onSubmit(values: FieldValues) {
-    const response = await handlerRegisterAuth({
+    const response = await registerAction({
       name: values.name,
       email: values.email,
       password: values.password,

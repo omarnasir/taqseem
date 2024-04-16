@@ -5,22 +5,22 @@ import prisma from '@/app/_lib/db/prisma';
 
 export async function registerNewUser({ name, email, password }:
   { name: string, email: string, password: string })
-  : Promise<{ status: boolean, message?: string }> {
+  : Promise<boolean | void> {
+  // validate email and password
+  if (!email || !password) {
+    throw new Error("Email and password are required");
+  }
+  // Check if user already exists
+  const user = await prisma.users.findUnique({
+    where: {
+      email: email
+    }
+  });
+  if (user) {
+    throw new Error("User already exists");
+  }
+    
   try {
-    // validate email and password
-    if (!email || !password) {
-      return {status: false, message: "Email and password are required"};
-    }
-    // Check if user already exists
-    const user = await prisma.users.findUnique({
-      where: {
-        email: email
-      }
-    });
-    if (user) {
-      return {status: false, message: "User already exists"};
-    }
-
     // add user to db
     await prisma.users.create({
       select: {
@@ -34,11 +34,11 @@ export async function registerNewUser({ name, email, password }:
         hashedPassword: await hashPassword(password),
       }
     });
-    return {status: true};
+    return true;
   }
   catch (e: any) {
     console.log(e.message);
-    return {status: false };
+    throw new Error("Error creating user");
   }
 
 }
