@@ -13,7 +13,7 @@ import {
 import { MdPersonRemove, MdManageAccounts, MdGroups } from "react-icons/md"
 
 import { type GroupData } from "@/app/_types/model/groups";
-import { deleteGroup } from '@/app/(site)/groups/_lib/group-service';
+import { deleteGroupAction } from '@/app/(site)/groups/_lib/group-actions';
 import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
 import Confirm from '@/app/_components/confirm';
@@ -30,7 +30,7 @@ export default function GroupsList(
   const { addToast } = CustomToast();
 
   async function onRemoveGroup(id: string) {
-    const res = await deleteGroup({ id: id, createdById: sessionData?.user?.id as string })
+    const res = await deleteGroupAction(id);
     if (res.success) {
       const groupName = groups.find(g => g.id === id)?.name
       addToast(`Group ${groupName} removed`, null, 'success')

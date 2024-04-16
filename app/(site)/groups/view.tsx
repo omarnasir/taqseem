@@ -1,8 +1,8 @@
 "use client";
 import { Divider, Stack, Text, VStack } from "@chakra-ui/react";
 
-import GroupsList from "./groups-list";
-import AddGroup from "./add-group";
+import GroupsList from "./_components/groups-list";
+import AddGroup from "./_components/add-group";
 
 import { type GroupData } from "@/app/_types/model/groups";
 

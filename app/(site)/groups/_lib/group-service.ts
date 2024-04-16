@@ -1,44 +1,51 @@
+'use server'
 import { 
+  GroupWithMembers,
   type GroupData, 
-  type CreateGroup,
-  type GroupDeleteArgs,
-  type GroupWithMembers
 } from '@/app/_types/model/groups';
-import { responseHandler, type ServiceResponseType } from '@/app/_lib/base-service';
+import { type Response } from '@/app/_types/response';
+import { auth } from '@/auth';
+import { getGroupsByUserId } from '@/app/_data/users';
+import { getGroupById } from '@/app/_data/groups';
 
-type CreateOrDeleteResponseType = ServiceResponseType & {
-  data?: GroupData;
+type GetAllGroupsResponseType = Omit<Response, 'data'> & {
+  data?: GroupData[];
 }
-type GETResponseType = ServiceResponseType & {
+
+type GetGroupResponseType = Omit<Response, 'data'> & {
   data?: GroupWithMembers
 }
 
-async function getGroupDetails(id: string): 
-  Promise<GETResponseType> {
-  const response = await fetch(`/api/groups/?id=${id}`);
-  return await responseHandler(response);
+async function getAllGroupsService(): Promise<GetAllGroupsResponseType> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+  try {
+    const response = await getGroupsByUserId(session.user.id as string)
+    return { success: true, data: response };
+  }
+  catch (e) {
+    return { success: false, error: e.message };
+  }
 }
 
-async function createGroup(reqData: CreateGroup
-): Promise<CreateOrDeleteResponseType> {
-  const response = await fetch(`/api/groups`, {
-    method: 'POST',
-    body: JSON.stringify(reqData),
-  });
-  return await responseHandler(response);
+async function getGroupDetailsService(groupId: string): Promise<GetGroupResponseType> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+  try {
+    const response = await getGroupById(groupId, session.user.id as string);
+
+    return { success: true, data: response };
+  }
+  catch (e) {
+    return { success: false, error: e.message };
+  }
 }
 
-async function deleteGroup(reqData: GroupDeleteArgs
-): Promise<CreateOrDeleteResponseType> {
-  const response = await fetch(`/api/groups`, {
-    method: 'DELETE',
-    body: JSON.stringify(reqData),
-  });
-  return await responseHandler(response);
-}
-
-export {
-  getGroupDetails,
-  createGroup,
-  deleteGroup
-}
+export { 
+  getAllGroupsService, 
+  getGroupDetailsService 
+};

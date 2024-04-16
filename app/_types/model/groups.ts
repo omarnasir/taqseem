@@ -19,5 +19,5 @@ const groupDeleteArgs = Prisma.validator<Prisma.GroupsDefaultArgs>()({
 export type GroupData = Prisma.GroupsGetPayload<typeof groupData>
 export type GroupWithOwnership = Prisma.GroupsGetPayload<typeof groupsWithOwnership>
 export type GroupWithMembers = Prisma.GroupsGetPayload<typeof groupData> & {users: UserBasicData[]}
-export type CreateGroup = Prisma.GroupsCreateArgs['data']
+export type CreateGroup = Prisma.GroupsUncheckedCreateInput
 export type GroupDeleteArgs = Prisma.GroupsGetPayload<typeof groupDeleteArgs>

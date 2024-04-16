@@ -1,21 +1,15 @@
 "use server";
-import { auth } from "@/auth";
+import GroupsView from "./view";
+import { getAllGroupsService } from "./_lib/group-service";
 
-import GroupsView from "./_components/view";
-import { getGroupsByUserId } from "@/app/_db/users";
 
 export default async function GroupsPage() {
-  const session = await auth();
-  let data;
-
-  try {
-    data = await getGroupsByUserId(session?.user?.id as string)
-  }
-  catch (e) {
-    console.error(e);
+  const response = await getAllGroupsService();
+  if (!response.success) {
+    return <div>No groups found!</div>;
   }
 
-  return (data &&
-    <GroupsView groups={data} />
+  return (response.data &&
+    <GroupsView groups={response.data} />
   );
 }

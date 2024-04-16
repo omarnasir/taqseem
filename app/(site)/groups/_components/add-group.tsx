@@ -12,15 +12,12 @@ import {
 } from "@chakra-ui/react";
 
 import { useForm, FieldValues } from "react-hook-form"
-import { useSession } from "next-auth/react";
-
-import { createGroup } from "@/app/(site)/groups/_lib/group-service";
+import { createGroupAction} from "@/app/(site)/groups/_lib/group-actions";
 import { CustomToast } from "@/app/_components/toast";
 
 
 export default function AddGroup() 
 {
-  const { data: sessionData } = useSession();
   const router = useRouter();
 
   const { addToast } = CustomToast();
@@ -32,10 +29,7 @@ export default function AddGroup()
   } = useForm()
 
   async function onSubmit(values: FieldValues) {
-    const response = await createGroup({
-      createdById: sessionData?.user?.id as string,
-      name: values.name,
-    })
+    const response = await createGroupAction(values.name);
     if (response.success) {
       router.refresh()
     }
