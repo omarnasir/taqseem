@@ -1,32 +1,26 @@
 'use client'
+import { useRouter } from "next/navigation";
 import {
-  Box,
   Button,
   Card,
   CardBody,
   CardHeader,
   FormControl,
   FormErrorMessage,
-  HStack,
   Heading,
   Input,
-  VStack,
 }
   from "@chakra-ui/react";
-import { type UserBasicData } from "@/app/_types/model/users";
 import { FieldValues, useForm } from "react-hook-form";
-import { createMembership } from "@/app/(site)/memberships/_lib/memberships-service";
+import { createMembershipAction } from "../_lib/memberships-actions";
 import { CustomToast } from '@/app/_components/toast';
 import { GroupData } from "@/app/_types/model/groups";
 
 export default function GroupAddUser(
-  { group, users, setUsers }: {
-    group: GroupData,
-    users: UserBasicData[],
-    setUsers: React.Dispatch<React.SetStateAction<UserBasicData[]>>
-  }
+  { group }: { group: GroupData }
 ) {
   const { addToast } = CustomToast();
+  const router = useRouter();
   const {
     handleSubmit,
     register,
@@ -35,17 +29,17 @@ export default function GroupAddUser(
   } = useForm()
 
   async function onSubmit(values: FieldValues) {
-    const response = await createMembership({
+    const response = await createMembershipAction({
       groupId: group.id,
       userEmail: values.email
     });
     if (response.success) {
-      setUsers([...users, response.data])
       addToast("User added", `${values.email} was added to group ${group.name}`, "success")
       reset()
+      router.refresh()
     }
     else {
-      addToast("Error creating group", response.error, "error")
+      addToast("Error adding member", response.error, "error")
     }
   }
 

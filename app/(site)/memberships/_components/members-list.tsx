@@ -1,4 +1,6 @@
 'use client'
+
+import { useRouter } from "next/navigation";
 import {
   Button,
   Text,
@@ -12,7 +14,7 @@ import {
   from "@chakra-ui/react";
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
-import { deleteMembership } from "@/app/(site)/memberships/_lib/memberships-service";
+import { deleteMembershipAction } from "../_lib/memberships-actions";
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/_components/confirm";
 import { type UserBasicData } from "@/app/_types/model/users";
@@ -20,23 +22,19 @@ import { GroupData } from "@/app/_types/model/groups";
 import { useSession } from "next-auth/react";
 import { CustomCardIcon } from "@/app/_components/cardIcon";
 
-type GroupDetailsProps = {
-  group: GroupData,
-  users: UserBasicData[],
-  setUsers: React.Dispatch<React.SetStateAction<UserBasicData[]>>
-}
 
-export default function GroupMembersList({ group, users, setUsers
-}: GroupDetailsProps) {
+export default function GroupMembersList({ group, users
+}: { group: GroupData, users: UserBasicData[] }) {
+  const router = useRouter();
   const { data: sessionData } = useSession();
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { addToast } = CustomToast()
 
   async function onRemoveUser(userId: string) {
-    const res = await deleteMembership({ groupId: group.id, userId: userId })
+    const res = await deleteMembershipAction(group.id, userId)
     if (res.success) {
       addToast('User removed from group', null, 'success')
-      setUsers(users.filter(user => user.id !== userId))
+      router.refresh()
     }
     else {
       addToast('Error removing user from group', res.error, 'error')
@@ -45,7 +43,7 @@ export default function GroupMembersList({ group, users, setUsers
 
   return (
       <SimpleGrid spacing={1}>
-        {users.length > 0 ? users.map((user) => (
+        {!!users ? users.map((user) => (
           <Card key={user.id}
             size={{ base: 'xs', md: 'sm' }}
             variant={'infoCard'}>
