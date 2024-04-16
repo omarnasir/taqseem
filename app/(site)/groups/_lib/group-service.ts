@@ -5,8 +5,7 @@ import {
 } from '@/app/_types/model/groups';
 import { type Response } from '@/app/_types/response';
 import { auth } from '@/auth';
-import { getGroupsByUserId } from '@/app/_data/users';
-import { getGroupById } from '@/app/_data/groups';
+import { getGroupsByUserId, getGroupById } from '@/app/_data/groups';
 
 type GetAllGroupsResponseType = Omit<Response, 'data'> & {
   data?: GroupData[];
