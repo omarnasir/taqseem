@@ -14,7 +14,7 @@ import {
   from "@chakra-ui/react";
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
-import { deleteMembershipAction } from "../_lib/memberships-actions";
+import { deleteMembershipAction } from "@/app/_actions/memberships";
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/_components/confirm";
 import { type UserBasicData } from "@/app/_types/model/users";

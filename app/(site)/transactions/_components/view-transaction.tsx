@@ -50,9 +50,8 @@ import {
   FormItemPaidBy,
   FormItemNote
 } from "./form-items";
-import { type GroupWithMembers } from "@/app/_types/model/groups"
-import { createTransactionAction, updateTransactionAction, deleteTransactionAction } 
-from "@/app/(site)/transactions/_lib/transactions-actions"
+import { type GroupWithMembers } from "@/app/_types/model/groups";
+import { createTransactionAction, updateTransactionAction, deleteTransactionAction } from "@/app/_actions/transactions";
 import {
   type CreateTransaction,
   type CreateTransactionDetails,
@@ -60,15 +59,113 @@ import {
   type TransactionWithDetails
 }
   from "@/app/_types/model/transactions";
-import { TransactionFormIdEnum as FormIdEnum, FormTransaction, getTransactionFormDefaultValues, mapFormToTransaction, mapTransactionToForm, formatDateToString } from "@/app/(site)/transactions/_lib/transactions-helper";
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/_components/confirm";
 import { UserBasicData } from "@/app/_types/model/users";
+
+// Declare enum for form field ids to avoid hardcoding strings.
+enum FormIdEnum {
+  id = 'id',
+  name = 'name',
+  amount = 'amount',
+  strategy = 'strategy',
+  transactionDetails = 'transactionDetails',
+  category = 'category',
+  subCategory = 'subCategory',
+  paidAt = 'paidAt',
+  paidById = 'paidById',
+  notes = 'notes'
+}
+
+// Reuse auto-generated types from Prisma.
+// Override amount fields to be string instead of number to match form input type.
+type FormTransactionDetails = Omit<CreateTransactionDetails, "amount"> & {
+  amount: string
+}
+
+interface FormTransaction extends Omit<CreateTransaction, "transactionDetails" | "amount"> {
+  amount: string,
+  transactionDetails: FormTransactionDetails[]
+}
 
 const steps = [
   { title: 'Fill in details' },
   { title: 'Decide how to split' },
 ]
+
+/**
+ * Format date to string.
+ * @param date - Date object.
+ * @returns Formatted date string.
+ */
+function formatDateToString(date: Date) {
+  const formattedDate = new Date(date).toLocaleDateString('en-ca', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+  })
+  return formattedDate
+}
+
+/**
+ * Map form data to transaction object.
+ * @param form - Form data.
+ * @param userDetails - Transaction details.
+ * @param groupId - Group id.
+ * @returns Transaction object.
+  */
+function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransactionDetails[], groupId: string): CreateTransaction | UpdateTransaction {
+  return {
+    ...form,
+    amount: parseFloat(form.amount),
+    groupId: groupId,
+    paidAt: new Date(form.paidAt as string).toISOString(),
+    transactionDetails: userDetails
+  }
+}
+
+/**
+ * Map transaction object to form data.
+ * @param transaction - Transaction object.
+ * @returns Form data.
+ */
+function mapTransactionToForm(transaction: TransactionWithDetails): FormTransaction {
+  return {
+    ...transaction,
+    amount: transaction.amount.toFixed(2),
+    paidAt: formatDateToString(transaction.paidAt),
+    transactionDetails: transaction.transactionDetails.map((detail) => {
+      return {
+        userId: detail.userId,
+        amount: (detail.amount < 0 ? detail.amount * -1 : detail.amount).toString()
+      }
+    })
+  }
+}
+
+/**
+ * Declare Transaction Form default values.
+ * @param groupId - Group id of the active group.
+ * @param userId - User id of the current user.
+ * @returns Form data.
+ */
+function getTransactionFormDefaultValues(groupId: string, userId: string): FormTransaction {
+  return {
+    id: undefined,
+    name: '',
+    amount: '',
+    strategy: 0,
+    transactionDetails: [],
+    category: 0,
+    subCategory: 0,
+    paidAt: formatDateToString(new Date()),
+    paidById: userId,
+    notes: '',
+    groupId: groupId,
+    createdById: userId,
+  }
+}
+
 
 function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicData[]): CreateTransactionDetails[] | string | undefined {
   const strategy = values[FormIdEnum.strategy] as number;
@@ -146,7 +243,7 @@ function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicD
 }
 
 
-export default function TransactionView(
+function TransactionView(
   { group, disclosureProps, isOpen, onCloseDrawer, transactionWithDetails }: {
     group: GroupWithMembers,
     disclosureProps: any,
@@ -338,4 +435,10 @@ export default function TransactionView(
       </DrawerContent>
     </Drawer>
   )
+}
+
+export {
+  TransactionView,
+  FormIdEnum,
+  formatDateToString
 }

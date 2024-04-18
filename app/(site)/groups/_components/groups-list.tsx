@@ -13,7 +13,7 @@ import {
 import { MdPersonRemove, MdManageAccounts, MdGroups } from "react-icons/md"
 
 import { type GroupData } from "@/app/_types/model/groups";
-import { deleteGroupAction } from '@/app/(site)/groups/_lib/group-actions';
+import { deleteGroupAction } from '@/app/_actions/groups';
 import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
 import Confirm from '@/app/_components/confirm';

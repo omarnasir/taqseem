@@ -1,6 +1,6 @@
 "use server";
 import MembershipsView from "./view";
-import { getMembershipsByGroupIdService } from "./_lib/memberships-service";
+import { getMembershipsByGroupIdService } from "@/app/_service/memberships";
 
 
 export default async function MembershipsPage({ params, searchParams }:

@@ -4,11 +4,11 @@ import { useSession } from 'next-auth/react';
 
 import { MdAdd } from "react-icons/md"
 
-import TransactionView from "./_components/view-transaction"
+import { TransactionView } from "./_components/view-transaction"
 import { AmountDisplay, DateDisplay, cardItemWidths, SummaryDisplay } from "./_components/card-items"
 import { type TransactionWithDetails } from "@/app/_types/model/transactions";
 import { GroupWithMembers } from "@/app/_types/model/groups"
-import { type GroupedTransactions } from "@/app/(site)/transactions/_lib/transactions-service";
+import { type GroupedTransactions } from "@/app/_service/transactions";
 import Loading from "@/app/(site)/loading"
 import { getTransactionIcon } from "@/app/_lib/db/constants";
 

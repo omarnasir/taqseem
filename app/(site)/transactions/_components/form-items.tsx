@@ -30,7 +30,7 @@ import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-
 
 import { UserBasicData } from "@/app/_types/model/users";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
-import { TransactionFormIdEnum as FormIdEnum, formatDateToString } from "@/app/(site)/transactions/_lib/transactions-helper";
+import { FormIdEnum, formatDateToString } from "../_components/view-transaction";
 import { CustomFormIcon } from "@/app/_components/cardIcon";
 
 
@@ -72,7 +72,7 @@ function TransactionStrategyDecisionCheckbox({ user, index, remove }: { user: Us
   const { data: sessionData } = useSession();
   const { getValues, setValue } = useFormContext();
 
-  const isUserSessionUser = useMemo(() => user.id === sessionData?.user.id, [user.id, sessionData?.user.id]);
+  const isUserSessionUser = useMemo(() => user.id === sessionData?.user?.id!, [user.id, sessionData?.user?.id!]);
   const variant = useMemo(() => isUserSessionUser ? 'transactionStrategyYou' : 'transactionStrategyThem', [isUserSessionUser]);
   
   return (
@@ -441,6 +441,7 @@ function FormItemNote() {
     </FormControl>
   )
 }
+
 
 export {
   FormItemId,

@@ -1,6 +1,6 @@
 "use server";
 import GroupsView from "./view";
-import { getAllGroupsService } from "./_lib/group-service";
+import { getAllGroupsService } from "@/app/_service/groups";
 
 
 export default async function GroupsPage() {

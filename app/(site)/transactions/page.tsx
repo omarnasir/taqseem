@@ -1,7 +1,8 @@
 "use server";
 import TransactionsView from "./view";
-import { getGroupDetailsService } from "@/app/(site)/groups/_lib/group-service";
-import { getTransactionsByGroupAndUserIdService } from "@/app/(site)/transactions/_lib/transactions-service";
+import { getGroupDetailsService } from "@/app/_service/groups";
+import { getTransactionsByGroupAndUserIdService } from "@/app/_service/transactions";
+
 
 export default async function TransactionsPage({params, searchParams}: 
   { params: Record<string, string>, searchParams: string }) {

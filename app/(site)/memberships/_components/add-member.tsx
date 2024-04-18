@@ -12,7 +12,7 @@ import {
 }
   from "@chakra-ui/react";
 import { FieldValues, useForm } from "react-hook-form";
-import { createMembershipAction } from "../_lib/memberships-actions";
+import { createMembershipAction } from "@/app/_actions/memberships";
 import { CustomToast } from '@/app/_components/toast';
 import { GroupData } from "@/app/_types/model/groups";
 

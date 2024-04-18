@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 
 import { useForm, FieldValues } from "react-hook-form"
-import { createGroupAction} from "@/app/(site)/groups/_lib/group-actions";
+import { createGroupAction} from "@/app/_actions/groups";
 import { CustomToast } from "@/app/_components/toast";
 
 
