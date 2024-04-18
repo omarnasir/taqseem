@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import {
   Button,
@@ -50,7 +51,8 @@ import {
   FormItemNote
 } from "./form-items";
 import { type GroupWithMembers } from "@/app/_types/model/groups"
-import { createTransaction, updateTransaction, deleteTransaction } from "@/app/(site)/transactions/_lib/transactions-service"
+import { createTransactionAction, updateTransactionAction, deleteTransactionAction } 
+from "@/app/(site)/transactions/_lib/transactions-actions"
 import {
   type CreateTransaction,
   type CreateTransactionDetails,
@@ -145,16 +147,16 @@ function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicD
 
 
 export default function TransactionView(
-  { group, disclosureProps, isOpen, onCloseDrawer, setRefreshTransactions, transactionWithDetails }: {
+  { group, disclosureProps, isOpen, onCloseDrawer, transactionWithDetails }: {
     group: GroupWithMembers,
     disclosureProps: any,
     isOpen: boolean,
     onCloseDrawer: () => void,
-    setRefreshTransactions: React.Dispatch<React.SetStateAction<string>>,
     transactionWithDetails?: TransactionWithDetails,
   }
 ) {
   const users = group.users!;
+  const router = useRouter();
   const { data: sessionData } = useSession();
   const { addToast } = CustomToast();
   const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
@@ -172,7 +174,7 @@ export default function TransactionView(
   })
 
   const defaultValues: FormTransaction = useMemo(() => (
-    transactionWithDetails ? mapTransactionToForm(transactionWithDetails) : getTransactionFormDefaultValues(group.id, sessionData!.user.id)
+    transactionWithDetails ? mapTransactionToForm(transactionWithDetails) : getTransactionFormDefaultValues(group.id, sessionData?.user?.id!)
   ), [sessionData, group, transactionWithDetails]);
 
   const methods = useForm<FormTransaction>({
@@ -195,10 +197,10 @@ export default function TransactionView(
     const transaction = mapFormToTransaction(values, userDetails as CreateTransactionDetails[], group.id)
     if (values.id) {
       console.log('Updating transaction', transaction)
-      const response = await updateTransaction(transaction as UpdateTransaction);
+      const response = await updateTransactionAction(group.id, transaction as UpdateTransaction);
       if (response.success) {
         onCloseDrawer();
-        setRefreshTransactions(Date.now().toString());
+        router.refresh();
       }
       else {
         addToast("Error updating transaction", response.error, "error")
@@ -206,10 +208,10 @@ export default function TransactionView(
     }
     else {
       console.log('Creating transaction', transaction)
-      const response = await createTransaction(transaction as CreateTransaction);
+      const response = await createTransactionAction(group.id, transaction as CreateTransaction);
       if (response.success) {
         onCloseDrawer();
-        setRefreshTransactions(Date.now().toString());
+        router.refresh();
       }
       else {
         addToast("Error creating transaction", response.error, "error")
@@ -219,11 +221,11 @@ export default function TransactionView(
   }
 
   async function onRemoveTransaction(id: number) {
-    const res = await deleteTransaction({ id: id, groupId: group!.id, userId: sessionData!.user.id })
+    const res = await deleteTransactionAction(sessionData?.user?.id!, group?.id!, id)
     if (res.success) {
       addToast(`Transaction removed`, null, 'success')
-      setRefreshTransactions(Date.now().toString())
       onCloseDrawer();
+      router.refresh();
     }
     else {
       addToast('Cannot delete transaction.', res.error, 'error')
