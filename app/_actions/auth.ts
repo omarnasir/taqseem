@@ -20,7 +20,7 @@ async function signInAction(
     await signIn('credentials', {
       email: email,
       password: password,
-      redirectTo: '/',
+      redirectTo: '/dashboard',
     });
 }
 

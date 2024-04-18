@@ -18,7 +18,7 @@ import {
   MenuItem,
   MenuList
 } from "@chakra-ui/react";
-import { signOutAction } from '@/app/(auth)/_lib/auth-actions';
+import { signOutAction } from '@/app/_actions/auth';
 
 export default function NavbarMenu(props: {
   userName: string

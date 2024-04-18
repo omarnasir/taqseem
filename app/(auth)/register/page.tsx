@@ -10,7 +10,7 @@ import {
 import { useForm, FieldValues, FormProvider } from "react-hook-form"
 
 import { NameFormItem, EmailFormItem, PasswordFormItem } from '@/app/(auth)/_components/form-items';
-import { registerAction } from '@/app/(auth)/_lib/auth-actions';
+import { registerAction } from '@/app/_actions/auth';
 import { CustomToast } from '@/app/_components/toast';
 
 
