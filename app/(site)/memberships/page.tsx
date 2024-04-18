@@ -3,7 +3,7 @@ import MembershipsView from "./view";
 import { getMembershipsByGroupIdService } from "./_lib/memberships-service";
 
 
-export default async function GroupsPage({ params, searchParams }:
+export default async function MembershipsPage({ params, searchParams }:
   { params: Record<string, string>, searchParams: string }
 ) {
   const group = JSON.parse(new URLSearchParams(searchParams).get('data') as string);

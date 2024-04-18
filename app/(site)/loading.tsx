@@ -1,3 +1,4 @@
+"use client";
 import { AbsoluteCenter, Flex, Heading, Spinner } from "@chakra-ui/react";
 
 export default function Loading() {
