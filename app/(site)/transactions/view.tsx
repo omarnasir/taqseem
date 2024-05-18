@@ -36,6 +36,7 @@ export default function TransactionsView({ group, transactions }:
     transaction: selectedTransaction,
   });
 
+
   return (group == undefined || !sessionData?.user ? <Loading /> :
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
@@ -48,8 +49,8 @@ export default function TransactionsView({ group, transactions }:
         <List w='100%' variant={'transaction'} key={index}>
           <Divider marginY={1} />
           <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={600} color={'whiteAlpha.800'}>{yearData.year}</Text>
-          {yearData.data.map((monthData) => (
-            <>
+          {yearData.data.map((monthData, index) => (
+            <div key={index}>
               <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={300} color={'whiteAlpha.600'}>{monthData.monthName}</Text>
               {monthData.data.map((transaction) => (
                 <ListItem w='100%' key={transaction.id}
@@ -66,7 +67,7 @@ export default function TransactionsView({ group, transactions }:
                   <AmountDisplay transactionDetails={transaction.transactionDetails} userId={sessionData?.user?.id!} />
                 </ListItem>
               ))}
-            </>
+            </div>
           ))}
         </List >
       ))}
