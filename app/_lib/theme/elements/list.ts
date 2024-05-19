@@ -18,4 +18,16 @@ const transaction = definePartsStyle({
   },
 })
 
-export const listTheme = defineMultiStyleConfig({ variants: { transaction } })
+const activity = definePartsStyle({
+  item: {
+    alignItems: 'center',
+    marginY: 1.5,
+    rounded: 'md',
+    paddingY: 3,
+    paddingX: 4,
+    backgroundColor: 'bgListItem',
+  },
+})
+
+
+export const listTheme = defineMultiStyleConfig({ variants: { transaction , activity} })
