@@ -12,6 +12,7 @@ import { inputTheme } from "./elements/input"
 import { formLabelTheme } from "./elements/form-label"
 import { buttonTheme } from "./elements/button"
 import { checkboxTheme } from "./elements/checkbox"
+import { radioTheme } from "./elements/radio"
 import { cardTheme } from "./elements/card"
 import { numberTheme } from "./elements/numberInput"
 import { selectTheme } from "./elements/select"
@@ -84,6 +85,7 @@ const customTheme = extendTheme({ config, fonts },
 			Modal: modalTheme,
 			Button: buttonTheme,
 			Checkbox: checkboxTheme,
+			Radio: radioTheme,
 			Card: cardTheme,
 			List: listTheme,
 			Drawer: drawerTheme,

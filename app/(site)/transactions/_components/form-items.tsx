@@ -11,7 +11,8 @@ import {
   VStack,
   HStack,
   Checkbox,
-  Button,
+  Radio, 
+  RadioGroup,
   FormControl,
   FormErrorMessage,
   InputRightElement,
@@ -24,7 +25,7 @@ import {
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
-  MdCalendarMonth, MdOutlineCategory, MdOutlineCancel
+  MdCalendarMonth, MdOutlineCategory, MdOutlineCancel, MdCalculate
 } from "react-icons/md"
 import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-form";
 
@@ -68,22 +69,15 @@ function FormItemName() {
   )
 }
 
-function TransactionStrategyDecisionCheckbox({ user, index, remove }: { user: UserBasicData, index: number, remove: any }) {
+function TransactionStrategyDecisionRadio({ user, value, amount }: { user: UserBasicData, value: string, amount: number}) {
   const { data: sessionData } = useSession();
-  const { getValues, setValue } = useFormContext();
 
   const isUserSessionUser = useMemo(() => user.id === sessionData?.user?.id!, [user.id, sessionData?.user?.id!]);
   const variant = useMemo(() => isUserSessionUser ? 'transactionStrategyYou' : 'transactionStrategyThem', [isUserSessionUser]);
   
   return (
-    <Checkbox size={'md'} as={Button} variant={variant}
-      onChange={() => {
-        remove()
-        setValue(FormIdEnum.strategy, index + 1)
-      }}
-      defaultChecked={getValues(FormIdEnum.strategy) === index + 1}
-      isChecked={getValues(FormIdEnum.strategy) === index + 1}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{parseFloat(getValues(FormIdEnum.amount) || 0).toFixed(2)}
-    </Checkbox>
+    <Radio variant={variant} value={value}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{amount.toFixed(2)}
+    </Radio>
   )
 }
 
@@ -103,12 +97,32 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
     name: FormIdEnum.strategy,
   });
 
+  const amount = useWatch({
+    control,
+    name: FormIdEnum.amount,
+  });
+
+  const [radioStrategyValue, setRadioStrategyValue] = React.useState('0')
+  const customRadioSetValue = (value: string) => {
+    setRadioStrategyValue(value)
+    remove()
+    setValue(FormIdEnum.strategy, parseInt(value))
+  }
+
   return (
     <FormControl id={FormIdEnum.strategy} isInvalid={Boolean(errors[FormIdEnum.strategy])} marginBottom={3}>
-      <Input {...register(FormIdEnum.strategy,
-        { required: false, valueAsNumber: true }
-      )} hidden disabled />
-      <HStack width={'100%'}>
+      <HStack>
+        <CustomFormIcon icon={MdCalculate} styleProps={{ bg: "teal.600" }} />
+        <InputGroup variant={"transactionStrategy"}>
+          <InputLeftAddon>
+            <Text alignSelf={'center'}>Strategy</Text>
+          </InputLeftAddon>
+          <Input {...register(FormIdEnum.strategy,
+            { required: false, valueAsNumber: true }
+          )} hidden disabled />
+        </InputGroup>
+      </HStack>
+      <HStack ml={'2.2rem'}>
         <Accordion width={'100%'} defaultIndex={strategy === -1 ? [1] : [0]} variant='transaction'>
           <AccordionItem>
             <h2>
@@ -121,58 +135,56 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
                 <AccordionIcon />
               </AccordionButton>
             </h2>
-          <AccordionPanel>
-            {/* TODO: Change Checkbox to a custom Radio group */}
-            <VStack width={'100%'} spacing={3}>
-              <Checkbox size={'md'} as={Button} variant={'transactionStrategyEveryone'}
-                onChange={() => {
-                  remove()
-                  setValue(FormIdEnum.strategy, 0)
-                }}
-                defaultChecked={strategy === 0}
-                isChecked={strategy === 0}>Everyone owes €{(parseFloat(getValues(FormIdEnum.amount) || 0) / users.length).toFixed(2)}</Checkbox>
-              {users.map((user, index) =>
-                user.id !== getValues(FormIdEnum.paidById) &&
-                <TransactionStrategyDecisionCheckbox key={user.id} user={user} index={index} remove={remove}/>
-              )}
-            </VStack>
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem>
-          <h2>
-            <AccordionButton onClick={() => {
-              replace(users.map(user => ({ 
-                userId: user.id, 
-                amount: '' }
-              )));
-              setValue(FormIdEnum.strategy, -1);
-            }}>
-              <Text alignSelf={'center'}>Or specify what everyone owes:</Text>
-              <AccordionIcon />
-            </AccordionButton>
-          </h2>
-          <AccordionPanel>
-            <Text alignSelf={'center'} fontSize={'xs'} fontWeight={'light'} mb={3}>
-              You can leave the amount for a user empty if you want us to calculate it for you.
-            </Text>
-            <FormControl id={FormIdEnum.transactionDetails}
-              isInvalid={Boolean(errors[FormIdEnum.transactionDetails])}>
-              <VStack alignItems={'center'} marginX={1}>
-                {fields.map((field, index) => (
-                  <FormItemAmountDetailsUser
-                    key={field.id}
-                    control={control}
-                    update={update}
-                    user={users[index]}
-                    index={index} 
-                    value={field}/>
-                ))}
+            <AccordionPanel>
+              <VStack width={'100%'} spacing={3}>
+                <RadioGroup onChange={customRadioSetValue} value={radioStrategyValue} w={'100%'}>
+                  <VStack>
+                    <Radio value="0" variant={'transactionStrategyEveryone'}>Everyone pays €{(parseFloat(amount || 0) / users.length).toFixed(2)}</Radio>
+                    {users.map((user, index) =>
+                      user.id !== getValues(FormIdEnum.paidById) &&
+                      <TransactionStrategyDecisionRadio key={user.id} value={(index + 1).toString()} user={user} amount={parseFloat(amount || 0)} />
+                    )}
+                  </VStack>
+                </RadioGroup>
               </VStack>
-              <FormErrorMessage>{errors[FormIdEnum.transactionDetails]?.message?.toString()}</FormErrorMessage>
-            </FormControl>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem>
+            <h2>
+              <AccordionButton onClick={() => {
+                replace(users.map(user => ({
+                  userId: user.id,
+                  amount: ''
+                }
+                )));
+                setValue(FormIdEnum.strategy, -1);
+              }}>
+                <Text alignSelf={'center'}>Or specify what everyone owes:</Text>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel>
+              <Text alignSelf={'center'} fontSize={'xs'} fontWeight={'light'} mb={3}>
+                You can leave the amount for a user empty if you want us to calculate it for you.
+              </Text>
+              <FormControl id={FormIdEnum.transactionDetails}
+                isInvalid={Boolean(errors[FormIdEnum.transactionDetails])}>
+                <VStack alignItems={'center'} marginX={1}>
+                  {fields.map((field, index) => (
+                    <FormItemAmountDetailsUser
+                      key={field.id}
+                      control={control}
+                      update={update}
+                      user={users[index]}
+                      index={index}
+                      value={field} />
+                  ))}
+                </VStack>
+                <FormErrorMessage>{errors[FormIdEnum.transactionDetails]?.message?.toString()}</FormErrorMessage>
+              </FormControl>
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </HStack>
     </FormControl>
   )
@@ -201,9 +213,7 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
           rounded='full'
           size={'lg'}
           w='50%'>
-          <Text paddingLeft={2}
-            fontSize={'md'}
-            fontWeight={'light'}>{user.name}</Text>
+          <Text>{user.name}</Text>
         </Checkbox>
         <InputGroup variant={"transaction"} w='50%'>
           <InputLeftAddon>
@@ -265,7 +275,7 @@ function FormItemAmount() {
   const { formState: { errors }, control } = useFormContext()
 
   return (
-    <FormControl id={FormIdEnum.amount} isInvalid={Boolean(errors[FormIdEnum.amount])} marginY={3}>
+    <FormControl id={FormIdEnum.amount} isInvalid={Boolean(errors[FormIdEnum.amount])} marginBottom={3}>
       <HStack>
         <CustomFormIcon icon={MdEuroSymbol} styleProps={{bg:"green.600"}}/>
       <InputGroup variant={"transaction"}>

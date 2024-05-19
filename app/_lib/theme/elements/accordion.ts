@@ -7,9 +7,9 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const transaction = definePartsStyle({
   root: {
     borderRadius: 'lg',
-    borderWidth: '1px',
+    border: '1px solid',
     borderColor: 'whiteAlpha.300',
-
+    marginTop: 2,
   },
   container: {
     border: 'none',
@@ -19,11 +19,14 @@ const transaction = definePartsStyle({
   },
   button: {
     width: '100%',
+    fontSize: 'sm',
+    borderTopRadius: 'lg',
     _expanded: {
-      bg: 'whiteAlpha.300',
-      fontWeight: 'bold',
+      borderTopRadius: 'none',
+      bg: 'whiteAlpha.100',
+      fontWeight: '500',
     },
-    height: '3rem',
+    height: '2.5rem',
     justifyContent: 'space-between',
   },
   icon: {

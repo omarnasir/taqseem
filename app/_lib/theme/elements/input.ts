@@ -13,7 +13,7 @@ export const base = definePartsStyle({
   addon: {
     textColor: "whiteAlpha.700",
     letterSpacing: "tighter",
-    fontWeight: 200,
+    fontWeight: 300,
     marginLeft: -2,
     fontSize: {
       base: "sm",
@@ -53,6 +53,13 @@ const transactionNote = definePartsStyle({
   },
 })
 
+const transactionStrategy = definePartsStyle({
+  ...base,
+  group: {
+    border: "none",
+  },
+})
+
 const login = definePartsStyle({
   field: {
     _invalid: {
@@ -74,6 +81,7 @@ export const inputTheme = defineMultiStyleConfig({
   variants: {
     transaction: base,
     transactionNote,
+    transactionStrategy,
     login,
   },
 })

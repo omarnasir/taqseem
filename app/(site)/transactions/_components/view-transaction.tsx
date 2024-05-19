@@ -331,7 +331,7 @@ function TransactionView(
       onClose={() => { onCloseDrawer() }}
       {...disclosureProps}>
       <DrawerOverlay />
-      <DrawerContent height='100vh' width={{ base: '100%', sm: 'xl'}} margin='auto'>
+      <DrawerContent height='100vh' width={{ base: '100%', sm: 'xl' }} margin='auto'>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DrawerHeader
@@ -345,7 +345,7 @@ function TransactionView(
                       <StepIndicator>
                         <StepStatus
                           complete={<StepIcon />}
-                          active={<MdCircle size={'0.2rem'}/>}
+                          active={<MdCircle size={'0.2rem'} />}
                         />
                       </StepIndicator>
                       <StepSeparator />
@@ -361,8 +361,8 @@ function TransactionView(
               </Stack>
               <DrawerCloseButton />
             </DrawerHeader>
-            <ScaleFade in={activeStep === 0}>
-              <DrawerBody overflow={'auto'} >
+            <DrawerBody overflow={'auto'} height={'100vh'}>
+              <ScaleFade in={activeStep === 0}>
                 <Flex direction={'column'} display={activeStep === 0 ? 'flex' : 'none'}>
                   <FormItemId />
                   <FormItemName />
@@ -370,18 +370,16 @@ function TransactionView(
                   <FormItemCategory />
                   <FormItemSubCategory />
                   <FormItemPaidBy {...{ users: users }} />
-                  <FormItemAmount />
                   <FormItemNote />
                 </Flex>
-              </DrawerBody>
-            </ScaleFade>
-            <ScaleFade in={activeStep === 1}>
-              <DrawerBody overflow={'auto'} >
+              </ScaleFade>
+              <ScaleFade in={activeStep === 1}>
                 <Flex direction={'column'} display={activeStep === 1 ? 'flex' : 'none'}>
+                  <FormItemAmount />
                   <FormItemTransactionStrategy {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
                 </Flex>
-              </DrawerBody>
-            </ScaleFade>
+              </ScaleFade>
+            </DrawerBody>
             <DrawerFooter position={'absolute'}
               zIndex={1700}
               w={'100%'}
