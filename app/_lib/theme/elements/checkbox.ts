@@ -45,7 +45,7 @@ const transactionStrategyEveryone = definePartsStyle({
     ...transactionStrategy.container,
     _checked: {
       ...transactionStrategy.container._checked,
-      bg: 'whiteAlpha.800 !important',
+      bg: 'whiteAlpha.700 !important',
     },
   },
   label: {

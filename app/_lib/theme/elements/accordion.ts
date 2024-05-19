@@ -20,7 +20,8 @@ const transaction = definePartsStyle({
   button: {
     width: '100%',
     _expanded: {
-      bg: 'whiteAlpha.100',
+      bg: 'whiteAlpha.300',
+      fontWeight: 'bold',
     },
     height: '3rem',
     justifyContent: 'space-between',

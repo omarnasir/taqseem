@@ -13,10 +13,10 @@ export const base = definePartsStyle({
   addon: {
     textColor: "whiteAlpha.700",
     letterSpacing: "tighter",
-    fontWeight: 300,
+    fontWeight: 200,
     marginLeft: -2,
     fontSize: {
-      base: "md",
+      base: "sm",
       md: "md",
     }
   },

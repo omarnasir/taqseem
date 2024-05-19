@@ -258,13 +258,6 @@ function TransactionView(
   const { addToast } = CustomToast();
   const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
 
-  const { isOpen: isOpenPageTwo, onOpen: onOpenPageTwo, onClose: onClosePageTwo } = useDisclosure(
-    { defaultIsOpen: false }
-  )
-  const { isOpen: isOpenPageOne, onOpen: onOpenPageOne, onClose: onClosePageOne } = useDisclosure(
-    { defaultIsOpen: true }
-  )
-
   const { activeStep, setActiveStep } = useSteps({
     index: 0,
     count: steps.length,
@@ -335,7 +328,7 @@ function TransactionView(
       placement="bottom"
       variant={'transaction'}
       isOpen={isOpen}
-      onClose={() => { onCloseDrawer(), onClosePageTwo(), onOpenPageOne() }}
+      onClose={() => { onCloseDrawer() }}
       {...disclosureProps}>
       <DrawerOverlay />
       <DrawerContent height='100vh' width={{ base: '100%', sm: 'xl'}} margin='auto'>
@@ -368,9 +361,9 @@ function TransactionView(
               </Stack>
               <DrawerCloseButton />
             </DrawerHeader>
-            <DrawerBody overflow={'auto'} height='90vh' paddingBottom={'30vh'}>
-              <ScaleFade in={isOpenPageOne}>
-                <Flex direction={'column'} display={isOpenPageTwo ? 'none' : 'flex'}>
+            <ScaleFade in={activeStep === 0}>
+              <DrawerBody overflow={'auto'} >
+                <Flex direction={'column'} display={activeStep === 0 ? 'flex' : 'none'}>
                   <FormItemId />
                   <FormItemName />
                   <FormItemDateTime />
@@ -380,13 +373,15 @@ function TransactionView(
                   <FormItemAmount />
                   <FormItemNote />
                 </Flex>
-              </ScaleFade>
-              <ScaleFade in={isOpenPageTwo}>
-                <Flex direction={'column'} display={isOpenPageOne ? 'none' : 'flex'}>
+              </DrawerBody>
+            </ScaleFade>
+            <ScaleFade in={activeStep === 1}>
+              <DrawerBody overflow={'auto'} >
+                <Flex direction={'column'} display={activeStep === 1 ? 'flex' : 'none'}>
                   <FormItemTransactionStrategy {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
                 </Flex>
-              </ScaleFade>
-            </DrawerBody>
+              </DrawerBody>
+            </ScaleFade>
             <DrawerFooter position={'absolute'}
               zIndex={1700}
               w={'100%'}
@@ -412,19 +407,19 @@ function TransactionView(
                     variant={'formNavigation'}
                     aria-label="Back"
                     icon={<IconPrev />}
-                    isDisabled={isOpenPageOne}
-                    onClick={() => { setActiveStep(0), onClosePageTwo(), onOpenPageOne() }} />
+                    isDisabled={activeStep === 0}
+                    onClick={() => { setActiveStep(0) }} />
                   <IconButton
                     variant={'formNavigation'}
                     aria-label="Next"
                     icon={<IconNext />}
-                    isDisabled={isOpenPageTwo}
-                    onClick={() => { setActiveStep(1), onClosePageOne(), onOpenPageTwo() }} />
+                    isDisabled={activeStep === 1}
+                    onClick={() => { setActiveStep(1) }} />
                 </HStack>
                 <Button size={'sm'} w={'30%'}
                   leftIcon={transactionWithDetails ? <MdOutlineSync size={'1.2rem'} /> : <MdAdd size={'1.2rem'}/>}
                   variant={transactionWithDetails ? 'update' : 'add'}
-                  isDisabled={!isValid || !isDirty || isOpenPageOne}
+                  isDisabled={!isValid || !isDirty || activeStep !== 1} 
                   isLoading={methods.formState.isSubmitting} type='submit'>
                   {transactionWithDetails ? 'Update' : 'Add'}
                 </Button>
