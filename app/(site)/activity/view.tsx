@@ -1,5 +1,5 @@
 'use client'
-import React from "react"
+import React, { useState } from "react"
 import { useSession } from 'next-auth/react';
 
 import {
@@ -10,10 +10,12 @@ import {
   VStack,
   HStack,
   ListIcon,
+  Button,
 } from "@chakra-ui/react"
 import { type ActivitiesByUserId } from "@/app/_data/activities"
 import Loading from "@/app/(site)/loading"
 import { getTransactionIcon } from "@/app/_lib/db/constants";
+import { getActivityService } from "@/app/_service/activities";
 
 const cardItemWidths = {
   icon: '8%',
@@ -50,26 +52,13 @@ function relativeTimeAgo(date: Date) {
   return 'just now';
 }
 
-export default function ActivityView({ activities }: { activities: ActivitiesByUserId[] }) {
-  const { data: sessionData } = useSession();
-
-  return (activities == undefined || !sessionData?.user ? <Loading /> :
-    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
-        position={'sticky'} top={'-40px'}>Activity</Text>
+function ActivitiesList({ activities }: { activities: ActivitiesByUserId[] }) {
+  return (
+    <>
       {activities.map((activity) => (
         <List w='100%' variant={'activity'} key={activity.id}>
           <ListItem w='100%' key={activity.id}
             flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
-            {/* <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={600}
-              width={cardItemWidths.date}
-              color={'whiteAlpha.800'}>
-              {new Date(activity.createdAt).toLocaleDateString('en-gb', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-              })}
-            </Text> */}
             <ListIcon as={getTransactionIcon(activity.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
             <VStack w={cardItemWidths.desc} alignItems='start' ml={1}>
               <HStack >
@@ -94,6 +83,32 @@ export default function ActivityView({ activities }: { activities: ActivitiesByU
           </ListItem>
         </List>
       ))}
+    </>
+  )
+}
+
+
+export default function ActivityView({ activities, firstCursor }: { activities: ActivitiesByUserId[], firstCursor: number}) {
+  const { data: sessionData } = useSession();
+  const [cursor, setCursor] = useState<number | undefined>(firstCursor);
+
+  
+  return (activities == undefined || !sessionData?.user ? <Loading /> :
+    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
+      <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
+        position={'sticky'} top={'-40px'}>Activity</Text>
+      <ActivitiesList activities={activities} />
+      <Button variant={'loadMore'}
+        isDisabled={cursor === undefined}
+        onClick={async () => {
+          const activitiesLatest = await getActivityService(cursor);
+          if (!activitiesLatest.success) {
+            setCursor(undefined);
+            return;
+          }
+          setCursor(activitiesLatest.data?.cursor as number);
+          activities.push(...activitiesLatest.data?.activities ?? []);
+        }}>Load More</Button>
     </Flex>
   );
 } 

@@ -5,16 +5,19 @@ import { auth } from '@/auth';
 
 
 type GETActivitiesResponseType = Omit<Response, "data"> & {
-  data?: ActivitiesByUserId[]
+  data?: {
+    activities: ActivitiesByUserId[],
+    cursor: number | undefined
+  }
 }
 
-async function getActivityService(): Promise<GETActivitiesResponseType> {
+async function getActivityService(cursor: number | undefined): Promise<GETActivitiesResponseType> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    const response = await getActivitiesByUserId(session?.user?.id as string);
+    const response = await getActivitiesByUserId(session?.user?.id as string, cursor);
 
     return { success: true, data: response };
   }

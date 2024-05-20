@@ -1,21 +1,26 @@
 import { defineStyleConfig } from '@chakra-ui/react'
 
+const buttonFontSizes = {
+  fontSize: {
+    base: 'xs',
+    '2xl': 'md',
+  }
+}
+
 export const buttonTheme = defineStyleConfig({
-  sizes: {
-    sm: {
-      fontSize: 'xs',
-      height: '2rem',
-    },
-    md: {
-      fontSize: 'sm',
-      height: '2.5rem',
-    },
-  },
   baseStyle: {
     borderRadius: 'md',
     fontWeight: 'medium',
     color: 'black',
-    boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)',
+    boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)'
+  },
+  sizes: {
+    sm: {
+      height: '2rem',
+    },
+    md: {
+      height: '2rem',
+    },
   },
   variants: {
     login: {
@@ -40,6 +45,7 @@ export const buttonTheme = defineStyleConfig({
 
     },
     add: {
+      ...buttonFontSizes,
       borderColor: 'whiteAlpha.200',
       bg: 'gray.300',
       _disabled: {
@@ -48,10 +54,12 @@ export const buttonTheme = defineStyleConfig({
       },
     },
     update: {
+      ...buttonFontSizes,
       bg: 'orange.300',
       opacity: 0.80,
     },
     delete: {
+      ...buttonFontSizes,
       borderColor: 'red.300',
       color: 'red.300',
       opacity: 0.80,
@@ -69,7 +77,22 @@ export const buttonTheme = defineStyleConfig({
     previous: {
       bg: 'rgb(50,50,50)',
     },
+    loadMore: {
+      ...buttonFontSizes,
+      marginTop: '1rem',
+      border: '1px solid',
+      borderColor: 'whiteAlpha.700',
+      color: 'whiteAlpha.700',
+      width: '40%',
+      alignSelf: 'center',
+      _disabled: {
+        border: 'none',
+        bgColor: 'whiteAlpha.200 !important',
+        color: 'whiteAlpha.700',
+      },
+    },
     action: {
+      ...buttonFontSizes,
       borderColor: 'teal.300',
       color: 'teal.300',
       opacity: 0.80,

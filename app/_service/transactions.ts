@@ -1,21 +1,16 @@
 "use server";
-import { getTransactionsByGroupAndUserId } from '@/app/_data/transactions';
+import { getTransactionsByGroupAndUserId,
+  type GroupedTransactions
+ } from '@/app/_data/transactions';
 import { Response } from '@/app/_types/response';
 import { auth } from '@/auth';
-import { TransactionWithDetails } from '@/app/_types/model/transactions';
 
-
-type GroupedTransactions = {
-  year: number,
-  data: {
-    month: number,
-    monthName: string,
-    data: TransactionWithDetails[]
-  }[]
-}[]
 
 type GETGroupedTransactionsResponseType = Omit<Response, "data"> & {
-  data?: GroupedTransactions
+  data?: {
+    groupedTransactions: GroupedTransactions,
+    cursor: number | undefined
+  }
 }
 
 async function getTransactionsByGroupAndUserIdService(groupId: string, cursor: number | undefined): Promise<GETGroupedTransactionsResponseType> {

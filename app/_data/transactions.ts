@@ -18,7 +18,7 @@ export type GroupedTransactions = {
 
 
 async function getTransactionsByGroupAndUserId(groupId: string, userId: string,
-  cursor: number | undefined): Promise<GroupedTransactions> {
+  cursor: number | undefined): Promise<{groupedTransactions: GroupedTransactions, cursor: number | undefined}> {
   const transactions = await prisma.transactions.findMany({
     where: {
       groupId: groupId,
@@ -40,7 +40,7 @@ async function getTransactionsByGroupAndUserId(groupId: string, userId: string,
     } : undefined,
     skip: cursor ? 1 : undefined
   });
-  if (!transactions) throw new Error("No transactions found");
+  if (!transactions || transactions.length === 0 ) throw new Error("No transactions found");
   try {
     let groupedTransactions: GroupedTransactions = []
     for (const transaction of transactions) {
@@ -61,7 +61,7 @@ async function getTransactionsByGroupAndUserId(groupId: string, userId: string,
     for (const group of groupedTransactions) {
       group.data.sort((a, b) => b.month - a.month)
     }
-    return groupedTransactions;
+    return {groupedTransactions, cursor: transactions[transactions.length - 1].id}
   }
   catch (e) {
     console.error(e);

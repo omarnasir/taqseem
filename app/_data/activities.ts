@@ -15,7 +15,8 @@ type ActivitiesByUserId = Pick<TransactionWithDetails, 'id' | 'name' | 'category
   }[]
 };
 
-async function getActivitiesByUserId(userId: string): Promise<ActivitiesByUserId[]> {
+async function getActivitiesByUserId(userId: string,  cursor: number | undefined): 
+  Promise<{ activities: ActivitiesByUserId[], cursor: number | undefined }> {
   try {
     const userActivity = await prisma.transactions.findMany({
       where: {
@@ -46,10 +47,14 @@ async function getActivitiesByUserId(userId: string): Promise<ActivitiesByUserId
       orderBy: {
         createdAt: 'desc'
       },
-      take: 20
+      take: 20,
+      cursor: cursor ? {
+        id: cursor
+      } : undefined,
+      skip: cursor ? 1 : undefined
     });
-    if (!userActivity) throw new Error("No transactions found");
-    return userActivity;
+    if (!userActivity || userActivity.length === 0) throw new Error("No transactions found");
+    return { activities: userActivity, cursor: userActivity[userActivity.length - 1].id };
   }
   catch (e) {
     console.error(e);
