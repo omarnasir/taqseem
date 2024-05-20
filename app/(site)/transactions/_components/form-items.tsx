@@ -137,7 +137,12 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
             </h2>
             <AccordionPanel>
               <VStack width={'100%'} spacing={3}>
-                <RadioGroup onChange={customRadioSetValue} value={radioStrategyValue} w={'100%'}>
+                <RadioGroup onChange={(e) => {
+                  remove();
+                  setValue(FormIdEnum.strategy, parseInt(e.toString()));
+                  setRadioStrategyValue(e.toString());
+                }
+                } value={radioStrategyValue} w={'100%'}>
                   <VStack>
                     <Radio value="0" variant={'transactionStrategyEveryone'}>Everyone pays €{(parseFloat(amount || 0) / users.length).toFixed(2)}</Radio>
                     {users.map((user, index) =>
