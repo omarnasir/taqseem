@@ -45,7 +45,7 @@ export default function GroupMembersList({ group, users
       <SimpleGrid spacing={1}>
         {!!users ? users.map((user) => (
           <Card key={user.id}
-            size={{ base: 'xs', md: 'sm' }}
+            size={'xs'}
             variant={'infoCard'}>
             <CardBody>
               <CustomCardIcon icon={MdPerson} styleProps={{ marginRight: '4'}} />

@@ -19,8 +19,8 @@ import { getActivityService } from "@/app/_service/activities";
 
 const cardItemWidths = {
   icon: '8%',
-  desc: '77%',
-  date: '15%',
+  desc: '72%',
+  date: '20%',
 }
 
 
@@ -47,7 +47,7 @@ function relativeTimeAgo(date: Date) {
     return hours + ' hour' + (hours > 1 ? 's' : '');
   }
   if (minutes > 0) {
-    return minutes + ' minute' + (minutes > 1 ? 's' : '');
+    return minutes + ' min' + (minutes > 1 ? 's' : '');
   }
   return 'just now';
 }
@@ -76,8 +76,8 @@ function ActivitiesList({ activities }: { activities: ActivitiesByUserId[] }) {
                   {activity.transactionDetails[0].amount > 0 ? '+' : ''}{activity.transactionDetails[0].amount.toFixed(2)}{' '}€</Text>
               </HStack>
             </VStack>
-            <Text textAlign={'end'} letterSpacing={'tight'} fontSize={'2xs'} fontWeight={200}
-              width={cardItemWidths.date} color={'whiteAlpha.800'}>
+            <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
+              width={cardItemWidths.date} color={'whiteAlpha.700'}>
               {relativeTimeAgo(new Date(activity.createdAt))}
             </Text>
           </ListItem>

@@ -6,12 +6,14 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const infoCard = definePartsStyle({
   container: {
-    bg: 'transparent',
+    bg: 'bgCard',
+    paddingY: 4,
+    paddingX: 2,
+    marginY: 2,
     borderRadius: "8px",
     boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
   },
   body: {
-    paddingY: 2,
     direction: 'column',
     display: 'flex',
     justifyContent: 'flex-start',

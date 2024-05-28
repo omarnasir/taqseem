@@ -17,7 +17,6 @@ export default function MembershipsView({ group, memberships }:
         <Text fontSize='lg' fontWeight='400'>Members - {group.name}</Text>
         <Text fontSize='sm' fontWeight='300'>Add or remove members.</Text>
       </VStack>
-      <Divider />
       <GroupMembersList group={group} users={memberships} />
       <Divider />
       <GroupAddUser group={group} />

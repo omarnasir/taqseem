@@ -7,7 +7,6 @@ import {
 function CustomCardIcon({ icon, styleProps }: { icon: any, styleProps?: FlexProps  }) {
 return (
     <Flex
-      bg={'whiteAlpha.400'}
       opacity={0.5}
       rounded={'md'}
       w={'3rem'}

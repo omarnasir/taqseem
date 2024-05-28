@@ -14,7 +14,6 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
         <Text fontSize='lg' fontWeight='400'>Groups</Text>
         <Text fontSize='sm' fontWeight='300'>Manage your groups.</Text>
       </VStack>
-      <Divider />
       <GroupsList {...{ groups: groups }} />
       <Divider />
       <AddGroup />
