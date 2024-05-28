@@ -1,7 +1,7 @@
 "use server";
 import TransactionsView from "./view";
 import { getGroupDetailsService } from "@/app/_service/groups";
-import { getTransactionsByGroupAndUserIdService } from "@/app/_service/transactions";
+import { getUserTransactionsByGroupIdService } from "@/app/_service/transactions";
 
 
 export default async function TransactionsPage({ params, searchParams }:
@@ -14,7 +14,7 @@ export default async function TransactionsPage({ params, searchParams }:
     return <div>{groupResponse.error}</div>;
   }
 
-  const transactionsResponse = await getTransactionsByGroupAndUserIdService(groupId, undefined);
+  const transactionsResponse = await getUserTransactionsByGroupIdService(groupId, undefined);
   if (!transactionsResponse.success) {
     return <div>{transactionsResponse.error}</div>;
   }

@@ -12,7 +12,7 @@ import { type GroupedTransactions } from "@/app/_service/transactions";
 import Loading from "@/app/(site)/loading"
 import { getTransactionIcon } from "@/app/_lib/db/constants";
 
-import { getTransactionsByGroupAndUserIdService } from "@/app/_service/transactions";
+import { getUserTransactionsByGroupIdService } from "@/app/_service/transactions";
 
 import {
   Divider,
@@ -99,7 +99,7 @@ export default function TransactionsView({ group, transactions, firstCursor }:
       <Button variant={'loadMore'}
         isDisabled={cursor === undefined}
         onClick={async () => {
-          const trasactionsLatest = await getTransactionsByGroupAndUserIdService(group.id, cursor);
+          const trasactionsLatest = await getUserTransactionsByGroupIdService(group.id, cursor);
           if (!trasactionsLatest.success) {
             setCursor(undefined);
             return;

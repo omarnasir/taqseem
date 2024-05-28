@@ -212,9 +212,65 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
   }
 }
 
+
+async function getAmountOwedByGroupAndUserId(groupId: string, userId: string) {
+  const amount = await prisma.transactionDetails.aggregate({
+    _sum: {
+      amount: true
+    },
+    where: {
+      userId: userId,
+      transaction: {
+        groupId: groupId
+      }
+    },
+  });
+  if (!amount) throw new Error("No amount found");
+  try {
+    return amount._sum.amount;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to get amount owed");
+  }
+}
+
+
+async function getTransactionsByUserIdAndDate(userId: string, date: string) {
+  const transactions = await prisma.transactions.findMany({
+    where: {
+      transactionDetails: {
+        some: {
+          userId: userId
+        }
+      },
+      paidAt: {
+        gte: new Date(date)
+      }
+    },
+    include: {
+      transactionDetails: true
+    },
+    orderBy: {
+      paidAt: 'desc'
+    }
+  });
+  if (!transactions || transactions.length === 0 ) throw new Error("No transactions found");
+  try {
+    return transactions;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to get transactions");
+  }
+}
+
+
 export { 
   getTransactionsByGroupAndUserId,
   createTransaction,
   updateTransaction,
-  deleteTransaction
+  deleteTransaction,
+  getAmountOwedByGroupAndUserId,
+  getTransactionsByUserIdAndDate,
 };
