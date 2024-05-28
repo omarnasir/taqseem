@@ -60,10 +60,13 @@ export const buttonTheme = defineStyleConfig({
     },
     delete: {
       ...buttonFontSizes,
-      borderColor: 'red.300',
+      color: 'whiteAlpha.800',
+      bg: 'red.900'
+    },
+    deleteBin: {
+      ...buttonFontSizes,
       color: 'red.300',
-      opacity: 0.80,
-      borderWidth: '0.05rem',
+      boxShadow: 'none'
     },
     headerButton: {
       fontSize: 'lg',
@@ -93,19 +96,24 @@ export const buttonTheme = defineStyleConfig({
     },
     action: {
       ...buttonFontSizes,
-      borderColor: 'teal.300',
-      color: 'teal.300',
+      bg: 'cyan.900',
+      color: 'whiteAlpha.900',
       opacity: 0.80,
-      borderWidth: '0.05rem',
     },
     formNavigation: {
-      color: 'whiteAlpha.800',
-      opacity: 0.80,
-      fontWeight: 500,
+      ...buttonFontSizes,
+      bg: 'cyan.800',
+      color: 'whiteAlpha.900',
+      _hover: {
+        _disabled: {
+        bg: 'whiteAlpha.200',
+        color: 'whiteAlpha.300',
+        },
+      },
       _disabled: {
+        bg: 'whiteAlpha.200',
         color: 'whiteAlpha.300',
       },
-      fontSize: '2rem',
     }
   }
 })

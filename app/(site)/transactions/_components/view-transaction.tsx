@@ -391,31 +391,30 @@ function TransactionView(
               <HStack justifyContent={'space-around'} w='100%'>
                 {transactionWithDetails ?
                   <>
-                    <Button size={'sm'} w={'30%'}
-                      leftIcon={<MdDelete size={'1rem'} />}
-                      textAlign={'center'} variant={'delete'}
-                      onClick={onOpenRemoveTransaction}>Delete</Button>
+                    <IconButton w={'13%'}
+                      aria-label="Delete"
+                      icon={<MdDelete size={'1.5rem'} />}
+                      textAlign={'center'} variant={'deleteBin'}
+                      onClick={onOpenRemoveTransaction} />
                     <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
                       onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
                     }} mode="removeTransaction" />
-                  </> : <Box w={'30%'} />
+                  </> : <Box w={'13%'} />
                 }
-                <HStack w={'40%'} justifyContent={'center'}>
-                  <IconButton
-                    variant={'formNavigation'}
-                    aria-label="Back"
-                    icon={<IconPrev />}
-                    isDisabled={activeStep === 0}
-                    onClick={() => { setActiveStep(0) }} />
-                  <IconButton
-                    variant={'formNavigation'}
-                    aria-label="Next"
-                    icon={<IconNext />}
-                    isDisabled={activeStep === 1}
-                    onClick={() => { setActiveStep(1) }} />
-                </HStack>
-                <Button size={'sm'} w={'30%'}
-                  leftIcon={transactionWithDetails ? <MdOutlineSync size={'1.2rem'} /> : <MdAdd size={'1.2rem'}/>}
+                <Button size={'sm'} w={'29%'}
+                  leftIcon={<IconPrev size={'1rem'} />}
+                  variant={'formNavigation'}
+                  aria-label="Back"
+                  isDisabled={activeStep !== 1}
+                  onClick={() => { setActiveStep(0) }}>Back</Button>
+                <Button size={'sm'} w={'29%'}
+                  leftIcon={<IconNext size={'1rem'} />}
+                  variant={'formNavigation'}
+                  aria-label="Next"
+                  isDisabled={activeStep === 1}
+                  onClick={() => { setActiveStep(1) }}>Next</Button>
+                <Button size={'sm'} w={'29%'}
+                  leftIcon={transactionWithDetails ? <MdOutlineSync size={'1rem'} /> : <MdAdd size={'1rem'}/>}
                   variant={transactionWithDetails ? 'update' : 'add'}
                   isDisabled={!isValid || !isDirty || activeStep !== 1} 
                   isLoading={methods.formState.isSubmitting} type='submit'>
