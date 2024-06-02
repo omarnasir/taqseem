@@ -5,7 +5,7 @@ import {
 } from "@/app/_types/model/transactions";
 
 
-type ActivitiesByUserId = Pick<TransactionWithDetails, 'id' | 'name' | 'category' | 'createdAt' | 'createdById'> & {
+type ActivityByUserId = Pick<TransactionWithDetails, 'id' | 'name' | 'category' | 'createdAt' | 'createdById'> & {
   transactionDetails: {
     amount: number;
     user: {
@@ -16,13 +16,16 @@ type ActivitiesByUserId = Pick<TransactionWithDetails, 'id' | 'name' | 'category
 };
 
 async function getActivitiesByUserId(userId: string,  cursor: number | undefined): 
-  Promise<{ activities: ActivitiesByUserId[], cursor: number | undefined }> {
+  Promise<{ activities: ActivityByUserId[], cursor: number | undefined }> {
   try {
     const userActivity = await prisma.transactions.findMany({
       where: {
         transactionDetails: {
           some: {
-            userId: userId
+            userId: userId,
+            amount: {
+              not: 0
+            }
           }
         }
       },
@@ -65,5 +68,5 @@ async function getActivitiesByUserId(userId: string,  cursor: number | undefined
 
 export {
   getActivitiesByUserId,
-  type ActivitiesByUserId
+  type ActivityByUserId
 };

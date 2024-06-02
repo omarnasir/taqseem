@@ -27,6 +27,10 @@ const baseStyle = definePartsStyle({
 })
 
 const primary = definePartsStyle({
+  container: {
+    ...baseStyle.container,
+    boxShadow: 'none',
+  },
   number: {
     fontSize: "4xl",
   }

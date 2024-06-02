@@ -18,10 +18,10 @@ type GetGroupResponse = Omit<Response, 'data'> & {
 
 type GroupDataWithAmountOwed = GroupData & {
   amountOwed: number
-}
+} | undefined;
 
 type GetAllGroupsWithAmountResponse = Omit<Response, 'data'> & {
-  data?: GroupDataWithAmountOwed[]
+  data?: GroupDataWithAmountOwed[];
 }
 
 async function getAllGroupsService(): Promise<GetAllGroupsResponse> {
@@ -61,16 +61,15 @@ async function getUserAmountOwedForAllGroups(): Promise<GetAllGroupsWithAmountRe
   }
   try {
     const response = await getGroupsByUserId(session.user.id as string)
-    let groupsWithAmountOwed: GroupDataWithAmountOwed[] = [];
 
-    for (const group of response) {
-      groupsWithAmountOwed.push({ ...group, amountOwed: 0 });
+    const groupsWithAmountOwed = await Promise.all(response.map(async (group) => {
       const amountOwedResponse = await getUserAmountOwedByGroupService(group.id);
-        if (!amountOwedResponse.success) {
-          return { success: false, error: amountOwedResponse.error };
-        }
-        groupsWithAmountOwed.find(g => g.id === group.id)!.amountOwed = amountOwedResponse.data;
-       }
+      if (!amountOwedResponse.success) {
+        return undefined;
+      }
+      return { ...group, amountOwed: amountOwedResponse.data || 0 };
+    }
+    ));
     return { success: true, data: groupsWithAmountOwed };
   }
   catch (e) {

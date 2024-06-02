@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useSession } from 'next-auth/react';
 
 import {
@@ -12,7 +12,7 @@ import {
   ListIcon,
   Button,
 } from "@chakra-ui/react"
-import { type ActivitiesByUserId } from "@/app/_data/activities"
+import { type ActivityByUserId } from "@/app/_data/activities"
 import Loading from "@/app/(site)/loading"
 import { getTransactionIcon } from "@/app/_lib/db/constants";
 import { getActivityService } from "@/app/_service/activities";
@@ -52,7 +52,32 @@ function relativeTimeAgo(date: Date) {
   return 'just now';
 }
 
-function ActivitiesList({ activities }: { activities: ActivitiesByUserId[] }) {
+
+function ActivitySummary({ activity, userId }: { activity: ActivityByUserId, userId: string }) {
+  const userActivity = useMemo(() => { return activity.transactionDetails.find(td => td.user.id === userId) }, [activity, userId]);
+
+  return (
+    <VStack w={cardItemWidths.desc} alignItems='start' ml={1}>
+      <HStack >
+        <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
+          {activity.createdById === userId ? 'You' : activity.transactionDetails.find(td => td.user.id === activity.createdById)?.user.name}
+        </Text>
+        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{' '}added{' '}&quot;{activity.name}&quot;
+        </Text>
+      </HStack>
+      <HStack spacing={0}>
+        <Text fontSize={'xs'}
+          color={userActivity?.amount! >= 0 ? 'green.400' : 'red.400'} opacity={0.8}
+          fontWeight={'400'} letterSpacing={'tight'}>
+          you{' '}{userActivity?.amount! > 0 ? 'lent' : 'borrowed'}{' '}
+          {Math.abs(userActivity?.amount!).toFixed(2)}{' '}€</Text>
+      </HStack>
+    </VStack>
+  )
+}
+
+function ActivitiesList({ activities, userId }: { activities: ActivityByUserId[], userId: string}) {
+ 
   return (
     <>
       {activities.map((activity) => (
@@ -60,22 +85,7 @@ function ActivitiesList({ activities }: { activities: ActivitiesByUserId[] }) {
           <ListItem w='100%' key={activity.id}
             flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
             <ListIcon as={getTransactionIcon(activity.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
-            <VStack w={cardItemWidths.desc} alignItems='start' ml={1}>
-              <HStack >
-                <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
-                  {activity.transactionDetails[0].user.id === activity.createdById ? 'You' : activity.transactionDetails[0].user.name}
-                </Text>
-                <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{' '}added{' '}&quot;{activity.name}&quot;
-                </Text>
-              </HStack>
-              <HStack spacing={0}>
-                <Text fontSize={'xs'}
-                  color={activity.transactionDetails[0].amount >= 0 ? 'green.400' : 'red.400'} opacity={0.8}
-                  fontWeight={'400'} letterSpacing={'tight'}>
-                  you{' '}{activity.transactionDetails[0].amount > 0 ? 'lent' : 'borrowed'}{' '}
-                  {activity.transactionDetails[0].amount > 0 ? '+' : ''}{activity.transactionDetails[0].amount.toFixed(2)}{' '}€</Text>
-              </HStack>
-            </VStack>
+            <ActivitySummary activity={activity} userId={userId} />
             <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
               width={cardItemWidths.date} color={'whiteAlpha.700'}>
               {relativeTimeAgo(new Date(activity.createdAt))}
@@ -88,7 +98,7 @@ function ActivitiesList({ activities }: { activities: ActivitiesByUserId[] }) {
 }
 
 
-export default function ActivityView({ activities, firstCursor }: { activities: ActivitiesByUserId[], firstCursor: number}) {
+export default function ActivityView({ activities, firstCursor }: { activities: ActivityByUserId[], firstCursor: number}) {
   const { data: sessionData } = useSession();
   const [cursor, setCursor] = useState<number | undefined>(firstCursor);
 
@@ -97,7 +107,7 @@ export default function ActivityView({ activities, firstCursor }: { activities: 
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
         position={'sticky'} top={'-40px'}>Activity</Text>
-      <ActivitiesList activities={activities} />
+      <ActivitiesList activities={activities} userId={sessionData?.user?.id!} />
       <Button variant={'loadMore'}
         isDisabled={cursor === undefined}
         onClick={async () => {
