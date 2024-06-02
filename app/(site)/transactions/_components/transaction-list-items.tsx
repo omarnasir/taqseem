@@ -35,18 +35,22 @@ function AmountDisplay({ transactionDetails, userId }:
   const amount = useMemo(() =>
     transactionDetails.find(td => td.userId === userId)?.amount as number
     , [transactionDetails, userId]);
+
+  const colorDarker = useMemo(() => amount === 0 ? 'whiteAlpha.500' : amount > 0 ? 'green.500' : 'red.500', [amount]);
+  const colorLighter = useMemo(() => amount === 0 ? 'whiteAlpha.500' : amount > 0 ? 'green.400' : 'red.400', [amount]);
+
   return (
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
       <HStack>
-        <Text color={amount >= 0 ? 'green.500' : 'red.500'}
+        <Text color={colorDarker}
           fontSize={'lg'} letterSpacing={'tight'}>
           {amount > 0 ? '+' : ''}{amount.toFixed(2)}</Text>
-        <Text color={amount >= 0 ? 'green.500' : 'red.500'}>€</Text>
+        <Text color={colorDarker}>€</Text>
       </HStack>
       <Text fontSize={'2xs'}
-        color={amount >= 0 ? 'green.400' : 'red.400'} opacity={0.65}
+        color={colorLighter} opacity={0.65}
         fontWeight={'300'} letterSpacing={'tight'}>
-        you {amount > 0 ? 'lent' : 'borrowed'}
+        {amount === 0 ? '' : amount > 0 ? 'you lent' : 'you borrowed'}
       </Text>
     </VStack>
   )
