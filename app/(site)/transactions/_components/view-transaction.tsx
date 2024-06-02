@@ -334,11 +334,11 @@ function TransactionView(
       <DrawerContent height='100vh' width={{ base: '100%', sm: 'xl' }} margin='auto'>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <DrawerHeader
-              color={'whiteAlpha.580'}
-              textAlign={'center'}>
+            <DrawerHeader w='100%'
+              zIndex={1} height={'15vh'} position='absolute' top={0}
+              fontWeight={300} fontSize={'md'} color={'white'} textAlign={'center'} letterSpacing={'widest'}>
               {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
-              <Stack letterSpacing={'wide'} fontWeight={400}>
+              <Stack letterSpacing={'wide'} fontWeight={400} mt={2}>
                 <Stepper index={activeStep} size={'sm'} colorScheme="green">
                   {steps.map((step, index) => (
                     <Step key={index}>
@@ -361,7 +361,16 @@ function TransactionView(
               </Stack>
               <DrawerCloseButton />
             </DrawerHeader>
-            <DrawerBody overflow={'auto'} height={'100vh'}>
+            <DrawerBody  position='absolute' w='100%'
+              overflow={'scroll'} pt={'20vh'}
+              sx={{
+                '&::-webkit-scrollbar': {
+                  display: 'none',
+                },
+                scrollbarWidth: 'none',
+              }}
+              top={0}
+              bottom={'10vh'}>
               <ScaleFade in={activeStep === 0}>
                 <Flex direction={'column'} display={activeStep === 0 ? 'flex' : 'none'}>
                   <FormItemId />

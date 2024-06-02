@@ -7,12 +7,12 @@ const { definePartsStyle, defineMultiStyleConfig } =
 export const base = definePartsStyle({
   group: {
     borderBottom: "1px solid",
-    borderBottomColor: "whiteAlpha.300",
+    borderBottomColor: "whiteAlpha.100",
     borderRadius: "0",
   },
   addon: {
-    textColor: "whiteAlpha.700",
-    letterSpacing: "tighter",
+    textColor: "whiteAlpha.600",
+    letterSpacing: "wide",
     fontWeight: 300,
     marginLeft: -2,
     fontSize: {

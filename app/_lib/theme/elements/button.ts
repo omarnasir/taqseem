@@ -102,8 +102,8 @@ export const buttonTheme = defineStyleConfig({
     },
     formNavigation: {
       ...buttonFontSizes,
-      bg: 'teal.800',
-      color: 'whiteAlpha.900',
+      bg: 'whiteAlpha.700',
+      color: 'black',
       _hover: {
         _disabled: {
         bg: 'whiteAlpha.200',

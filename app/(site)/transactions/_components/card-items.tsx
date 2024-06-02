@@ -52,11 +52,12 @@ function AmountDisplay({ transactionDetails, userId }:
   )
 }
 
-function SummaryDisplay({ transaction, users }:
-  { transaction: TransactionWithDetails, users: UserBasicData[] }) {
+function SummaryDisplay({ transaction, users, userId }:
+  { transaction: TransactionWithDetails, users: UserBasicData[], userId: string}) {
   const name = useMemo(() =>
-    users!.find(user => user.id === transaction.paidById)?.name
-    , [users, transaction.paidById]);
+    transaction.paidById === userId ? 'You' : users!.find(user => user.id === transaction.paidById)?.name 
+    , [users, transaction.paidById, userId]);
+
   return (
     <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'}>
       <Text textAlign={'start'} letterSpacing={'wide'} fontSize={'md'} color='whiteAlpha.900'>

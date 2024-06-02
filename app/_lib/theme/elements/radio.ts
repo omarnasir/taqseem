@@ -6,20 +6,21 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const transactionStrategy = definePartsStyle({
   control: {
+    boxSize: 6,
     marginRight: 3,
-    opacity: 0.8,
+    opacity: 1.0,
     _focusVisible: {
       boxShadow: 'none',
     },
   },
   container: {
     justifyContent: 'flex-start',
-    rounded: 'md',
+    rounded: 'lg',
     width: '100%',
     padding: 2,
     opacity: 0.75,
     _checked: {
-      border: '1px solid',
+      border: '2px solid',
       opacity: 1
     }
   },
@@ -28,6 +29,7 @@ const transactionStrategy = definePartsStyle({
     fontWeight: 300,
     letterSpacing: 'tight',
     _checked: {
+      letterSpacing: 'wide',
       fontWeight: 500,
     },
   },
@@ -39,14 +41,14 @@ const transactionStrategyEveryone = definePartsStyle({
     ...transactionStrategy.control,
     _checked: {
       bg: 'whiteAlpha.900',
-      borderColor: 'whiteAlpha.900',
+      borderColor: 'whiteAlpha.700',
     },
   },
   container: {
     ...transactionStrategy.container,
     _checked: {
       ...transactionStrategy.container._checked,
-      borderColor: 'whiteAlpha.600 !important',
+      borderColor: 'whiteAlpha.700 !important',
     },
   },
   label: {
@@ -73,7 +75,7 @@ const transactionStrategyThem = definePartsStyle({
   },
   label: {
     ...transactionStrategy.label,
-    color: 'green.400',
+    color: 'green.300',
   }
 })
 
@@ -95,7 +97,7 @@ const transactionStrategyYou = definePartsStyle({
   },
   label: {
     ...transactionStrategy.label,
-    color: 'red.400',
+    color: 'red.300',
   }
 })
 

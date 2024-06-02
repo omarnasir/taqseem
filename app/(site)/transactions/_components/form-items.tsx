@@ -84,7 +84,6 @@ function TransactionStrategyDecisionRadio({ user, value, amount }: { user: UserB
 function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  }) 
 {
   const { formState: { errors },
-    register,
     control,
     setValue,
     getValues } = useFormContext()
@@ -103,26 +102,10 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
   });
 
   const [radioStrategyValue, setRadioStrategyValue] = React.useState('0')
-  const customRadioSetValue = (value: string) => {
-    setRadioStrategyValue(value)
-    remove()
-    setValue(FormIdEnum.strategy, parseInt(value))
-  }
 
   return (
     <FormControl id={FormIdEnum.strategy} isInvalid={Boolean(errors[FormIdEnum.strategy])} marginBottom={3}>
       <HStack>
-        <CustomFormIcon icon={MdCalculate} styleProps={{ bg: "teal.600" }} />
-        <InputGroup variant={"transactionStrategy"}>
-          <InputLeftAddon>
-            <Text alignSelf={'center'}>Strategy</Text>
-          </InputLeftAddon>
-          <Input {...register(FormIdEnum.strategy,
-            { required: false, valueAsNumber: true }
-          )} hidden disabled />
-        </InputGroup>
-      </HStack>
-      <HStack ml={'2.2rem'}>
         <Accordion width={'100%'} defaultIndex={strategy === -1 ? [1] : [0]} variant='transaction'>
           <AccordionItem>
             <h2>
@@ -439,19 +422,21 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
 function FormItemNote() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.notes} isInvalid={Boolean(errors[FormIdEnum.notes])} marginTop={8}>
+    <FormControl id={FormIdEnum.notes} isInvalid={Boolean(errors[FormIdEnum.notes])} marginY={3}>
       <HStack>
-        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"orange.600",}}/>
-      <InputGroup variant={"transactionNote"}>
-        <Textarea {...register(FormIdEnum.notes, {
-          required: false
-        })}
-          placeholder='Add a note'
-          background={"transparent"}
-          resize={"none"}
-        />
-      </InputGroup>
-      <FormErrorMessage>{errors[FormIdEnum.notes]?.message?.toString()}</FormErrorMessage>
+        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{ bg: "orange.600", }} />
+        <InputGroup variant={"transaction"}>
+          <InputLeftAddon>
+            <Text alignSelf={'center'}>Note</Text>
+          </InputLeftAddon>
+          <Input {...register(FormIdEnum.notes, {
+            required: false
+          })}
+            placeholder='Add a note'
+            background={"transparent"}
+          />
+        </InputGroup>
+        <FormErrorMessage>{errors[FormIdEnum.notes]?.message?.toString()}</FormErrorMessage>
       </HStack>
     </FormControl>
   )
