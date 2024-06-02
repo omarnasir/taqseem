@@ -27,21 +27,22 @@ async function signInAction(
 async function registerAction(
   { name, email, password }: RegisterData
 ): Promise<string | void> {
+  let response: boolean | void = false;
   try {
-    const response = await registerNewUser({
+    response = await registerNewUser({
       name: name.toString(),
       email: email.toString(),
       password: password.toString(),
     });
-    if (response === true) {
-      await signInAction({
-        email: email,
-        password: password,
-      });
-    }
   }
   catch (e: any) {
     return e.message;
+  }
+  if (response === true) {
+    await signInAction({
+      email: email,
+      password: password,
+    });
   }
 }
 
