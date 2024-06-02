@@ -101,7 +101,7 @@ function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  })
     name: FormIdEnum.amount,
   });
 
-  const [radioStrategyValue, setRadioStrategyValue] = React.useState('0')
+  const [radioStrategyValue, setRadioStrategyValue] = React.useState(strategy.toString());
 
   return (
     <FormControl id={FormIdEnum.strategy} isInvalid={Boolean(errors[FormIdEnum.strategy])} marginBottom={3}>
