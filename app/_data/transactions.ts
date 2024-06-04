@@ -40,7 +40,7 @@ async function getTransactionsByGroupAndUserId(groupId: string, userId: string,
     } : undefined,
     skip: cursor ? 1 : undefined
   });
-  if (!transactions || transactions.length === 0 ) throw new Error("No transactions found");
+  if (!transactions || transactions.length === 0 ) return {groupedTransactions: [], cursor: undefined};
   try {
     let groupedTransactions: GroupedTransactions = []
     for (const transaction of transactions) {

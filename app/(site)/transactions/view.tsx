@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from "react"
-import { useSession } from 'next-auth/react';
+import { useSession, SessionProvider } from 'next-auth/react';
 
 import { MdAdd } from "react-icons/md"
 
@@ -33,7 +33,6 @@ function TransactionsList({ transactions, group, sessionData, setSelectedTransac
     <>
     {transactions.map((yearData, index) => (
       <List w='100%' variant={'transaction'} key={index}>
-        <Divider marginY={1} />
         <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={600} color={'whiteAlpha.800'}>{yearData.year}</Text>
         {yearData.data.map((monthData, index) => (
           <div key={index}>
@@ -55,6 +54,7 @@ function TransactionsList({ transactions, group, sessionData, setSelectedTransac
             ))}
           </div>
         ))}
+        <Divider marginY={1} />
       </List >
       ))}
     </>
@@ -63,11 +63,9 @@ function TransactionsList({ transactions, group, sessionData, setSelectedTransac
 
 
 
-export default function TransactionsView({ group, transactions, firstCursor }: 
-  { group: GroupWithMembers, transactions: GroupedTransactions, firstCursor: number})
+export default function TransactionsView({ group, transactions, firstCursor, sessionData }: 
+  { group: GroupWithMembers, transactions: GroupedTransactions, firstCursor: number, sessionData: any})
 {
-  const { data: sessionData } = useSession();
-
   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
   const [cursor, setCursor] = useState<number | undefined>(firstCursor);
@@ -78,15 +76,16 @@ export default function TransactionsView({ group, transactions, firstCursor }:
   });
 
 
-  return (group == undefined || !sessionData?.user ? <Loading /> :
+  return (group === undefined ? <Loading /> :
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
         position={'sticky'} top={'-40px'}>{group?.name}</Text>
       <IconButton variant={'new'} size={'lg'}
-          icon={<MdAdd />} 
+          icon={<MdAdd />}
           onClick={() => { setSelectedTransaction(undefined); onClick() }}
           {...buttonProps}>new</IconButton>
-      <TransactionsList transactions={transactions} group={group} sessionData={sessionData} setSelectedTransaction={setSelectedTransaction} onClick={onClick}/>
+      <Divider marginY={1} />
+      <TransactionsList transactions={transactions} group={group} sessionData={sessionData} setSelectedTransaction={setSelectedTransaction} onClick={onClick} />
       {isOpen &&
         <TransactionView
           {...{
