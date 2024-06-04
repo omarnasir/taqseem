@@ -1,12 +1,12 @@
 "use server";
-import { getActivitiesByUserId, type ActivitiesByUserId } from '@/app/_data/activities';
+import { getActivitiesByUserId, type ActivityByUserId } from '@/app/_data/activities';
 import { Response } from '@/app/_types/response';
 import { auth } from '@/auth';
 
 
 type GETActivitiesResponseType = Omit<Response, "data"> & {
   data?: {
-    activities: ActivitiesByUserId[],
+    activities: ActivityByUserId[],
     cursor: number | undefined
   }
 }
