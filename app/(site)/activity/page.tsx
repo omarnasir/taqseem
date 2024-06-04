@@ -5,13 +5,9 @@ import { getActivityService } from "@/app/_service/activities";
 
 export default async function TransactionsPage() {
 
-  const activityResponse = await getActivityService(undefined);
-  
-  if (!activityResponse.success) {
-    return <div>{activityResponse.error}</div>;
-  }
+  const data = await getActivityService(undefined).then((response) => response.data ? response.data : undefined);
 
-  return (activityResponse.data &&
-    <ActivityView activities={activityResponse.data.activities} firstCursor={activityResponse.data.cursor as number} />
+  return (data &&
+    <ActivityView activities={data.activities} firstCursor={data.cursor as number} />
   );
 }

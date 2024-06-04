@@ -7,13 +7,13 @@ import { auth } from "@/auth";
 
 export default async function TransactionsPage({ params, searchParams }:
   { params: Record<string, string>, searchParams: string }) {
-  const sessionData = await auth();
-  
+
   const groupId = new URLSearchParams(searchParams).get('id') as string
 
-  const [groupResponse, transactionsResponse] = await Promise.all([
+  const [groupResponse, transactionsResponse, sessionData] = await Promise.all([
     getGroupDetailsService(groupId),
-    getUserTransactionsByGroupIdService(groupId, undefined)
+    getUserTransactionsByGroupIdService(groupId, undefined),
+    auth()
   ]);
 
   return (groupResponse.data && transactionsResponse.data &&

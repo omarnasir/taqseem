@@ -7,12 +7,9 @@ export default async function MembershipsPage({ params, searchParams }:
   { params: Record<string, string>, searchParams: string }
 ) {
   const group = JSON.parse(new URLSearchParams(searchParams).get('data') as string);
-  const response = await getMembershipsByGroupIdService(group.id);
-  if (!response.success) {
-    return <div>No Memberships found!</div>;
-  }
+  const memberships = await getMembershipsByGroupIdService(group.id).then((response) => response.data ? response.data : undefined);
 
-  return (response.data &&
-    <MembershipsView memberships={response.data} group={group} />
+  return (memberships &&
+    <MembershipsView memberships={memberships} group={group} />
   );
 }

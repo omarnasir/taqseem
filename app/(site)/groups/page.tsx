@@ -4,12 +4,9 @@ import { getAllGroupsService } from "@/app/_service/groups";
 
 
 export default async function GroupsPage() {
-  const response = await getAllGroupsService();
-  if (!response.success) {
-    return <div>No groups found!</div>;
-  }
-
-  return (response.data &&
-    <GroupsView groups={response.data} />
+  const groups = await getAllGroupsService().then((response) => response.data ? response.data : undefined);
+  
+  return (groups &&
+    <GroupsView groups={groups} />
   );
 }
