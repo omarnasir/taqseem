@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import NextLink from 'next/link'
 
-import { Bar, ResponsiveContainer, BarChart, ReferenceLine } from 'recharts';
+import { Bar, ResponsiveContainer, BarChart } from 'recharts';
 
 import {
   Text,
@@ -15,7 +15,12 @@ import {
   VStack,
   HStack,
   Divider,
+  Button,
 } from '@chakra-ui/react'
+
+import { 
+  FaRegHandshake as IconSettlement
+ } from 'react-icons/fa6'
 
 import { type GroupDataWithAmountOwed } from "@/app/_service/groups";
 import { TransactionWithDetails } from '@/app/_types/model/transactions';
@@ -41,7 +46,7 @@ export default function DashboardView({ groups, transactions }: { groups: GroupD
   return (
     <VStack spacing={4} align="stretch">
       <HStack bg={'bgCard'} rounded={'lg'} w={'100%'}>
-        <Stat variant={'primary'} w={'55%'} bg={'transparent'}>
+        <Stat variant={'primary'} w={'55%'}>
           <StatLabel>Here&apos;s your balance</StatLabel>
           <StatNumber color={formatBasedOnAmount({ amount: totalAmountOwed, isColor: true })}>€{totalAmountOwed.toFixed(2)}</StatNumber>
           <StatHelpText>
@@ -63,21 +68,23 @@ export default function DashboardView({ groups, transactions }: { groups: GroupD
         </VStack>
       </HStack>
       <Divider />
-      <SimpleGrid spacing={1} columns={2} >
-        {!!groups && groups.length > 0 &&
-          groups.map((group) => group && group.amountOwed !== 0 ?
-            <Stat key={group.id}
-              as={NextLink}
-              href={`/transactions?id=${group.id}`}
-              variant={'secondary'}>
-              <StatLabel>{group.name}</StatLabel>
-              <StatNumber color={group.amountOwed > 0 ? 'green.500' : 'red.500'}>€{group.amountOwed.toFixed(2)}</StatNumber>
-              <StatHelpText>
-                <StatArrow type={group.amountOwed > 0 ? 'increase' : 'decrease'} />
-                {group.amountOwed > 0 ? 'You get back' : 'You owe'}</StatHelpText>
-            </Stat> : <></>
-          )}
-      </SimpleGrid>
+      {!!groups && groups.length > 0 &&
+        groups.map((group) => group && group.amountOwed !== 0 ?
+          <SimpleGrid spacing={1} columns={1} key={group.id}>
+            <HStack bg={'bgCard'} rounded={'lg'} w={'100%'} >
+              <Stat variant={'secondary'} as={NextLink} href={`/transactions?id=${group.id}`} w={'55%'}>
+                <StatLabel>{group.name}</StatLabel>
+                <StatNumber color={formatBasedOnAmount({ amount: group.amountOwed, isColor: true })}>€{group.amountOwed.toFixed(2)}</StatNumber>
+                <StatHelpText>
+                  {group.amountOwed !== 0 && <StatArrow type={formatBasedOnAmount({ amount: group.amountOwed, isType: true })} />}
+                  {formatBasedOnAmount({ amount: group.amountOwed, isText: true })}
+                </StatHelpText>
+              </Stat>
+              <Button w={'35%'} marginRight={4} size="sm" variant="login"
+                leftIcon={<IconSettlement size={20} />}
+              >Settle</Button>
+            </HStack>
+          </SimpleGrid> : null)}
     </VStack>
   );
 }

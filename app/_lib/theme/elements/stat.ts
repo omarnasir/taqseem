@@ -8,7 +8,7 @@ const baseStyle = definePartsStyle({
   container: {
     padding: 2,
     borderRadius: "xl",
-    boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
+    boxShadow: "none",
   },
   label: {
     padding: 1,
@@ -27,10 +27,6 @@ const baseStyle = definePartsStyle({
 })
 
 const primary = definePartsStyle({
-  container: {
-    ...baseStyle.container,
-    boxShadow: 'none',
-  },
   number: {
     fontSize: "4xl",
   }
@@ -38,7 +34,7 @@ const primary = definePartsStyle({
 
 const secondary = definePartsStyle({
   container: {
-    bg: 'bgCard'
+    ...baseStyle.container
   },
   label: {
     fontSize: "md",
