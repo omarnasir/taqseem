@@ -16,8 +16,8 @@ import { type GroupData } from "@/app/_types/model/groups";
 import { deleteGroupAction } from '@/app/_actions/groups';
 import { CustomToast } from '@/app/_components/toast';
 import { useSession } from 'next-auth/react';
-import Confirm from '@/app/_components/confirm';
-import { CustomCardIcon } from '@/app/_components/cardIcon';
+import Confirm from '@/app/(site)/_components/confirm';
+import { CustomCardIcon } from '@/app/(site)/_components/cardIcon';
 
 
 export default function GroupsList(

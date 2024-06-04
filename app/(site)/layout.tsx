@@ -2,8 +2,8 @@
 import { useSession } from 'next-auth/react';
 import { Container, Flex } from '@chakra-ui/react';
 
-import Footer from '@/app/_components/navigation/footer';
-import Header from '@/app/_components/navigation/header';
+import Footer from '@/app/(site)/_components/navigation/footer';
+import Header from '@/app/(site)/_components/navigation/header';
 
 export default function SiteLayout({
   children,
