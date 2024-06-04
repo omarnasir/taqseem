@@ -16,6 +16,7 @@ import {
   HStack,
   Divider,
   Button,
+  Flex,
 } from '@chakra-ui/react'
 
 import { 
@@ -24,6 +25,8 @@ import {
 
 import { type GroupDataWithAmountOwed } from "@/app/_service/groups";
 import { TransactionWithDetails } from '@/app/_types/model/transactions';
+
+import { type Activity } from './page';
 
 
 function formatBasedOnAmount({ amount, isColor, isType, isText }:
@@ -39,7 +42,7 @@ function formatBasedOnAmount({ amount, isColor, isType, isText }:
 }
 
 
-export default function DashboardView({ groups, transactions }: { groups: GroupDataWithAmountOwed[], transactions?: TransactionWithDetails[] }) {
+export default function DashboardView({ groups, transactions }: { groups: GroupDataWithAmountOwed[], transactions?: Activity[] }) {
 
   const totalAmountOwed = useMemo(() => groups.reduce((acc, group) => acc + group?.amountOwed!, 0), [groups])
 
@@ -69,22 +72,26 @@ export default function DashboardView({ groups, transactions }: { groups: GroupD
       </HStack>
       <Divider />
       {!!groups && groups.length > 0 &&
-        groups.map((group) => group && group.amountOwed !== 0 ?
-          <SimpleGrid spacing={1} columns={1} key={group.id}>
-            <HStack bg={'bgCard'} rounded={'lg'} w={'100%'} >
-              <Stat variant={'secondary'} as={NextLink} href={`/transactions?id=${group.id}`} w={'55%'}>
-                <StatLabel>{group.name}</StatLabel>
-                <StatNumber color={formatBasedOnAmount({ amount: group.amountOwed, isColor: true })}>€{group.amountOwed.toFixed(2)}</StatNumber>
-                <StatHelpText>
-                  {group.amountOwed !== 0 && <StatArrow type={formatBasedOnAmount({ amount: group.amountOwed, isType: true })} />}
-                  {formatBasedOnAmount({ amount: group.amountOwed, isText: true })}
-                </StatHelpText>
-              </Stat>
-              <Button w={'35%'} marginRight={4} size="sm" variant="login"
-                leftIcon={<IconSettlement size={20} />}
-              >Settle</Button>
-            </HStack>
-          </SimpleGrid> : null)}
+        <>
+          <Text fontSize="sm" color="whiteAlpha.400">Your Groups</Text>
+          <SimpleGrid spacing={1} columns={2}>
+            {groups.map((group) => group && group.amountOwed !== 0 ?
+              <VStack bg={'bgCard'} rounded={'lg'} w={'100%'} key={group.id}>
+                <Stat variant={'secondary'} as={NextLink} href={`/transactions?id=${group.id}`} w='100%'>
+                  <StatLabel>{group.name}</StatLabel>
+                  <StatNumber color={formatBasedOnAmount({ amount: group.amountOwed, isColor: true })}>€{group.amountOwed.toFixed(2)}</StatNumber>
+                  <StatHelpText>
+                    {group.amountOwed !== 0 && <StatArrow type={formatBasedOnAmount({ amount: group.amountOwed, isType: true })} />}
+                    {formatBasedOnAmount({ amount: group.amountOwed, isText: true })}
+                  </StatHelpText>
+                  <Divider />
+                </Stat>
+                <Flex marginBottom={2} marginRight={4} w='100%' justifyContent={'flex-end'} >
+                  <Button size="md" w='60%' variant="settle" leftIcon={<IconSettlement size={14} />}>Settle</Button>
+                </Flex>
+              </VStack> : null)}
+          </SimpleGrid>
+        </>}
     </VStack>
   );
 }

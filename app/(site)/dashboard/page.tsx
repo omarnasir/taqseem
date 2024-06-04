@@ -5,23 +5,27 @@ import { getUserTransactionsByDateService } from "@/app/_service/transactions";
 import { auth } from "@/auth";
 
 
+export type Activity = {
+  owe: number,
+  getBack: number,
+  paidAt: Date,
+}
+
+
 export default async function DashboardPage() {
-  const session = await auth();
-  const groupsWithAmountOwedResponse = await getUserAmountOwedForAllGroups();
-  if (!groupsWithAmountOwedResponse.success) {
-    return <div>{groupsWithAmountOwedResponse.error}</div>;
-  }
-  
   const date = new Date();
   date.setDate(date.getDate() - 14);
-  const transactionsResponse = await getUserTransactionsByDateService(date.toISOString());
-  if (!transactionsResponse.success) {
-    return <DashboardView groups={groupsWithAmountOwedResponse.data!} />;
-  }
-  const transactions = transactionsResponse.data!.map((transaction) => ({
-    amount: transaction.transactionDetails.find((detail) => detail.userId === session!.user?.id)?.amount ?? 0,
-    paidAt: transaction.paidAt,
-  }));
+
+  const [session, groupsWithAmountOwed, transactions ] = await Promise.all([
+    auth(),
+    getUserAmountOwedForAllGroups().then((response) => response.data ? response.data : []),
+    getUserTransactionsByDateService(date.toLocaleDateString()).then((response) => response.data ? response.data : []),
+  ]);
+
+  transactions.forEach((transaction) => {
+    transaction.amount = transaction.transactionDetails.find((detail) => detail.userId === session!.user?.id)?.amount ?? 0;
+  });
+
   const dates = transactions.map((transaction) => new Date(transaction.paidAt).toLocaleDateString());
   const missingDates = [];
   for (let i = 0; i < 14; i++) {
@@ -32,21 +36,23 @@ export default async function DashboardPage() {
       missingDates.push(date);
     }
   }
+  const finalTransactions : Activity[] = transactions.map((transaction) => ({
+    owe: transaction.amount < 0 ? transaction.amount : 0,
+    getBack: transaction.amount > 0 ? transaction.amount : 0,
+    paidAt: new Date(transaction.paidAt),
+  }));
+
   for (const missingDate of missingDates) {
-    transactions.push({
-      amount: 0,
+    finalTransactions.push({
+      owe: 0,
+      getBack: 0,
       paidAt: missingDate,
     });
   }
-  transactions.sort((a, b) => new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime());
-  transactions.splice(0, Math.max(0, transactions.length - 30));
-  const finalTransactions = transactions.map((transaction) => ({
-    owe: transaction.amount < 0 ? transaction.amount : 0,
-    getBack: transaction.amount > 0 ? transaction.amount : 0,
-  }));
+  finalTransactions.sort((a, b) => new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime());
+  finalTransactions.splice(0, Math.max(0, finalTransactions.length - 14));
 
   return (
-    <DashboardView groups={groupsWithAmountOwedResponse.data!} transactions={finalTransactions} />
+    <DashboardView groups={groupsWithAmountOwed} transactions={finalTransactions} />
   );
-
 }
