@@ -61,7 +61,7 @@ export default function GroupsList(
                     w='100%'
                     variant="action"
                     onClick={() => router.push(
-                      `/memberships?data=${JSON.stringify(group)}`,)}>
+                      `/groups/memberships?data=${JSON.stringify(group)}`,)}>
                     Manage
                   </Button>
                   <Button leftIcon={<MdPersonRemove />}
