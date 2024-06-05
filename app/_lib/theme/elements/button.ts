@@ -70,8 +70,9 @@ export const buttonTheme = defineStyleConfig({
     },
     headerButton: {
       fontSize: 'lg',
-      color: 'whiteAlpha.700',
+      color: 'whiteAlpha.800',
       bg: 'transparent',
+      boxShadow: 'none',
     },
     footer: {
       color: 'whiteAlpha.800',

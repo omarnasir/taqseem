@@ -7,11 +7,10 @@ const login = {
 }
 
 const transaction = {
-  fontWeight: 'light',
-  letterSpacing: 'tight',
+  marginBottom: 2,
+  fontWeight: 300,
+  letterSpacing: 'normal',
   fontSize: 'sm',
-  width: '5.5rem',
-  alignSelf: 'center',
 }
 
 export const formLabelTheme = defineStyleConfig({

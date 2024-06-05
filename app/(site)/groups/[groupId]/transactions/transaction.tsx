@@ -50,6 +50,7 @@ import {
   FormItemPaidBy,
   FormItemNote
 } from "./form-items";
+
 import { type GroupWithMembers } from "@/app/_types/model/groups";
 import { createTransactionAction, updateTransactionAction, deleteTransactionAction } from "@/app/_actions/transactions";
 import {
@@ -170,7 +171,6 @@ function getTransactionFormDefaultValues(groupId: string, userId: string): FormT
 function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicData[]): CreateTransactionDetails[] | string | undefined {
   const strategy = values[FormIdEnum.strategy] as number;
   const totalAmount = parseFloat(values[FormIdEnum.amount]);
-  const paidById = values[FormIdEnum.paidById];
   const transactionDetails = values[FormIdEnum.transactionDetails];
   // Strategy 0: Split equally
   if (strategy === 0) {
@@ -218,7 +218,7 @@ function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicD
 }
 
 
-function TransactionView(
+function Transaction(
   { group, disclosureProps, isOpen, onCloseDrawer, transactionWithDetails }: {
     group: GroupWithMembers,
     disclosureProps: any,
@@ -252,7 +252,7 @@ function TransactionView(
   } = methods
 
   async function onSubmit(values: FormTransaction) {
-    console.log('Submitted: ', values)
+
     const userDetails: CreateTransactionDetails[] | string | undefined = processUserDetailsByStrategy(values, users);
     if (typeof userDetails === 'string') {
       setError(FormIdEnum.transactionDetails, { message: userDetails as string })
@@ -261,7 +261,7 @@ function TransactionView(
     // Build the transaction object
     const transaction = mapFormToTransaction(values, userDetails as CreateTransactionDetails[], group.id)
     if (values.id) {
-      console.log('Updating transaction', transaction)
+
       const response = await updateTransactionAction(group.id, transaction as UpdateTransaction);
       if (response.success) {
         onCloseDrawer();
@@ -272,7 +272,7 @@ function TransactionView(
       }
     }
     else {
-      console.log('Creating transaction', transaction)
+
       const response = await createTransactionAction(group.id, transaction as CreateTransaction);
       if (response.success) {
         onCloseDrawer();
@@ -294,6 +294,8 @@ function TransactionView(
     }
     else {
       addToast('Cannot delete transaction.', res.error, 'error')
+      onCloseDrawer();
+      router.refresh();
     }
   }
 
@@ -306,7 +308,7 @@ function TransactionView(
       onClose={() => { onCloseDrawer() }}
       {...disclosureProps}>
       <DrawerOverlay />
-      <DrawerContent height='100vh' width={{ base: '100%', sm: 'xl' }} margin='auto'>
+      <DrawerContent height='100%' width={{ base: '100%', sm: 'xl' }} margin='auto'>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DrawerHeader w='100%'
@@ -336,8 +338,8 @@ function TransactionView(
               </Stack>
               <DrawerCloseButton />
             </DrawerHeader>
-            <DrawerBody  position='absolute' w='100%'
-              overflow={'scroll'} pt={'20vh'}
+            <DrawerBody  position='absolute' w='100%' paddingX={8} 
+              overflow={'scroll'} pt={'15vh'}
               sx={{
                 '&::-webkit-scrollbar': {
                   display: 'none',
@@ -414,7 +416,7 @@ function TransactionView(
 }
 
 export {
-  TransactionView,
+  Transaction,
   FormIdEnum,
   formatDateToString
 }

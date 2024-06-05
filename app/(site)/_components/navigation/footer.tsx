@@ -24,8 +24,6 @@ export default function Footer() {
   ]
   const pathname = usePathname()
   
-  const isTransactionsOrMemberships = pathname === '/transactions' || pathname === '/memberships'
-
   return (
     <Container flexDirection='row' display='flex' w='100%'
       paddingX={0}
@@ -33,8 +31,8 @@ export default function Footer() {
       {linkItems.map((linkItem, index) => (
         <Button key={index} href={linkItem.href} as={Link} w='100%' h='100%'
           variant='footer'
-          borderTopColor={pathname === linkItem.href || (linkItem.href === '/groups' && isTransactionsOrMemberships) ? 'teal.500' : 'transparent'}
-          borderTopWidth={pathname === linkItem.href || (linkItem.href === '/groups' && isTransactionsOrMemberships) ? 2 : 0}
+          borderTopColor={pathname.startsWith(linkItem.href) ? 'teal.500' : 'transparent'}
+          borderTopWidth={pathname.startsWith(linkItem.href) ? 2 : 0}
           flexDirection={'column'}>
           <Icon as={linkItem.icon} boxSize={{base: 5, md: 6}} />
           <Text mt={2} fontSize={{base: 'xs', md: 'sm'}} display={{base: 'none', md: 'block'}}

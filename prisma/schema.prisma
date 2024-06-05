@@ -28,7 +28,6 @@ model Users {
   PaidBy             Transactions[]       @relation("PaidBy")
   CreatedBy          Transactions[]       @relation("CreatedBy")
   transactionDetails TransactionDetails[]
-  Settlement         Settlement[]
 }
 
 model Groups {
@@ -38,7 +37,6 @@ model Groups {
   createdBy    Users          @relation(fields: [createdById], references: [id])
   createdById  String
   transactions Transactions[]
-  Settlement   Settlement[]
 }
 
 model Memberships {
@@ -67,25 +65,15 @@ model Transactions {
   createdById        String
   createdAt          DateTime             @default(now())
   transactionDetails TransactionDetails[]
+  isSettlement       Boolean              @default(false)
 }
 
 model TransactionDetails {
   id            Int          @id @default(autoincrement())
-  transaction   Transactions @relation(fields: [transactionId], references: [id])
+  transaction   Transactions @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   transactionId Int
   user          Users        @relation(fields: [userId], references: [id])
   userId        String
   amount        Float
   createdAt     DateTime     @default(now())
-}
-
-model Settlement {
-  id          Int      @id @default(autoincrement())
-  group       Groups   @relation(fields: [groupId], references: [id])
-  groupId     String
-  settledBy   Users    @relation(fields: [settledById], references: [id])
-  settledById String
-  settledAt   DateTime @default(now())
-  amount      Float
-  createdAt   DateTime @default(now())
 }

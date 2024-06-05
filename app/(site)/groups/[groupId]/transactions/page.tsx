@@ -5,10 +5,8 @@ import { getUserTransactionsByGroupIdService } from "@/app/_service/transactions
 import { auth } from "@/auth";
 
 
-export default async function TransactionsPage({ params, searchParams }:
-  { params: Record<string, string>, searchParams: string }) {
-
-  const groupId = new URLSearchParams(searchParams).get('id') as string
+export default async function TransactionsPage({ params: { groupId } }:
+  { params: { groupId: string } }) {
 
   const [groupResponse, transactionsResponse, sessionData] = await Promise.all([
     getGroupDetailsService(groupId),

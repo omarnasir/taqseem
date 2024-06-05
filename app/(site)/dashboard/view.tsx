@@ -39,7 +39,7 @@ function formatBasedOnAmount({ amount, isColor, isType, isText }:
 export default function DashboardView({ groupsBalance, activityHistory, sessionData }: 
   { groupsBalance: MemberBalanceByGroups | {}, activityHistory?: Activity[], sessionData: any}) 
 {
-  console.log(groupsBalance, activityHistory, sessionData)
+
   const amountOwedByGroup = useMemo(() => {
     return Object.entries(groupsBalance).map(([groupId, group]) => {
       return {
@@ -83,7 +83,7 @@ export default function DashboardView({ groupsBalance, activityHistory, sessionD
           <SimpleGrid spacing={1} columns={2}>
             {amountOwedByGroup.map(group =>
               <VStack bg={'bgCard'} rounded={'lg'} w={'100%'} key={group.groupId}>
-                <Stat variant={'secondary'} as={NextLink} href={`/transactions?id=${group.groupId}`} w='100%'>
+                <Stat variant={'secondary'} as={NextLink} href={`/groups/${group.groupId}/transactions`} w='100%'>
                   <StatLabel>{group.groupName}</StatLabel>
                   <StatNumber color={formatBasedOnAmount({ amount: group.balance, isColor: true })}>€{Math.abs(group.balance).toFixed(2)}</StatNumber>
                   <StatHelpText>

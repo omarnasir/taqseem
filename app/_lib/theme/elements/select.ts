@@ -13,7 +13,7 @@ const transaction = definePartsStyle({
     boxShadow: "0 6px 8px 0px rgba(0,0,0,0.25)",
   },
   field: {
-    paddingLeft: base.field.paddingLeft,
+    marginLeft: 6,
     background: base.field.background,
     fontSize: base.field.fontSize,
   }

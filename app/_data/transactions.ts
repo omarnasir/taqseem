@@ -158,11 +158,11 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
         id: transactionId
       },
       select: {
-        createdById: true,
         transactionDetails: {
           select: {
             id: true,
-            userId: true
+            userId: true,
+            amount: true
           }
         }
       }
@@ -172,24 +172,23 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
     }
     // Check if the requesting user is involved in the transaction
     const isUserInvolved = transaction?.transactionDetails?.some(detail => { 
-      return detail.userId === userId;
+      return detail.userId === userId
     })
-    if (!isUserInvolved && transaction.createdById !== userId) {
+    const userAmount = transaction?.transactionDetails?.find(detail => detail.userId === userId)?.amount;
+    if (!isUserInvolved || userAmount === (undefined || null || 0) ) {
       throw new Error("User not involved in transaction");
     }
-    // Delete transaction details
-    const deleteRelation = prisma.transactionDetails.deleteMany({
-      where: {
-        transactionId: transactionId
-      }
-    });
     // Delete transaction
-    const deleteTransaction = prisma.transactions.delete({
+    await prisma.transactions.delete({
       where: {
-        id: transactionId
+        id: transactionId,
+        transactionDetails: {
+          some: {
+            userId: userId
+          }
+        }
       }
     });
-    await prisma.$transaction([deleteRelation, deleteTransaction]);
   }
   catch (e) {
     console.error(e);

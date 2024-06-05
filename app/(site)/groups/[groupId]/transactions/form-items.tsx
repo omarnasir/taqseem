@@ -22,16 +22,18 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  InputLeftElement,
+  FormLabel,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
-  MdCalendarMonth, MdOutlineCategory, MdOutlineCancel, MdCalculate
+  MdCalendarMonth, MdOutlineCategory, MdOutlineCancel
 } from "react-icons/md"
 import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-form";
 
 import { UserBasicData } from "@/app/_types/model/users";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
-import { FormIdEnum, formatDateToString } from "../_components/view-transaction";
+import { FormIdEnum, formatDateToString } from "./transaction";
 import { CustomFormIcon } from "@/app/(site)/_components/cardIcon";
 
 
@@ -52,19 +54,17 @@ function FormItemName() {
 
   return (
     <FormControl id={FormIdEnum.name} isInvalid={Boolean(errors[FormIdEnum.name])} marginBottom={3}>
-      <HStack>
-        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{bg:"teal.600"}}/>
-        <InputGroup variant={"transaction"}>
-          <InputLeftAddon>
-            <Text alignSelf={'center'}>Name</Text>
-          </InputLeftAddon>
-          <Input {...register(FormIdEnum.name, {
-            required: 'You must enter a name',
-          })}
-            placeholder='Name' />
-        </InputGroup>
+      <FormLabel variant={'transaction'}>Name</FormLabel>
+      <InputGroup variant={"transaction"}>
+        <InputLeftElement>
+          <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{ color: "teal.600" }} />
+        </InputLeftElement>
+        <Input {...register(FormIdEnum.name, {
+          required: 'You must enter a name',
+        })}
+          placeholder='Name' />
+      </InputGroup>
       <FormErrorMessage>{errors[FormIdEnum.name]?.message?.toString()}</FormErrorMessage>
-      </HStack>
     </FormControl>
   )
 }
@@ -216,7 +216,7 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
               validate: (value) => value > 0 || value === ''
             }}
             render={({ field: { ref, name,onChange, ...restField } }) => (
-              <NumberInput size={'md'} variant={'transaction'}
+              <NumberInput size={'md'} variant={'transactionUserDetails'}
                 {...restField} 
                 onChange={(value) =>{
                   getFieldState(FormIdEnum.transactionDetails).invalid && clearErrors(FormIdEnum.transactionDetails)
@@ -264,12 +264,11 @@ function FormItemAmount() {
 
   return (
     <FormControl id={FormIdEnum.amount} isInvalid={Boolean(errors[FormIdEnum.amount])} marginBottom={3}>
-      <HStack>
-        <CustomFormIcon icon={MdEuroSymbol} styleProps={{bg:"green.600"}}/>
+      <FormLabel variant={'transaction'}>Amount</FormLabel>
       <InputGroup variant={"transaction"}>
-      <InputLeftAddon>
-        <Text alignSelf={'center'}>Amount</Text>
-      </InputLeftAddon>
+      <InputLeftElement>
+        <CustomFormIcon icon={MdEuroSymbol} styleProps={{color:"green.600"}}/>
+      </InputLeftElement>
         <Controller
           name={FormIdEnum.amount}
           control={control}
@@ -304,7 +303,6 @@ function FormItemAmount() {
         />
       </InputGroup>
       <FormErrorMessage>{errors[FormIdEnum.amount]?.message?.toString()}</FormErrorMessage>
-      </HStack>
     </FormControl>
   )
 }
@@ -312,13 +310,12 @@ function FormItemAmount() {
 function FormItemSubCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.subCategory} isInvalid={Boolean(errors[FormIdEnum.subCategory])} marginY={3}>
-      <HStack>
-        <CustomFormIcon icon={MdOutlineCategory} styleProps={{bg:"red.600"}}/>
+    <FormControl id={FormIdEnum.subCategory} isInvalid={Boolean(errors[FormIdEnum.subCategory])} marginBottom={3}>
+      <FormLabel variant={'transaction'}>SubCategory</FormLabel>
       <InputGroup variant={"transaction"}>
-      <InputLeftAddon>
-        <Text alignSelf={'center'}>SubCategory</Text>
-      </InputLeftAddon>
+      <InputLeftElement>
+        <CustomFormIcon icon={MdOutlineCategory} styleProps={{color:"red.600"}}/>
+      </InputLeftElement>
         <Select {...register(FormIdEnum.subCategory, {
           required: true,
           valueAsNumber: true
@@ -333,7 +330,6 @@ function FormItemSubCategory() {
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[FormIdEnum.subCategory]?.message?.toString()}</FormErrorMessage>
-      </HStack>
     </FormControl>
   )
 }
@@ -341,13 +337,12 @@ function FormItemSubCategory() {
 function FormItemCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.category} isInvalid={Boolean(errors[FormIdEnum.category])} marginY={3}>
-      <HStack>
-        <CustomFormIcon icon={MdCategory} styleProps={{bg:"red.600"}}/>
+    <FormControl id={FormIdEnum.category} isInvalid={Boolean(errors[FormIdEnum.category])} marginBottom={3}>
+      <FormLabel variant={'transaction'}>Category</FormLabel>
       <InputGroup variant={"transaction"}>
-        <InputLeftAddon>
-          <Text alignSelf={'center'}>Category</Text>
-        </InputLeftAddon>
+        <InputLeftElement>
+        <CustomFormIcon icon={MdCategory} styleProps={{color:"red.600"}}/>
+        </InputLeftElement>
         <Select {...register(FormIdEnum.category, {
           required: true,
           valueAsNumber: true
@@ -362,7 +357,6 @@ function FormItemCategory() {
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[FormIdEnum.category]?.message?.toString()}</FormErrorMessage>
-      </HStack>
     </FormControl>
   )
 }
@@ -370,13 +364,12 @@ function FormItemCategory() {
 function FormItemDateTime() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.paidAt} isInvalid={Boolean(errors[FormIdEnum.paidAt])} marginY={3}>
-      <HStack>
-        <CustomFormIcon icon={MdCalendarMonth} styleProps={{bg:"yellow.600"}}/>
+    <FormControl id={FormIdEnum.paidAt} isInvalid={Boolean(errors[FormIdEnum.paidAt])} marginBottom={3}>
+      <FormLabel variant={'transaction'}>Date</FormLabel>
       <InputGroup variant={"transaction"}>
-        <InputLeftAddon>
-          <Text alignSelf={'center'}>Date</Text>
-        </InputLeftAddon>
+        <InputLeftElement>
+          <CustomFormIcon icon={MdCalendarMonth} styleProps={{ color: "yellow.600" }} />
+        </InputLeftElement>
         <Input {...register(FormIdEnum.paidAt, {
           required: true,
         })}
@@ -387,7 +380,6 @@ function FormItemDateTime() {
           defaultValue={formatDateToString(new Date())} />
       </InputGroup>
       <FormErrorMessage>{errors[FormIdEnum.paidAt]?.message?.toString()}</FormErrorMessage>
-      </HStack>
     </FormControl>
   )
 }
@@ -395,13 +387,12 @@ function FormItemDateTime() {
 function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.paidById} isInvalid={Boolean(errors[FormIdEnum.paidById])} marginY={3}>
-      <HStack>
-        <CustomFormIcon icon={MdCategory} styleProps={{bg:"purple.600"}}/>
+    <FormControl id={FormIdEnum.paidById} isInvalid={Boolean(errors[FormIdEnum.paidById])} marginBottom={3}>
+          <FormLabel variant={'transaction'}>Paid By</FormLabel>
       <InputGroup variant={"transaction"}>
-        <InputLeftAddon>
-          <Text alignSelf={'center'}>Paid By</Text>
-        </InputLeftAddon>
+        <InputLeftElement>
+          <CustomFormIcon icon={MdCategory} styleProps={{color:"purple.600"}}/>
+        </InputLeftElement>
         <Select {...register(FormIdEnum.paidById, {
           required: true,
         })}
@@ -414,7 +405,6 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
         </Select>
       </InputGroup>
       <FormErrorMessage>{errors[FormIdEnum.paidById]?.message?.toString()}</FormErrorMessage>
-      </HStack>
     </FormControl>
   )
 }
@@ -422,13 +412,12 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
 function FormItemNote() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.notes} isInvalid={Boolean(errors[FormIdEnum.notes])} marginY={3}>
-      <HStack>
-        <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{ bg: "orange.600", }} />
+    <FormControl id={FormIdEnum.notes} isInvalid={Boolean(errors[FormIdEnum.notes])} marginBottom={3}>
+      <FormLabel variant={'transaction'}>Note</FormLabel>
         <InputGroup variant={"transaction"}>
-          <InputLeftAddon>
-            <Text alignSelf={'center'}>Note</Text>
-          </InputLeftAddon>
+          <InputLeftElement>
+            <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{ color: "orange.600", }} />
+          </InputLeftElement>
           <Input {...register(FormIdEnum.notes, {
             required: false
           })}
@@ -437,7 +426,6 @@ function FormItemNote() {
           />
         </InputGroup>
         <FormErrorMessage>{errors[FormIdEnum.notes]?.message?.toString()}</FormErrorMessage>
-      </HStack>
     </FormControl>
   )
 }
