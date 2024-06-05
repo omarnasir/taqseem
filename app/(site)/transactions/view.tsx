@@ -49,7 +49,7 @@ function TransactionsList({ transactions, group, sessionData, setSelectedTransac
                 <DateDisplay paidAt={transaction.paidAt} />
                 <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='5' color='whiteAlpha.700' />
                 <SummaryDisplay transaction={transaction} users={group?.users!} userId={sessionData?.user?.id!} />
-                <AmountDisplay transactionDetails={transaction.transactionDetails} userId={sessionData?.user?.id!} />
+                <AmountDisplay transaction={transaction} userId={sessionData?.user?.id!} />
               </ListItem>
             ))}
           </div>

@@ -137,7 +137,7 @@ function mapTransactionToForm(transaction: TransactionWithDetails): FormTransact
     transactionDetails: transaction.transactionDetails.map((detail) => {
       return {
         userId: detail.userId,
-        amount: (detail.amount < 0 ? detail.amount * -1 : detail.amount).toString()
+        amount: detail.amount.toString()
       }
     })
   }
@@ -175,34 +175,14 @@ function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicD
   // Strategy 0: Split equally
   if (strategy === 0) {
     const userAmount = totalAmount / users.length
-    return users.map(user => {
-      return {
-        userId: user.id,
-        amount: user.id === paidById ? userAmount : -userAmount
-      }
-    })
+    return users.map(user => ({ userId: user.id, amount: userAmount}));
   }
   // Strategy > 0: Assign total amount to user at index [strategy - 1]
   else if (strategy > 0) {
-    return users.map(user => {
-      switch (user.id) {
-        case users[strategy - 1].id:
-          return {
-            userId: user.id,
-            amount: -totalAmount
-          }
-        case paidById:
-          return {
-            userId: user.id,
-            amount: totalAmount
-          }
-        default:
-          return {
-            userId: user.id,
-            amount: 0
-          }
-      }
-    })
+    return users.map(user => ({
+      userId: user.id,
+      amount: (user.id === users[strategy - 1].id) ? totalAmount : 0
+    }))
   }
   // Strategy -1: Custom amounts with validation
   else if (strategy === -1) {
@@ -231,11 +211,6 @@ function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicD
       return {
         userId: selectedUser.userId,
         amount: (selectedUser.amount === '') ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
-      }
-    })
-    userDetails.forEach(user => {
-      if (user.userId !== values[FormIdEnum.paidById]) {
-        user.amount = user.amount * -1
       }
     })
     return userDetails

@@ -6,62 +6,46 @@ import {
   type TransactionWithDetails
 } from "@/app/_types/model/transactions";
 
-
-export type GroupedTransactions = {
-  year: number,
-  data: {
-    month: number,
-    monthName: string,
-    data: TransactionWithDetails[]
-  }[]
-}[]
-
-
+/**
+ * Get transactions by group and user id.
+ * This function is intended to be used in the service layer to display transactions
+ * in the frontend for a specific user in a group.
+ * The amount field is converted to positive if it is negative for UX purposes and to facilitate
+ * the calculations of whether the user owes or is owed money.
+ * @param groupId - The group id
+ * @param userId 
+ * @param cursor 
+ * @returns 
+ */
 async function getTransactionsByGroupAndUserId(groupId: string, userId: string,
-  cursor: number | undefined): Promise<{groupedTransactions: GroupedTransactions, cursor: number | undefined}> {
-  const transactions = await prisma.transactions.findMany({
-    where: {
-      groupId: groupId,
-      transactionDetails: {
-        some: {
-          userId: userId
-        }
-      }
-    },
-    include: {
-      transactionDetails: true
-    },
-    orderBy: {
-      paidAt: 'desc'
-    },
-    take: 20,
-    cursor: cursor ? {
-      id: cursor
-    } : undefined,
-    skip: cursor ? 1 : undefined
-  });
-  if (!transactions || transactions.length === 0 ) return {groupedTransactions: [], cursor: undefined};
+  cursor: number | undefined): Promise<{ transactions: TransactionWithDetails[] | [], cursor: number | undefined }> {
   try {
-    let groupedTransactions: GroupedTransactions = []
-    for (const transaction of transactions) {
-      const date = new Date(transaction.paidAt);
-      const month = date.getMonth()
-      const year = date.getFullYear()
-      if (!groupedTransactions.find((group) => group.year === year)) {
-        groupedTransactions.push({ year, data: [] })
-      }
-      const groupIndex = groupedTransactions.findIndex((group) => group.year === year)
-      if (!groupedTransactions[groupIndex].data.find((data) => data.month === month)) {
-        groupedTransactions[groupIndex].data.push({ month, monthName: date.toLocaleString('default', { month: 'long' }), data: [] })
-      }
-      const monthIndex = groupedTransactions[groupIndex].data.findIndex((data) => data.month === month)
-      groupedTransactions[groupIndex].data[monthIndex].data.push(transaction)
-    }
-    groupedTransactions.sort((a, b) => b.year - a.year)
-    for (const group of groupedTransactions) {
-      group.data.sort((a, b) => b.month - a.month)
-    }
-    return {groupedTransactions, cursor: transactions[transactions.length - 1].id}
+    const transactions = await prisma.transactions.findMany({
+      where: {
+        groupId: groupId,
+        transactionDetails: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      include: {
+        transactionDetails: true
+      },
+      orderBy: {
+        paidAt: 'desc'
+      },
+      take: 20,
+      cursor: cursor ? {
+        id: cursor
+      } : undefined,
+      skip: cursor ? 1 : undefined
+    });
+    if (!transactions || transactions.length === 0) return { transactions: [], cursor: undefined };
+    transactions.map(transaction => {
+      return transaction.amount = transaction.amount < 0 ? -1 * transaction.amount : transaction.amount;
+    });
+    return { transactions, cursor: transactions[transactions.length - 1].id }
   }
   catch (e) {
     console.error(e);
@@ -92,6 +76,7 @@ async function createTransaction(groupId: string, data: CreateTransaction) {
     const newTransaction = await prisma.transactions.create({
       data: {
         ...data,
+        amount: data.amount > 0 ? -1 * data.amount : data.amount,
         notes: data.notes || '',
         transactionDetails: {
           create: data.transactionDetails?.map(detail => {
@@ -212,29 +197,95 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
   }
 }
 
+type MemberBalanceByGroupQueryResult = {
+  groupId: string;
+  groupName: string;
+  userId: string;
+  userName: string;
+  lent: number;
+  spent: number;
+  balance: number;
+}
 
-async function getAmountOwedByGroupAndUserId(groupId: string, userId: string) {
-  const amount = await prisma.transactionDetails.aggregate({
-    _sum: {
-      amount: true
-    },
-    where: {
-      userId: userId,
-      transaction: {
-        groupId: groupId
-      }
-    },
-  });
-  if (!amount) throw new Error("No amount found");
-  try {
-    return amount._sum.amount;
-  }
-  catch (e) {
-    console.error(e);
-    throw new Error("Failed to get amount owed");
+type MemberBalanceByGroups = {
+  [groupId: string]: {
+    groupName: string;
+    users: {
+      userId: string;
+      userName: string;
+      lent: number;
+      spent: number;
+      balance: number;
+    }[]
   }
 }
 
+
+async function getMembersBalancesByUserGroups(userId: string) : Promise<MemberBalanceByGroups> {
+  try {
+    const result : MemberBalanceByGroupQueryResult[] = await prisma.$queryRaw`
+      WITH groupIds AS (
+        SELECT DISTINCT groupId
+        FROM Memberships
+        WHERE userId = ${userId}
+      ),
+      groupMembers AS (
+        SELECT groupId, g.name, userId, u.name as userName
+        FROM Memberships as m
+        INNER JOIN
+        (SELECT id, name
+          FROM Users) AS u
+          ON userId = u.id
+        INNER JOIN
+        (SELECT id, name
+          FROM Groups) AS g
+          ON groupId = g.id
+        WHERE m.groupId IN groupIds
+      ),
+      lent AS (
+        SELECT t.groupId, paidById as userId, -1 * SUM(amount) AS lent, 0 AS spent
+        FROM Transactions as t
+        WHERE t.groupId IN groupIds
+        GROUP BY t.groupId, paidById
+      ),
+      spent AS (
+        SELECT t.groupId, userId, 0 AS lent, -1 * SUM(amount) AS spent
+        FROM TransactionDetails as td
+        INNER JOIN 
+          (SELECT id, groupId
+          FROM Transactions as t
+          WHERE t.groupId IN groupIds) AS t
+        ON transactionId = t.id
+        GROUP BY t.groupId, userId
+      ) 
+      SELECT combined.groupId, combined.userId, name as groupName, userName, SUM(lent) AS lent, SUM(spent) AS spent, SUM(lent) + SUM(spent) AS balance
+      FROM (
+        SELECT * FROM lent
+        UNION ALL
+        SELECT * FROM spent
+      ) AS combined
+      INNER JOIN
+        (SELECT groupId, name, userId, userName
+        FROM groupMembers) AS g
+      ON combined.groupId = g.groupId AND combined.userId = g.userId
+      GROUP BY combined.groupId, combined.userId;`
+    if (!result) throw new Error("No amount found");
+    const memberBalancesByGroup : MemberBalanceByGroups = {};
+    result.forEach((row) => {
+      if (!memberBalancesByGroup[row.groupId]) {
+        memberBalancesByGroup[row.groupId] = { groupName: row.groupName, users: [] };
+      }
+      const { groupId, groupName, ...rest } = row;
+      memberBalancesByGroup[row.groupId].users.push(rest);
+    });
+
+    return memberBalancesByGroup;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to get amount spent");
+  }
+}
 
 async function getTransactionsByUserIdAndDate(userId: string, date: string) {
   const transactions = await prisma.transactions.findMany({
@@ -265,12 +316,12 @@ async function getTransactionsByUserIdAndDate(userId: string, date: string) {
   }
 }
 
-
 export { 
   getTransactionsByGroupAndUserId,
   createTransaction,
   updateTransaction,
   deleteTransaction,
-  getAmountOwedByGroupAndUserId,
   getTransactionsByUserIdAndDate,
-};
+  getMembersBalancesByUserGroups,
+  type MemberBalanceByGroups
+}

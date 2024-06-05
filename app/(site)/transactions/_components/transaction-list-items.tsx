@@ -1,3 +1,4 @@
+'use client';
 import { useMemo } from 'react';
 import {
   VStack,
@@ -30,11 +31,17 @@ function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
   )
 }
 
-function AmountDisplay({ transactionDetails, userId }:
-  { transactionDetails: TransactionWithDetails['transactionDetails'], userId: string }) {
-  const amount = useMemo(() =>
-    transactionDetails.find(td => td.userId === userId)?.amount as number
-    , [transactionDetails, userId]);
+function AmountDisplay({ transaction, userId }:
+  { transaction: TransactionWithDetails, userId: string }) {
+  const { amount: totalAmount, paidById, transactionDetails } = transaction;
+
+
+  const amount = useMemo(() => {
+    return transactionDetails.map((td) => {
+      return td.userId === userId ? td.userId === paidById ? totalAmount - td.amount : -1 * td.amount : 0;
+    }).reduce((acc, val) => acc + val, 0);
+  }, [transactionDetails, userId, paidById, totalAmount]);
+
 
   const colorDarker = useMemo(() => amount === 0 ? 'whiteAlpha.500' : amount > 0 ? 'green.500' : 'red.500', [amount]);
   const colorLighter = useMemo(() => amount === 0 ? 'whiteAlpha.500' : amount > 0 ? 'green.400' : 'red.400', [amount]);

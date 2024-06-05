@@ -1,12 +1,17 @@
 'use server'
+import { auth } from '@/auth';
+
 import { 
   GroupWithMembers,
   type GroupData, 
 } from '@/app/_types/model/groups';
 import { type Response } from '@/app/_types/response';
-import { auth } from '@/auth';
+
 import { getGroupsByUserId, getGroupById } from '@/app/_data/groups';
-import { getUserAmountOwedByGroupService } from './transactions';
+import { 
+  getMembersBalancesByUserGroups,
+  type MemberBalanceByGroups
+ } from '@/app/_data/transactions';
 
 type GetAllGroupsResponse = Omit<Response, 'data'> & {
   data?: GroupData[];
@@ -16,12 +21,8 @@ type GetGroupResponse = Omit<Response, 'data'> & {
   data?: GroupWithMembers
 }
 
-type GroupDataWithAmountOwed = GroupData & {
-  amountOwed: number
-} | undefined;
-
-type GetAllGroupsWithAmountResponse = Omit<Response, 'data'> & {
-  data?: GroupDataWithAmountOwed[];
+type GETGroupBalancesByUserResponse = Omit<Response, "data"> & {
+  data?: MemberBalanceByGroups
 }
 
 async function getAllGroupsService(): Promise<GetAllGroupsResponse> {
@@ -53,24 +54,15 @@ async function getGroupDetailsService(groupId: string): Promise<GetGroupResponse
   }
 }
 
-
-async function getUserAmountOwedForAllGroups(): Promise<GetAllGroupsWithAmountResponse> {
+async function getMembersBalancesByUserGroupsService(): Promise<GETGroupBalancesByUserResponse> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    const response = await getGroupsByUserId(session.user.id as string)
+    const response = await getMembersBalancesByUserGroups(session?.user?.id as string);
 
-    const groupsWithAmountOwed = await Promise.all(response.map(async (group) => {
-      const amountOwedResponse = await getUserAmountOwedByGroupService(group.id);
-      if (!amountOwedResponse.success) {
-        return undefined;
-      }
-      return { ...group, amountOwed: amountOwedResponse.data || 0 };
-    }
-    ));
-    return { success: true, data: groupsWithAmountOwed };
+    return { success: true, data: response };
   }
   catch (e) {
     return { success: false, error: e.message };
@@ -80,6 +72,6 @@ async function getUserAmountOwedForAllGroups(): Promise<GetAllGroupsWithAmountRe
 export { 
   getAllGroupsService, 
   getGroupDetailsService,
-  getUserAmountOwedForAllGroups,
-  type GroupDataWithAmountOwed
+  getMembersBalancesByUserGroupsService,
+  type MemberBalanceByGroups
 };
