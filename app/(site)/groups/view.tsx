@@ -17,7 +17,6 @@ import {
   SimpleGrid, 
   ButtonGroup,
   useDisclosure,
-  UseDisclosureReturn,
   CardHeader,
   FormControl,
   FormErrorMessage,
@@ -44,11 +43,11 @@ import { CustomToast } from '@/app/_components/toast';
 import Confirm from '@/app/(site)/_components/confirm';
 
 
-function CreateGroupModal(createGroupProps: UseDisclosureReturn) {
+function CreateGroupModal() {
   const router = useRouter();
   const { addToast } = CustomToast();
 
-  const { isOpen, onClose } = createGroupProps;
+  const { isOpen, onClose, onOpen } = useDisclosure()
   
   const {
     handleSubmit,
@@ -56,11 +55,13 @@ function CreateGroupModal(createGroupProps: UseDisclosureReturn) {
     formState: { errors, isSubmitting },
   } = useForm()
 
-
   async function onSubmit(values: FieldValues) {
+    console.log(values)
     const response = await createGroupAction(values.name);
+
     if (response.success) {
       router.refresh()
+      onClose();
     }
     else {
       addToast("Error creating group", response.error, "error")
@@ -68,44 +69,47 @@ function CreateGroupModal(createGroupProps: UseDisclosureReturn) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant={'create'}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Create a New Group</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody as='form'onSubmit={handleSubmit(onSubmit)}>
-          <FormControl isInvalid={!!errors?.group}>
-            <FormLabel htmlFor='name'>Name</FormLabel>
-            <Input
-              id='name'
-              size={'sm'}
-              marginRight={3}
-              rounded={'md'}
-              placeholder='Name of your group'
-              {...register('name', {
-                required: 'This is required',
-                minLength: {
-                  value: 3,
-                  message: 'Name must be at least 3 characters long',
-                }
-              })}
-            />
-          </FormControl>
-        </ModalBody>
-        <ModalFooter>
-          <Button w='40%' isLoading={isSubmitting} type='submit'
-            fontSize={'xs'}
-            size='sm' variant={"add"}>
-            Create Group
-          </Button>
-          {errors?.group &&
-            <FormErrorMessage >
-              {errors.group.message?.toString()}
-            </FormErrorMessage>
-          }
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <>
+      <Button w='30%' variant={'add'} onClick={onOpen}>Create</Button>
+      <Modal isOpen={isOpen} onClose={onClose} variant={'create'}>
+        <ModalOverlay />
+        <FormControl isInvalid={!!errors?.group}>
+          <ModalContent as='form' onSubmit={handleSubmit(onSubmit)}>
+            <ModalHeader>Create a New Group</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <FormLabel htmlFor='name'>Name</FormLabel>
+              <Input
+                id='name'
+                size={'sm'}
+                marginRight={3}
+                rounded={'md'}
+                placeholder='Name of your group'
+                {...register('name', {
+                  required: 'This is required',
+                  minLength: {
+                    value: 3,
+                    message: 'Name must be at least 3 characters long',
+                  }
+                })}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button w='40%' isLoading={isSubmitting} type='submit'
+                fontSize={'xs'}
+                size='sm' variant={"add"}>
+                Create Group
+              </Button>
+              {errors?.group &&
+                <FormErrorMessage >
+                  {errors.group.message?.toString()}
+                </FormErrorMessage>
+              }
+            </ModalFooter>
+          </ModalContent>
+        </FormControl>
+      </Modal>
+    </>
   )
 }
 
@@ -113,8 +117,7 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
   const { data: sessionData } = useSession();
   const router = useRouter();
 
-  const createGroupProps = useDisclosure()
-  const removeGroupProps = useDisclosure()
+  const { isOpen, onClose, onOpen } = useDisclosure()
   const { addToast } = CustomToast();
 
   async function onRemoveGroup(id: string) {
@@ -136,10 +139,9 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
           <Text fontSize='2xl' fontWeight='300'>Groups</Text>
           <Text fontSize='sm' fontWeight='200' letterSpacing={'normal'}>Manage your groups.</Text>
         </VStack>
-        <Button w='30%' variant={'add'} onClick={createGroupProps.onOpen}>Create</Button>
-        <CreateGroupModal {...createGroupProps} />
+        <CreateGroupModal />
       </HStack>
-      <SimpleGrid spacing={1}>
+      <SimpleGrid spacing={4}>
         {!!groups &&
           groups.map((group) => (
             <Card key={group.id}
@@ -168,11 +170,11 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
                     <Button leftIcon={<MdPersonRemove />}
                       w='100%'
                       variant="delete"
-                      onClick={removeGroupProps.onOpen}>
+                      onClick={onOpen}>
                       Remove
                     </Button>
-                    <Confirm isOpen={removeGroupProps.isOpen} onClose={removeGroupProps.onClose} callback={() => {
-                      onRemoveGroup(group.id); removeGroupProps.onClose();
+                    <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
+                      onRemoveGroup(group.id); onClose();
                     }} mode="removeGroup" />
                   </ButtonGroup>
                 }

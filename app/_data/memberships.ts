@@ -68,6 +68,17 @@ async function deleteMembership(groupId: string, userId: string): Promise<void> 
     }
   });
   if (isOwner) throw new Error("Owner cannot be deleted");
+  const hasTransactions = await prisma.transactions.findFirst({
+    where: {
+      groupId: groupId,
+      transactionDetails: {
+        some: {
+          userId: userId
+        }
+      }
+    }
+  });
+  if (hasTransactions) throw new Error("This user has transactions in the group and cannot be deleted");
   try {
     await prisma.memberships.delete({
       where: {
