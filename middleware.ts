@@ -1,26 +1,26 @@
+import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
 import { authConfig } from "@/auth"
 
 const DEFAULT_REDIRECT = "/dashboard";
-const AUTH_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/login", "/register"];
 const ROOT = "/";
 
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  const { nextUrl } = req;
+  const path = req.nextUrl.pathname;
 
-  const isAuthenticated = !!req.auth;
-  const isAuthRoute = AUTH_ROUTES.includes(nextUrl.pathname);
-  const isRoot = nextUrl.pathname === ROOT;
+  const isAuthRoute = PUBLIC_ROUTES.includes(path);
+  const isRoot = path === ROOT;
 
-  if (isAuthenticated) {
+  if (req.auth) {
     if (isAuthRoute || isRoot) {
-      return Response.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
+      return NextResponse.redirect(new URL(DEFAULT_REDIRECT, req.nextUrl.origin));
     }
   }
-  if (!isAuthenticated && !isAuthRoute) {
-    return Response.redirect(new URL('/login', nextUrl));
+  if (!req.auth && !isAuthRoute) {
+    return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
   }
 });
 

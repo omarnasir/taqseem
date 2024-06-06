@@ -47,7 +47,11 @@ async function registerAction(
 }
 
 async function signOutAction() {
-  await signOut()
+  await signOut(
+    {
+      redirectTo: '/login',
+    }
+  );
 }
 
 export {
