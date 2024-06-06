@@ -34,6 +34,20 @@ const confirm = definePartsStyle({
   },
 })
 
+const create = definePartsStyle({
+  body: {
+    pb: '6',
+  },
+  dialog: {
+    top: '5vh',
+    _dark: {
+      bg: 'bgModal',
+      color: 'white',
+      margin: '4',
+    },
+  },
+})
+
 export const modalTheme = defineMultiStyleConfig({
-  variants: { transaction, confirm },
+  variants: { transaction, confirm, create },
 })

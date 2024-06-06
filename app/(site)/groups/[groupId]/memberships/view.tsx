@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { FieldValues, useForm } from "react-hook-form";
 
 import {
-  Divider, Stack,
+  Stack,
   Button,
   Text,
   CardBody,
@@ -18,12 +18,27 @@ import {
   FormControl,
   FormErrorMessage,
   Input,
+  HStack,
+  FormLabel,
+  UseDisclosureReturn,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
+
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react'
+
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
 import { CustomToast } from "@/app/_components/toast";
 import Confirm from "@/app/(site)/_components/confirm";
-import { CustomCardIcon } from "@/app/(site)/_components/cardIcon";
 
 import { createMembershipAction } from "@/app/_actions/memberships";
 
@@ -34,13 +49,14 @@ import { UserBasicData } from "@/app/_types/model/users";
 import { deleteMembershipAction } from "@/app/_actions/memberships";
 
 
-export default function MembershipsView({ group, memberships }:
-   { group: GroupData, memberships: UserBasicData[] }
-) {
+function AddMemberModal(addMemberProps: UseDisclosureReturn & { group: GroupData }) {
   const router = useRouter();
-  const { data: sessionData } = useSession();
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { addToast } = CustomToast()
+  const { addToast } = CustomToast();
+
+  const {
+    isOpen,
+    onClose
+  } = addMemberProps;
 
   const {
     handleSubmit,
@@ -64,6 +80,60 @@ export default function MembershipsView({ group, memberships }:
     }
   }
 
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} variant={'create'}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add a new Member</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody as='form' onSubmit={handleSubmit(onSubmit)}>
+          <FormControl isInvalid={!!errors?.email}>
+            <FormLabel htmlFor='email'>Email</FormLabel>
+            <Input
+              size={'sm'}
+              marginRight={3}
+              rounded={'md'}
+              id='email'
+              variant='outline'
+              placeholder='Enter user email'
+              {...register('email', {
+                required: 'This is required',
+                pattern: {
+                  value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                  message: 'Invalid email address',
+                },
+              })}
+            />
+          </FormControl>
+        </ModalBody>
+        <ModalFooter>
+          <Button w='50%' isLoading={isSubmitting} type='submit'
+            fontSize={'xs'}
+            size='sm' variant={"add"}>
+            Add User
+          </Button>
+          {errors?.email &&
+            <FormErrorMessage alignSelf={'flex-start'}>
+              {errors.email.message?.toString()}
+            </FormErrorMessage>
+          }
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  )
+}
+
+export default function MembershipsView({ group, memberships }:
+   { group: GroupData, memberships: UserBasicData[] }
+) {
+  const router = useRouter();
+  const { data: sessionData } = useSession();
+  
+  const removeMembershipProps = useDisclosure()
+  const addMemberProps = useDisclosure()
+
+  const { addToast } = CustomToast()
+
   async function onRemoveUser(userId: string) {
     const res = await deleteMembershipAction(group.id, userId)
     if (res.success) {
@@ -77,74 +147,40 @@ export default function MembershipsView({ group, memberships }:
 
   return (
     <Stack direction={'column'} spacing={4} display={'flex'}>
-      <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }}>
-        <Text fontSize='lg' fontWeight='400'>Members - {group.name}</Text>
-        <Text fontSize='sm' fontWeight='300'>Add or remove members.</Text>
-      </VStack>
+      <HStack w='100%'>
+        <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }} w='70%'>
+          <Text fontSize='lg' fontWeight='300'>Members - {group.name}</Text>
+          <Text fontSize='sm' fontWeight='300'>Add or remove members.</Text>
+        </VStack>
+        <Button w='30%' variant={'add'} onClick={addMemberProps.onOpen}>Create</Button>
+        <AddMemberModal {...addMemberProps} group={group} />
+      </HStack>
       <SimpleGrid spacing={1}>
-        {!!memberships ? memberships.map((member) => (
-          <Card key={member.id}
-            size={'xs'}
-            variant={'infoCard'}>
-            <CardBody>
-              <CustomCardIcon icon={MdPerson} styleProps={{ marginRight: '4'}} />
-              <Heading w='75%'
+        <List w='100%' variant={'members'}>
+          {!!memberships ? memberships.map((member) => (
+            <ListItem w='100%' key={member.id}>
+              <MdPerson width={'20%'}/>
+              <Heading width={'55%'}
                 fontSize={'md'}
                 fontWeight={400}>{member.name}</Heading>
               {(group.createdById === sessionData?.user?.id ||
                 member.id === sessionData?.user?.id) &&
-                <VStack w='25%'>
+                <HStack w='25%'>
                   <Button leftIcon={<MdPersonRemove />}
                     w='100%'
                     variant={'delete'}
-                    onClick={onOpen}>
+                    onClick={removeMembershipProps.onOpen}>
                     Remove
                   </Button>
-                  <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                    onRemoveUser(member.id); onClose();
+                  <Confirm isOpen={removeMembershipProps.isOpen} onClose={removeMembershipProps.onClose} callback={() => {
+                    onRemoveUser(member.id); removeMembershipProps.onClose();
                   }} mode="removeUser" />
-                </VStack>
+                </HStack>
               }
-            </CardBody>
-          </Card>
-        )) : <Text>No members</Text>}
+            </ListItem>
+          )) : <Text>No members</Text>}
+        </List>
       </SimpleGrid>
-      <Divider />
-      <Card size={{ base: 'xs', md: 'sm' }} variant={'createCard'}>
-      <CardHeader>
-        <Heading fontSize='md' fontWeight={'light'}>Add a new User</Heading>
-      </CardHeader>
-      <FormControl isInvalid={!!errors?.email}>
-        <CardBody as='form' w={'100%'}
-          onSubmit={handleSubmit(onSubmit)}>
-          <Input
-            size={'sm'}
-            marginRight={3}
-            rounded={'md'}
-            id='email'
-            variant='outline'
-            placeholder='Enter user email'
-            {...register('email', {
-              required: 'This is required',
-              pattern: {
-                value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-                message: 'Invalid email address',
-              },
-            })}
-          />
-          <Button w='50%' isLoading={isSubmitting} type='submit'
-            fontSize={'xs'}
-            size='sm' variant={"add"}>
-            Add User
-          </Button>
-          {errors?.email &&
-            <FormErrorMessage alignSelf={'flex-start'}>
-              {errors.email.message?.toString()}
-            </FormErrorMessage>
-          }
-        </CardBody>
-      </FormControl>
-    </Card>
     </Stack>
   )
 }

@@ -30,4 +30,18 @@ const activity = definePartsStyle({
 })
 
 
-export const listTheme = defineMultiStyleConfig({ variants: { transaction , activity} })
+const members = definePartsStyle({
+  item: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginY: 2,
+    rounded: 'md',
+    paddingY: 2,
+    paddingX: 4,
+    backgroundColor: 'bgListItem',
+  },
+})
+
+
+export const listTheme = defineMultiStyleConfig({ variants: { transaction , activity, members} })

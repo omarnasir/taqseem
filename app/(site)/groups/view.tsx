@@ -7,7 +7,6 @@ import { useForm, FieldValues } from "react-hook-form"
 import { createGroupAction} from "@/app/_actions/groups";
 
 import { 
-  Divider, 
   Stack, 
   Text, 
   VStack ,
@@ -18,33 +17,45 @@ import {
   SimpleGrid, 
   ButtonGroup,
   useDisclosure,
+  UseDisclosureReturn,
   CardHeader,
   FormControl,
   FormErrorMessage,
-  Input
+  Input,
+  HStack,
+  FormLabel,
 } from "@chakra-ui/react";
+
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react'
+
 import { MdPersonRemove, MdManageAccounts, MdGroups } from "react-icons/md"
 
 import { type GroupData } from "@/app/_types/model/groups";
 import { deleteGroupAction } from '@/app/_actions/groups';
 import { CustomToast } from '@/app/_components/toast';
 import Confirm from '@/app/(site)/_components/confirm';
-import { CustomCardIcon } from '@/app/(site)/_components/cardIcon';
 
 
-export default function GroupsView({ groups }: {groups: GroupData[]}) {
-  const { data: sessionData } = useSession();
+function CreateGroupModal(createGroupProps: UseDisclosureReturn) {
   const router = useRouter();
+  const { addToast } = CustomToast();
 
+  const { isOpen, onClose } = createGroupProps;
+  
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm()
 
-
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { addToast } = CustomToast();
 
   async function onSubmit(values: FieldValues) {
     const response = await createGroupAction(values.name);
@@ -55,6 +66,56 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
       addToast("Error creating group", response.error, "error")
     }
   }
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} variant={'create'}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Create a New Group</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody as='form'onSubmit={handleSubmit(onSubmit)}>
+          <FormControl isInvalid={!!errors?.group}>
+            <FormLabel htmlFor='name'>Name</FormLabel>
+            <Input
+              id='name'
+              size={'sm'}
+              marginRight={3}
+              rounded={'md'}
+              placeholder='Name of your group'
+              {...register('name', {
+                required: 'This is required',
+                minLength: {
+                  value: 3,
+                  message: 'Name must be at least 3 characters long',
+                }
+              })}
+            />
+          </FormControl>
+        </ModalBody>
+        <ModalFooter>
+          <Button w='40%' isLoading={isSubmitting} type='submit'
+            fontSize={'xs'}
+            size='sm' variant={"add"}>
+            Create Group
+          </Button>
+          {errors?.group &&
+            <FormErrorMessage >
+              {errors.group.message?.toString()}
+            </FormErrorMessage>
+          }
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  )
+}
+
+export default function GroupsView({ groups }: {groups: GroupData[]}) {
+  const { data: sessionData } = useSession();
+  const router = useRouter();
+
+  const createGroupProps = useDisclosure()
+  const removeGroupProps = useDisclosure()
+  const { addToast } = CustomToast();
 
   async function onRemoveGroup(id: string) {
     const res = await deleteGroupAction(id);
@@ -70,25 +131,33 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
 
   return (
     <Stack direction={'column'} spacing={4} display={'flex'}>
-      <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }}>
-        <Text fontSize='lg' fontWeight='400'>Groups</Text>
-        <Text fontSize='sm' fontWeight='300'>Manage your groups.</Text>
-      </VStack>
+      <HStack w='100%'>
+        <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }} w='70%'>
+          <Text fontSize='2xl' fontWeight='300'>Groups</Text>
+          <Text fontSize='sm' fontWeight='200' letterSpacing={'normal'}>Manage your groups.</Text>
+        </VStack>
+        <Button w='30%' variant={'add'} onClick={createGroupProps.onOpen}>Create</Button>
+        <CreateGroupModal {...createGroupProps} />
+      </HStack>
       <SimpleGrid spacing={1}>
         {!!groups &&
           groups.map((group) => (
             <Card key={group.id}
-              size={{ base: 'xs', md: 'sm' }}
+              size={'sm'}
               variant={'infoCard'}>
+              <CardHeader>
+                <HStack>
+                  <MdGroups />
+                  <Heading
+                    as={NextLink}
+                    href={`/groups/${group.id}/transactions`}
+                    fontSize={'lg'} letterSpacing={'wide'}
+                    fontWeight={300}>{group.name}</Heading>
+                </HStack>
+              </CardHeader>
               <CardBody>
-                <CustomCardIcon icon={MdGroups} styleProps={{ marginRight: '4' }} />
-                <Heading w='50%'
-                  as={NextLink}
-                  href={`/groups/${group.id}/transactions`}
-                  fontSize={'md'} letterSpacing={'wide'}
-                  fontWeight={100}>{group.name}</Heading>
                 {group.createdById === sessionData?.user?.id &&
-                  <ButtonGroup w='50%'>
+                  <ButtonGroup>
                     <Button leftIcon={<MdManageAccounts />}
                       w='100%'
                       variant="action"
@@ -99,11 +168,11 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
                     <Button leftIcon={<MdPersonRemove />}
                       w='100%'
                       variant="delete"
-                      onClick={onOpen}>
+                      onClick={removeGroupProps.onOpen}>
                       Remove
                     </Button>
-                    <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                      onRemoveGroup(group.id); onClose();
+                    <Confirm isOpen={removeGroupProps.isOpen} onClose={removeGroupProps.onClose} callback={() => {
+                      onRemoveGroup(group.id); removeGroupProps.onClose();
                     }} mode="removeGroup" />
                   </ButtonGroup>
                 }
@@ -111,41 +180,6 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
             </Card>
           ))}
       </SimpleGrid>
-      <Divider />
-      <Card size={{ base: 'xs', md: 'sm' }} variant={'createCard'}>
-        <CardHeader>
-          <Heading fontSize='md' fontWeight={'light'}>Create a new Group</Heading>
-        </CardHeader>
-        <FormControl isInvalid={!!errors?.group}>
-          <CardBody as='form' w={'100%'}
-            onSubmit={handleSubmit(onSubmit)}>
-            <Input
-              id='name'
-              size={'sm'}
-              marginRight={3}
-              rounded={'md'}
-              placeholder='Name of your group'
-              {...register('name', {
-                required: 'This is required',
-                minLength: {
-                  value: 3,
-                  message: 'Name must be at least 3 characters long',
-                }
-              })}
-            />
-            <Button w='50%' isLoading={isSubmitting} type='submit'
-              fontSize={'xs'}
-              size='sm' variant={"add"}>
-              Create Group
-            </Button>
-            {errors?.group &&
-              <FormErrorMessage >
-                {errors.group.message?.toString()}
-              </FormErrorMessage>
-            }
-          </CardBody>
-        </FormControl>
-      </Card>
-    </Stack >
+    </Stack>
   )
 }

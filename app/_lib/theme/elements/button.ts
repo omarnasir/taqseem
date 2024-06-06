@@ -12,7 +12,6 @@ export const buttonTheme = defineStyleConfig({
     borderRadius: 'md',
     fontWeight: 'medium',
     color: 'black',
-    boxShadow: '0 2px 10px 0 rgba(0,0,0,0.5)'
   },
   sizes: {
     sm: {
@@ -60,8 +59,8 @@ export const buttonTheme = defineStyleConfig({
     },
     delete: {
       ...buttonFontSizes,
-      color: 'whiteAlpha.800',
-      bg: 'red.900'
+      color: 'whiteAlpha.900',
+      bg: 'red.800'
     },
     deleteBin: {
       ...buttonFontSizes,
@@ -97,9 +96,9 @@ export const buttonTheme = defineStyleConfig({
     },
     action: {
       ...buttonFontSizes,
-      bg: 'cyan.900',
-      color: 'whiteAlpha.900',
-      opacity: 0.80,
+      bg: 'blue.400',
+      color: 'black',
+      fontWeight: 500,
     },
     formNavigation: {
       ...buttonFontSizes,

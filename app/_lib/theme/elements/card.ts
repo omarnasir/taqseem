@@ -5,19 +5,19 @@ const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(cardAnatomy.keys)
 
 const infoCard = definePartsStyle({
+  header: {
+    paddingX: 4,
+    paddingTop: 4,
+    letterSpacing: 'normal',
+  },
   container: {
     bg: 'bgCard',
-    paddingY: 4,
-    paddingX: 2,
-    marginY: 2,
-    borderRadius: "8px",
+    borderRadius: "lg",
     boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
   },
   body: {
-    direction: 'column',
-    display: 'flex',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
+    paddingTop: 0,
+    alignSelf: 'flex-end',
   }
 })
 
