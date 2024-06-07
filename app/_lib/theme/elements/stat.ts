@@ -34,18 +34,23 @@ const primary = definePartsStyle({
 
 const secondary = definePartsStyle({
   container: {
-    ...baseStyle.container
+    padding: 0,
   },
   label: {
-    fontSize: "md",
+    padding: 0,
+    fontSize: "1rem",
   },
   number: {
-    fontSize: "2xl",
+    paddingY: 1,
+    paddingX: 0,
+    fontSize: "1.8rem",
   },
   helpText: {
+    padding: 0,
     fontSize: "xs",
+    fontWeight: "300",
   },
-  
+
 })
 
 export const statTheme = defineMultiStyleConfig({

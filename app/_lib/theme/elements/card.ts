@@ -36,9 +36,35 @@ const createCard = definePartsStyle({
   }
 })
 
+const summaryStat = definePartsStyle({
+  container: {
+    bg: 'bgCard',
+    borderRadius: "lg",
+    boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
+  },
+  body: {
+    paddingBottom: 2,
+  },
+  footer: {
+    paddingTop: 0,
+    justifyContent: 'flex-end',
+  }
+})
+
+const loginCard = definePartsStyle({
+  ...createCard,
+  container: {
+    bg: 'whiteAlpha.100',
+    borderRadius: "lg",
+    boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
+  },
+})
+
 export const cardTheme = defineMultiStyleConfig({
   variants: {
+    loginCard,
     infoCard,
-    createCard
+    createCard,
+    summaryStat
   },
 })

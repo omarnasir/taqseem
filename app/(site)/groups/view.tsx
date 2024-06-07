@@ -151,7 +151,7 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
                 <HStack>
                   <MdGroups />
                   <Heading
-                    as={NextLink}
+                    as={NextLink} marginLeft={2}
                     href={`/groups/${group.id}/transactions`}
                     fontSize={'lg'} letterSpacing={'wide'}
                     fontWeight={300}>{group.name}</Heading>

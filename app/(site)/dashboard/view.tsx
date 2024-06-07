@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import NextLink from 'next/link'
 
-import { Bar, ResponsiveContainer, BarChart } from 'recharts';
+import { Bar, ResponsiveContainer, BarChart, XAxis, YAxis, ReferenceLine } from 'recharts';
 
 import {
   Text,
@@ -16,6 +16,9 @@ import {
   HStack,
   Divider,
   Flex,
+  Card,
+  CardFooter,
+  CardBody,
 } from '@chakra-ui/react'
 
 import { type MemberBalanceByGroups } from "@/app/_service/groups";
@@ -26,7 +29,7 @@ import { SettlementModal } from '@/app/(site)/_components/settle';
 
 function formatBasedOnAmount({ amount, isColor, isType, isText }:
   { amount: number, isColor?: boolean, isType?: boolean, isText?: boolean }): string | undefined {
-  const color = amount === 0 ? 'gray.500' : amount > 0 ? 'green.500' : 'red.500';
+  const color = amount === 0 ? 'gray.500' : amount > 0 ? 'green.400' : 'red.400';
   const type = amount > 0 ? 'increase' : 'decrease';
   const text = amount === 0 ? 'All settled up!' : amount > 0 ? 'You get back' : 'You owe';
 
@@ -54,7 +57,7 @@ export default function DashboardView({ groupsBalance, activityHistory, sessionD
 
   return (
     <VStack spacing={4} align="stretch">
-      <HStack bg={'bgCard'} rounded={'lg'} w={'100%'}>
+      <HStack rounded={'lg'} w={'100%'} border={'1px'} borderColor={'whiteAlpha.200'} boxShadow={'md'}>
         <Stat variant={'primary'} w={'55%'}>
           <StatLabel>Here&apos;s your balance</StatLabel>
           <StatNumber color={formatBasedOnAmount({ amount: totalBalance, isColor: true })}>€{Math.abs(totalBalance).toFixed(2)}</StatNumber>
@@ -67,22 +70,24 @@ export default function DashboardView({ groupsBalance, activityHistory, sessionD
           {!!activityHistory && activityHistory.length > 0 &&
             <ResponsiveContainer width="100%" height={80}>
               <BarChart data={activityHistory}>
-                <Bar dataKey="owe" stackId="a" fill="#992513" />
-                <Bar dataKey="getBack" stackId="a" fill="#38A169" />
+                <Bar dataKey="owe" stackId="a" fill="#38A169" />
+                <Bar dataKey="getBack" stackId="a" fill="#992513" />
+                <ReferenceLine y={0} stroke="#434343" />
               </BarChart>
             </ResponsiveContainer>}
-          <Text justifySelf={'end'} textAlign="right" fontSize="2xs" color="whiteAlpha.400" mt={1}>
+          <Text justifySelf={'end'} textAlign="right" fontSize="2xs" color="whiteAlpha.400">
             {activityHistory && activityHistory.length > 0 ? 'Last 2 weeks' : 'No activity'}
           </Text>
         </VStack>
       </HStack>
-      <Divider />
+
       {Object.keys(groupsBalance).length !== 0 ?
         <>
           <Text fontSize="sm" color="whiteAlpha.400">Your Groups</Text>
-          <SimpleGrid spacing={1} columns={2}>
+          <SimpleGrid spacing={2} columns={2}>
             {amountOwedByGroup.map(group =>
-              <VStack bg={'bgCard'} rounded={'lg'} w={'100%'} key={group.groupId}>
+              <Card variant='summaryStat' size='sm' key={group.groupId}>
+                <CardBody>
                 <Stat variant={'secondary'} as={NextLink} href={`/groups/${group.groupId}/transactions`} w='100%'>
                   <StatLabel>{group.groupName}</StatLabel>
                   <StatNumber color={formatBasedOnAmount({ amount: group.balance, isColor: true })}>€{Math.abs(group.balance).toFixed(2)}</StatNumber>
@@ -90,12 +95,12 @@ export default function DashboardView({ groupsBalance, activityHistory, sessionD
                     {group.balance !== 0 && <StatArrow type={formatBasedOnAmount({ amount: group.balance, isType: true })} />}
                     {formatBasedOnAmount({ amount: group.balance, isText: true })}
                   </StatHelpText>
-                  <Divider />
                 </Stat>
-                <Flex marginBottom={2} marginRight={4} w='100%' justifyContent={'flex-end'} >
+                </CardBody>
+                <CardFooter w='100%' justifyContent={'flex-end'} >
                   <SettlementModal group={groupsBalance[group.groupId]} />
-                </Flex>
-              </VStack>
+                </CardFooter>
+              </Card>
             )}
           </SimpleGrid>
         </> : null}

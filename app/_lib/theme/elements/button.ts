@@ -117,12 +117,15 @@ export const buttonTheme = defineStyleConfig({
     },
     settle: {
       ...buttonFontSizes,
-      bg: 'green.500',
-      color: 'blackAlpha.900',
-      fontSize: 'sm',
+      bg: 'whiteAlpha.800',
+      color: 'black',
+      fontSize: 'xs',
       fontWeight: 500,
+      width: '50%',
+      height: '1.8rem',
+      borderRadius: 'xl',
       _hover: {
-        bg: 'green.500',
+        bg: 'whiteAlpha.700',
       },
     },
   }

@@ -32,7 +32,7 @@ export default function AuthLayout({
         </Flex>
         <Flex>
           <Card w={'100%'}
-            variant={'infoCard'}
+            variant={'loginCard'}
             boxShadow={'dark-lg'}>
             <CardBody
               justifyContent={'center'}
