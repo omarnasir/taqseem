@@ -13,7 +13,7 @@
     "@chakra-ui/next-js": "^2.2.0",
     "@chakra-ui/react": "^2.8.2",
     "@hookform/resolvers": "^3.3.2",
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^5.15.0",
     "bcryptjs": "^2.4.3",
     "next-auth": "^5.0.0-beta.16",
     "react": "^18",
@@ -27,9 +27,9 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^8",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.0.4",
-    "prisma": "^5.14.0",
+    "prisma": "^5.15.0",
     "typescript": "^5"
   }
 }
