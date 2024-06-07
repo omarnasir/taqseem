@@ -1,8 +1,7 @@
 'use client'
-import { useMemo } from 'react';
 import NextLink from 'next/link'
-
-import { Bar, ResponsiveContainer, BarChart, XAxis, YAxis, ReferenceLine } from 'recharts';
+import { useRouter } from 'next/navigation'
+import { Bar, ResponsiveContainer, BarChart, ReferenceLine } from 'recharts';
 
 import {
   Text,
@@ -14,24 +13,22 @@ import {
   StatArrow,
   VStack,
   HStack,
-  Divider,
-  Flex,
   Card,
   CardFooter,
   CardBody,
+  Button,
+
 } from '@chakra-ui/react'
 
-import { type MemberBalanceByGroups } from "@/app/_service/groups";
+import { type BalancesByUserGroups } from "@/app/_service/groups";
 
 import { type Activity } from '@/app/_service/transactions';
-import { SettlementModal } from '@/app/(site)/_components/settle';
-
 
 function formatBasedOnAmount({ amount, isColor, isType, isText }:
   { amount: number, isColor?: boolean, isType?: boolean, isText?: boolean }): string | undefined {
-  const color = amount === 0 ? 'gray.500' : amount > 0 ? 'green.400' : 'red.400';
-  const type = amount > 0 ? 'increase' : 'decrease';
-  const text = amount === 0 ? 'All settled up!' : amount > 0 ? 'You get back' : 'You owe';
+  const color = amount < 1e-2 ? 'gray.500' : amount > 0 ? 'green.400' : 'red.400';
+  const type = amount > 1e-2 ? 'increase' : 'decrease';
+  const text = amount < 1e-2 ? 'All settled up!' : amount > 0 ? 'You get back' : 'You owe';
 
   if (isColor) return color;
   if (isType) return type;
@@ -39,22 +36,10 @@ function formatBasedOnAmount({ amount, isColor, isType, isText }:
   return undefined;
 }
 
-export default function DashboardView({ groupsBalance, activityHistory, sessionData }: 
-  { groupsBalance: MemberBalanceByGroups | {}, activityHistory?: Activity[], sessionData: any}) 
+export default function DashboardView({ userGroupsBalance, activityHistory, totalBalance }: 
+  { userGroupsBalance: BalancesByUserGroups | {}, activityHistory?: Activity[], totalBalance: number}) 
 {
-
-  const amountOwedByGroup = useMemo(() => {
-    return Object.entries(groupsBalance).map(([groupId, group]) => {
-      return {
-        groupId,
-        groupName: group.groupName,
-        balance: group.users.filter(user => user.userId === sessionData?.user?.id)?.[0]?.balance || 0
-      };
-    })
-  } , [groupsBalance, sessionData?.user?.id]);
-
-  const totalBalance = amountOwedByGroup.reduce((acc, group) => acc + group.balance, 0);
-
+  const router = useRouter();
   return (
     <VStack spacing={4} align="stretch">
       <HStack rounded={'lg'} w={'100%'} border={'1px'} borderColor={'whiteAlpha.200'} boxShadow={'md'}>
@@ -62,7 +47,7 @@ export default function DashboardView({ groupsBalance, activityHistory, sessionD
           <StatLabel>Here&apos;s your balance</StatLabel>
           <StatNumber color={formatBasedOnAmount({ amount: totalBalance, isColor: true })}>€{Math.abs(totalBalance).toFixed(2)}</StatNumber>
           <StatHelpText>
-            {totalBalance !== 0 && <StatArrow type={formatBasedOnAmount({ amount: totalBalance, isType: true })} />}
+            {totalBalance > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: totalBalance, isType: true })} />}
             {formatBasedOnAmount({ amount: totalBalance, isText: true })}
           </StatHelpText>
         </Stat>
@@ -81,24 +66,25 @@ export default function DashboardView({ groupsBalance, activityHistory, sessionD
         </VStack>
       </HStack>
 
-      {Object.keys(groupsBalance).length !== 0 ?
+      {Object.keys(userGroupsBalance).length !== 0 ?
         <>
           <Text fontSize="sm" color="whiteAlpha.400">Your Groups</Text>
           <SimpleGrid spacing={2} columns={2}>
-            {amountOwedByGroup.map(group =>
-              <Card variant='summaryStat' size='sm' key={group.groupId}>
+            {Object.entries(userGroupsBalance).map(([groupId, group]) =>
+              <Card variant='summaryStat' size='sm' key={groupId}>
                 <CardBody>
-                <Stat variant={'secondary'} as={NextLink} href={`/groups/${group.groupId}/transactions`} w='100%'>
-                  <StatLabel>{group.groupName}</StatLabel>
-                  <StatNumber color={formatBasedOnAmount({ amount: group.balance, isColor: true })}>€{Math.abs(group.balance).toFixed(2)}</StatNumber>
-                  <StatHelpText>
-                    {group.balance !== 0 && <StatArrow type={formatBasedOnAmount({ amount: group.balance, isType: true })} />}
-                    {formatBasedOnAmount({ amount: group.balance, isText: true })}
-                  </StatHelpText>
-                </Stat>
+                  <Stat variant={'secondary'} as={NextLink} href={`/groups/${groupId}/transactions`} w='100%'>
+                    <StatLabel>{group.groupName}</StatLabel>
+                    <StatNumber color={formatBasedOnAmount({ amount: group.balance, isColor: true })}>€{Math.abs(group.balance).toFixed(2)}</StatNumber>
+                    <StatHelpText>
+                      {group.balance > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: group.balance, isType: true })} />}
+                      {formatBasedOnAmount({ amount: group.balance, isText: true })}
+                    </StatHelpText>
+                  </Stat>
                 </CardBody>
                 <CardFooter w='100%' justifyContent={'flex-end'} >
-                  <SettlementModal group={groupsBalance[group.groupId]} />
+                  <Button size='sm' variant={'settle'}
+                  isDisabled={group.balance < 1e-2} disabled={group.balance < 1e-2} onClick={(e) => router.push(`/groups/${groupId}/settle`)}>Settle up</Button>
                 </CardFooter>
               </Card>
             )}

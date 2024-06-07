@@ -9,8 +9,10 @@ import { type Response } from '@/app/_types/response';
 
 import { getGroupsByUserId, getGroupById } from '@/app/_data/groups';
 import { 
-  getMembersBalancesByUserGroups,
-  type MemberBalanceByGroups
+  getGroupBalanceDetails,
+  getBalancesByUserGroups,
+  type GroupBalanceDetails,
+  type BalancesByUserGroups
  } from '@/app/_data/transactions';
 
 type GetAllGroupsResponse = Omit<Response, 'data'> & {
@@ -21,8 +23,12 @@ type GetGroupResponse = Omit<Response, 'data'> & {
   data?: GroupWithMembers
 }
 
-type GETGroupBalancesByUserResponse = Omit<Response, "data"> & {
-  data?: MemberBalanceByGroups
+type GETGroupBalanceDetailsByUserResponse = Omit<Response, "data"> & {
+  data?: GroupBalanceDetails
+}
+
+type GETBalancesByUserGroupsResponse = Omit<Response, "data"> & {
+  data?: BalancesByUserGroups
 }
 
 async function getAllGroupsService(): Promise<GetAllGroupsResponse> {
@@ -54,13 +60,28 @@ async function getGroupDetailsService(groupId: string): Promise<GetGroupResponse
   }
 }
 
-async function getMembersBalancesByUserGroupsService(): Promise<GETGroupBalancesByUserResponse> {
+async function getGroupBalanceDetailsByGroup(groupId: string): Promise<GETGroupBalanceDetailsByUserResponse> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    const response = await getMembersBalancesByUserGroups(session?.user?.id as string);
+    const response = await getGroupBalanceDetails(groupId, session?.user?.id as string);
+
+    return { success: true, data: response };
+  }
+  catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+async function getBalancesByUserGroupsService(): Promise<GETBalancesByUserGroupsResponse> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+  try {
+    const response = await getBalancesByUserGroups(session?.user?.id as string);
 
     return { success: true, data: response };
   }
@@ -72,6 +93,8 @@ async function getMembersBalancesByUserGroupsService(): Promise<GETGroupBalances
 export { 
   getAllGroupsService, 
   getGroupDetailsService,
-  getMembersBalancesByUserGroupsService,
-  type MemberBalanceByGroups
+  getGroupBalanceDetailsByGroup,
+  getBalancesByUserGroupsService,
+  type GroupBalanceDetails,
+  type BalancesByUserGroups
 };

@@ -76,7 +76,7 @@ async function createTransaction(groupId: string, data: CreateTransaction) {
     const newTransaction = await prisma.transactions.create({
       data: {
         ...data,
-        amount: data.amount > 0 ? -1 * data.amount : data.amount,
+        amount: -1 * data.amount,
         notes: data.notes || '',
         transactionDetails: {
           create: data.transactionDetails?.map(detail => {
@@ -126,6 +126,7 @@ async function updateTransaction(groupId: string, data: UpdateTransaction) {
     },
     data: {
       ...data,
+      amount: -1 * data.amount,
       notes: data.notes || '',
       transactionDetails: {
         deleteMany: {
@@ -158,6 +159,7 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
         id: transactionId
       },
       select: {
+        createdById: true,
         transactionDetails: {
           select: {
             id: true,
@@ -174,8 +176,9 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
     const isUserInvolved = transaction?.transactionDetails?.some(detail => { 
       return detail.userId === userId
     })
+    const isUserCreatedBy = transaction?.createdById === userId;
     const userAmount = transaction?.transactionDetails?.find(detail => detail.userId === userId)?.amount;
-    if (!isUserInvolved || userAmount === (undefined || null || 0) ) {
+    if (!isUserCreatedBy && (!isUserInvolved || userAmount === (undefined || null || 0)) ) {
       throw new Error("User not involved in transaction");
     }
     // Delete transaction
@@ -197,94 +200,173 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
 }
 
 type MemberBalanceByGroupQueryResult = {
-  groupId: string;
   groupName: string;
   userId: string;
   userName: string;
   lent: number;
   spent: number;
   balance: number;
+}[]
+
+type GroupBalanceDetails = {
+  groupName: string;
+  users: {
+    userId: string;
+    userName: string;
+    lent: number;
+    spent: number;
+    balance: number;
+  }[]
 }
 
-type MemberBalanceByGroups = {
-  [groupId: string]: {
-    groupName: string;
-    users: {
-      userId: string;
-      userName: string;
-      lent: number;
-      spent: number;
-      balance: number;
-    }[]
-  }
-}
 
-
-async function getMembersBalancesByUserGroups(userId: string) : Promise<MemberBalanceByGroups> {
+async function getGroupBalanceDetails(groupId: string, userId: string) : Promise<GroupBalanceDetails> {
   try {
-    const result : MemberBalanceByGroupQueryResult[] = await prisma.$queryRaw`
-      WITH groupIds AS (
-        SELECT DISTINCT groupId
-        FROM Memberships
-        WHERE userId = ${userId}
-      ),
-      groupMembers AS (
-        SELECT groupId, g.name, userId, u.name as userName
+    const isUserInGroup = await prisma.memberships.findFirst({
+      include: {
+        group: {
+          select: {
+            name: true
+          }
+        }
+      },
+      where: {
+        groupId: groupId,
+        userId: userId
+      }
+    });
+    if (!isUserInGroup) throw new Error("User not in group");
+    const result : MemberBalanceByGroupQueryResult = await prisma.$queryRaw`
+      WITH groupMembers AS (
+        SELECT userId, u.name as userName
         FROM Memberships as m
         INNER JOIN
         (SELECT id, name
           FROM Users) AS u
-          ON userId = u.id
-        INNER JOIN
-        (SELECT id, name
-          FROM Groups) AS g
-          ON groupId = g.id
-        WHERE m.groupId IN groupIds
+        ON userId = u.id
+        WHERE groupId = ${groupId}
       ),
       lent AS (
-        SELECT t.groupId, paidById as userId, -1 * SUM(amount) AS lent, 0 AS spent
+        SELECT paidById as userId, -1 * SUM(amount) AS lent, 0 AS spent
         FROM Transactions as t
-        WHERE t.groupId IN groupIds
+        WHERE t.groupId = ${groupId}
         GROUP BY t.groupId, paidById
       ),
       spent AS (
-        SELECT t.groupId, userId, 0 AS lent, -1 * SUM(amount) AS spent
+        SELECT userId, 0 AS lent, -1 * SUM(amount) AS spent
         FROM TransactionDetails as td
         INNER JOIN 
           (SELECT id, groupId
           FROM Transactions as t
-          WHERE t.groupId IN groupIds) AS t
+          WHERE t.groupId = ${groupId}) AS t
         ON transactionId = t.id
         GROUP BY t.groupId, userId
       ) 
-      SELECT combined.groupId, combined.userId, name as groupName, userName, SUM(lent) AS lent, SUM(spent) AS spent, SUM(lent) + SUM(spent) AS balance
+      SELECT combined.userId, userName, SUM(lent) AS lent, SUM(spent) AS spent, SUM(lent) + SUM(spent) AS balance
       FROM (
         SELECT * FROM lent
         UNION ALL
         SELECT * FROM spent
       ) AS combined
       INNER JOIN
-        (SELECT groupId, name, userId, userName
+        (SELECT userId, userName
         FROM groupMembers) AS g
-      ON combined.groupId = g.groupId AND combined.userId = g.userId
-      GROUP BY combined.groupId, combined.userId;`
+      ON combined.userId = g.userId
+      GROUP BY combined.userId;`
     if (!result) throw new Error("No amount found");
-    const memberBalancesByGroup : MemberBalanceByGroups = {};
-    result.forEach((row) => {
-      if (!memberBalancesByGroup[row.groupId]) {
-        memberBalancesByGroup[row.groupId] = { groupName: row.groupName, users: [] };
-      }
-      const { groupId, groupName, ...rest } = row;
-      memberBalancesByGroup[row.groupId].users.push(rest);
-    });
+    const groupBalanceDetails : GroupBalanceDetails = {
+      groupName: isUserInGroup.group.name,
+      users: result.map(row => {
+        return {
+          userId: row.userId,
+          userName: row.userName,
+          lent: row.lent,
+          spent: row.spent,
+          balance: row.balance
+        }
+      })
+    };
 
-    return memberBalancesByGroup;
+    return groupBalanceDetails;
   }
   catch (e) {
     console.error(e);
     throw new Error("Failed to get amount spent");
   }
 }
+
+type UserBalanceByGroupQueryResult = {
+  groupId: string;
+  groupName: string;
+  lent: number;
+  spent: number;
+  balance: number;
+}[]
+
+type BalancesByUserGroups = {
+  [groupId: string]: {
+    groupName: string;
+    lent: number;
+    spent: number;
+    balance: number;
+  }
+}
+
+async function getBalancesByUserGroups(userId: string) : Promise<BalancesByUserGroups> {
+  try {
+    const result : UserBalanceByGroupQueryResult = await prisma.$queryRaw`
+      WITH groupIds AS (
+        SELECT DISTINCT groupId, g.name
+        FROM Memberships
+        INNER JOIN
+        (SELECT id, name
+          FROM Groups) AS g
+        ON groupId = g.id
+        WHERE userId = ${userId}
+      ),
+      lent AS (
+        SELECT t.groupId, -1 * SUM(amount) AS lent, 0 AS spent
+        FROM Transactions as t
+        WHERE t.groupId IN (SELECT groupId FROM groupIds)
+        AND paidById = ${userId}
+        GROUP BY t.groupId
+      ),
+      spent AS (
+        SELECT t.groupId, 0 AS lent, -1 * SUM(amount) AS spent
+        FROM TransactionDetails as td
+        INNER JOIN 
+          (SELECT id, groupId
+          FROM Transactions as t
+          WHERE t.groupId IN (SELECT groupId FROM groupIds)) AS t
+        ON transactionId = t.id
+        WHERE userId = ${userId}
+        GROUP BY t.groupId
+      )
+      SELECT combined.groupId, g.name as groupName, SUM(lent) AS lent, SUM(spent) AS spent, SUM(lent) + SUM(spent) AS balance
+      FROM (
+        SELECT * FROM lent
+        UNION ALL
+        SELECT * FROM spent
+      ) AS combined
+      INNER JOIN
+        (SELECT groupId, name
+        FROM groupIds) AS g
+      ON combined.groupId = g.groupId
+      GROUP BY combined.groupId, g.name;`
+    if (!result) throw new Error("No amount found");
+
+    const userGroupsBalances : BalancesByUserGroups = {};
+    result.forEach((row) => {
+      userGroupsBalances[row.groupId] = row;
+    });
+    return userGroupsBalances;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to get amount spent");
+  }
+}
+
 
 async function getTransactionsByUserIdAndDate(userId: string, date: string) {
   const transactions = await prisma.transactions.findMany({
@@ -321,6 +403,8 @@ export {
   updateTransaction,
   deleteTransaction,
   getTransactionsByUserIdAndDate,
-  getMembersBalancesByUserGroups,
-  type MemberBalanceByGroups
+  getGroupBalanceDetails,
+  getBalancesByUserGroups,
+  type GroupBalanceDetails,
+  type BalancesByUserGroups
 }

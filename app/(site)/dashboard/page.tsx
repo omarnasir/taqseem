@@ -1,18 +1,21 @@
 "use server";
 import DashboardView from "./view";
-import { getMembersBalancesByUserGroupsService } from "@/app/_service/groups";
+import { getBalancesByUserGroupsService } from "@/app/_service/groups";
 import { getActivityHistoryByTimePeriodService } from "@/app/_service/transactions";
 import { auth } from "@/auth";
 
 
 export default async function DashboardPage() {
-  const [sessionData, groupsBalance, activityHistory ] = await Promise.all([
+  const [sessionData, userGroupsBalance, activityHistory ] = await Promise.all([
     auth(),
-    getMembersBalancesByUserGroupsService().then((response) => response.data ? response.data : []),
+    getBalancesByUserGroupsService().then((response) => response.data ? response.data : []),
     getActivityHistoryByTimePeriodService().then((response) => response.data ? response.data : [])
   ]);
 
+  const totalBalance = Object.values(userGroupsBalance).reduce((acc, group) => acc + group.balance, 0);
+
   return (
-    <DashboardView groupsBalance={groupsBalance} activityHistory={activityHistory} sessionData={sessionData}/>
+    <DashboardView userGroupsBalance={userGroupsBalance} activityHistory={activityHistory} sessionData={sessionData}
+    totalBalance={totalBalance}/>
   );
 }
