@@ -24,4 +24,16 @@ const transactionUserDetails = definePartsStyle({
   }
 })
 
-export const numberTheme = defineMultiStyleConfig({ variants: { transaction, transactionUserDetails } })
+const settlement = definePartsStyle({
+  field: {
+    textAlign: 'start',
+    fontSize: 'sm',
+    background: 'blackAlpha.400',
+    height: 8,
+    _disabled: {
+      background: "rgba(5,5,5, 1)",
+    },
+  }
+})
+
+export const numberTheme = defineMultiStyleConfig({ variants: { transaction, transactionUserDetails, settlement } })

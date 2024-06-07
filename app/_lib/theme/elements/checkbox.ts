@@ -105,11 +105,31 @@ const transactionDetailsUser = definePartsStyle({
   },
 })
 
+const settlement = definePartsStyle({
+  container: {
+    justifyContent: 'flex-start',
+  },
+  control: {
+    boxSize: '1rem',
+    bg: 'whiteAlpha.300',
+    border: 'none',
+    _checked: {
+      bg: 'whiteAlpha.800',
+      _hover: {
+        bg: 'whiteAlpha.800',
+    },
+  },
+
+  },
+})
+
+
 export const checkboxTheme = defineMultiStyleConfig({
   variants: {
     transactionStrategyYou, 
     transactionStrategyThem, 
     transactionStrategyEveryone,
-    transactionDetailsUser
+    transactionDetailsUser,
+    settlement
   }
 })

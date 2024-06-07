@@ -60,11 +60,23 @@ const loginCard = definePartsStyle({
   },
 })
 
+const settlementCard = definePartsStyle({
+  container: {
+    bg: 'bgCard',
+    borderRadius: "lg",
+    boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
+  },
+  header : {
+    justifyContent: 'space-between',
+  }
+})
+
 export const cardTheme = defineMultiStyleConfig({
   variants: {
     loginCard,
     infoCard,
     createCard,
-    summaryStat
+    summaryStat,
+    settlementCard,
   },
 })

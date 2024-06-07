@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from "react"
 import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
 import {
   VStack,
@@ -67,21 +68,19 @@ function AmountDisplay({ transaction, userId }:
   }, [transactionDetails, userId, paidById, totalAmount]);
 
 
-  const colorDarker = useMemo(() => amount === 0 ? 'whiteAlpha.500' : amount > 0 ? 'green.500' : 'red.500', [amount]);
-  const colorLighter = useMemo(() => amount === 0 ? 'whiteAlpha.500' : amount > 0 ? 'green.400' : 'red.400', [amount]);
+  const colorDarker = useMemo(() => (amount === 0 || transaction.category === -1) ? 'whiteAlpha.600' : amount > 0 ? 'green.500' : 'red.500', [amount, transaction.category]);
+  const colorLighter = useMemo(() => (amount === 0 || transaction.category === -1) ? 'whiteAlpha.600' : amount > 0 ? 'green.400' : 'red.400', [amount, transaction.category]);
 
   return (
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
       <HStack>
         <Text color={colorDarker}
-          fontSize={'lg'} letterSpacing={'tight'}>
-          {amount > 0 ? '+' : ''}{amount.toFixed(2)}</Text>
-        <Text color={colorDarker}>€</Text>
+          fontSize={'lg'} letterSpacing={'tight'}>{amount === 0 ? '' : amount > 0 ? `${amount.toFixed(1)} €` : `${(-1 * amount).toFixed(1)} €`}</Text>
       </HStack>
       <Text fontSize={'2xs'}
         color={colorLighter} opacity={0.65}
         fontWeight={'300'} letterSpacing={'tight'}>
-        {amount === 0 ? '' : amount > 0 ? 'you lent' : 'you borrowed'}
+        {amount === 0 ? 'not involved' : amount > 0 ? 'you lent' : 'you borrowed'}
       </Text>
     </VStack>
   )
@@ -98,7 +97,7 @@ function SummaryDisplay({ transaction, users, userId }:
       <Text textAlign={'start'} letterSpacing={'wide'} fontSize={'md'} color='whiteAlpha.900'>
         {transaction.name}</Text>
       <Text color='whiteAlpha.600' textAlign={'start'} fontSize={'2xs'}>
-        {name + ' paid ' + transaction.amount + ' €'}
+        {name + ' paid ' + transaction.amount.toFixed(2) + ' €'}
       </Text>
     </VStack>
   )
@@ -143,6 +142,7 @@ function TransactionsList({ transactions, group, sessionData, setSelectedTransac
 export default function TransactionsView({ group, transactions, firstCursor, sessionData }: 
   { group: GroupWithMembers, transactions: GroupedTransactions, firstCursor: number, sessionData: any})
 {
+  const router = useRouter();
   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
   const [cursor, setCursor] = useState<number | undefined>(firstCursor);
@@ -157,11 +157,13 @@ export default function TransactionsView({ group, transactions, firstCursor, ses
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
         position={'sticky'} top={'-40px'}>{group?.name}</Text>
+      <Button size='sm' variant={'settle'} position={'relative'} top={'-40px'} alignSelf={'flex-end'} w={'20%'}
+          onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
       <IconButton variant={'new'} size={'lg'}
           icon={<MdAdd />}
           onClick={() => { setSelectedTransaction(undefined); onClick() }}
           {...buttonProps}>new</IconButton>
-      <Divider marginY={1} />
+      <Divider/>
       <TransactionsList transactions={transactions} group={group} sessionData={sessionData} setSelectedTransaction={setSelectedTransaction} onClick={onClick} />
       {isOpen &&
         <Transaction

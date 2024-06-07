@@ -123,9 +123,12 @@ export const buttonTheme = defineStyleConfig({
       fontWeight: 500,
       width: '50%',
       height: '1.8rem',
-      borderRadius: 'xl',
       _hover: {
         bg: 'whiteAlpha.700',
+      },
+      _disabled: {
+        bg: 'whiteAlpha.200',
+        color: 'whiteAlpha.600',
       },
     },
   }

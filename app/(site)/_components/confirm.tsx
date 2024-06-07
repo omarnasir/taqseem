@@ -13,23 +13,25 @@ import { useEffect, useRef, useState } from "react"
 enum ConfirmMessages {
   USER = 'Are you sure you want to remove this user from the group?',
   GROUP = 'Are you sure you want to remove this group?',
-  TRANSACTION = 'Are you sure you want to remove this transaction?'
+  TRANSACTION = 'Are you sure you want to remove this transaction?',
+  SETTLEMENT = 'Are you sure you want to settle? This can create multiple transactions.'
 }
 
 enum ConfirmTitle {
   USER = 'Remove User',
   GROUP = 'Remove Group',
-  TRANSACTION = 'Remove Transaction'
+  TRANSACTION = 'Remove Transaction',
+  SETTLEMENT = 'Settle Up'
 }
 
 type ConfirmProps = {
   onClose: () => void,
   isOpen: boolean,
   callback: () => void,
-  mode: 'removeUser' | 'removeGroup' | 'removeTransaction',
+  mode: 'removeUser' | 'removeGroup' | 'removeTransaction' | 'settlement'
 }
 
-function getMessageAndTitle(mode: 'removeUser' | 'removeGroup' | 'removeTransaction'): {
+function getMessageAndTitle(mode: ConfirmProps['mode']): {
   message: string,
   title: string
 } {
@@ -48,6 +50,11 @@ function getMessageAndTitle(mode: 'removeUser' | 'removeGroup' | 'removeTransact
       return {
         message: ConfirmMessages.TRANSACTION,
         title: ConfirmTitle.TRANSACTION
+      }
+    case 'settlement':
+      return {
+        message: ConfirmMessages.SETTLEMENT,
+        title: ConfirmTitle.SETTLEMENT
       }
   }
 }
