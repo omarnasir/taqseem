@@ -1,6 +1,5 @@
 "use client";
 import NextLink from 'next/link'
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation'
 
 import { useForm, FieldValues } from "react-hook-form"
@@ -113,8 +112,7 @@ function CreateGroupModal() {
   )
 }
 
-export default function GroupsView({ groups }: {groups: GroupData[]}) {
-  const { data: sessionData } = useSession();
+export default function GroupsView({ groups, sessionUserId }: {groups: GroupData[], sessionUserId: string}) {
   const router = useRouter();
 
   const { isOpen, onClose, onOpen } = useDisclosure()
@@ -158,7 +156,7 @@ export default function GroupsView({ groups }: {groups: GroupData[]}) {
                 </HStack>
               </CardHeader>
               <CardBody>
-                {group.createdById === sessionData?.user?.id &&
+                {group.createdById === sessionUserId &&
                   <ButtonGroup>
                     <Button leftIcon={<MdManageAccounts />}
                       w='100%'

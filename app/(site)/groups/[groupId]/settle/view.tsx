@@ -166,10 +166,9 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
     <SessionProvider>
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <HStack spacing={2} align="stretch"  w={'100%'} justify={'space-between'}
+        <HStack spacing={1} align="stretch"  w={'100%'} justify={'space-between'}
         borderBottom={'1px'} borderColor={'whiteAlpha.200'}
         fontSize={'xs'} color={'whiteAlpha.500'} fontWeight={500} paddingY={2}>
-          <Text>Participating?</Text>
           <Text>Who pays?</Text>
           <Text>How much?</Text>
           <Text>Who gets?</Text>
