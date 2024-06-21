@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 
 import {
   Button,
-  Flex,
   useDisclosure,
   DrawerHeader,
   DrawerOverlay,
@@ -14,26 +13,17 @@ import {
   DrawerCloseButton,
   DrawerContent,
   IconButton,
-  ScaleFade,
   HStack,
   Box,
-  Stack,
   Text,
-  Step,
-  StepIcon,
-  StepIndicator,
-  StepSeparator,
-  StepStatus,
-  Stepper,
-  useSteps,
+  SimpleGrid,
+  VStack,
+  Divider,
 } from "@chakra-ui/react"
 
 import {
-  MdChevronLeft as IconPrev,
-  MdChevronRight as IconNext,
   MdDelete,
   MdOutlineSync,
-  MdCircle,
   MdAdd
 } from "react-icons/md"
 
@@ -42,7 +32,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import {
   FormItemId,
   FormItemAmount,
-  FormItemTransactionStrategy,
+  FormItemTransactionDetails,
   FormItemCategory,
   FormItemSubCategory,
   FormItemDateTime,
@@ -69,7 +59,6 @@ enum FormIdEnum {
   id = 'id',
   name = 'name',
   amount = 'amount',
-  strategy = 'strategy',
   transactionDetails = 'transactionDetails',
   category = 'category',
   subCategory = 'subCategory',
@@ -88,11 +77,6 @@ interface FormTransaction extends Omit<CreateTransaction, "transactionDetails" |
   amount: string,
   transactionDetails: FormTransactionDetails[]
 }
-
-const steps = [
-  { title: 'Fill in details' },
-  { title: 'Decide how to split' },
-]
 
 /**
  * Format date to string.
@@ -150,13 +134,12 @@ function mapTransactionToForm(transaction: TransactionWithDetails): FormTransact
  * @param userId - User id of the current user.
  * @returns Form data.
  */
-function getTransactionFormDefaultValues(groupId: string, userId: string): FormTransaction {
+function getTransactionFormDefaultValues(groupId: string, userId: string, users: UserBasicData[]): FormTransaction {
   return {
     id: undefined,
     name: '',
     amount: '',
-    strategy: 0,
-    transactionDetails: [],
+    transactionDetails: users.map(user => ({ userId: user.id, amount: '' })),
     category: 0,
     subCategory: 0,
     paidAt: formatDateToString(new Date()),
@@ -168,53 +151,33 @@ function getTransactionFormDefaultValues(groupId: string, userId: string): FormT
 }
 
 
-function processUserDetailsByStrategy(values: FormTransaction, users: UserBasicData[]): CreateTransactionDetails[] | string | undefined {
-  const strategy = values[FormIdEnum.strategy] as number;
+function processTransactionDetails(values: FormTransaction): CreateTransactionDetails[] {
   const totalAmount = parseFloat(values[FormIdEnum.amount]);
   const transactionDetails = values[FormIdEnum.transactionDetails];
-  // Strategy 0: Split equally
-  if (strategy === 0) {
-    const userAmount = totalAmount / users.length
-    return users.map(user => ({ userId: user.id, amount: userAmount}));
+  const selectedUsers = transactionDetails.filter((transactionDetails) => transactionDetails.amount !== undefined)
+  const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => (selectedUser.amount === ''))
+  const sum = transactionDetails.reduce((acc: number, item) => acc + (parseFloat(item.amount) || 0), 0)
+  if (selectedUsers.length === 0) {
+    throw 'You must select at least one user'
   }
-  // Strategy > 0: Assign total amount to user at index [strategy - 1]
-  else if (strategy > 0) {
-    return users.map(user => ({
-      userId: user.id,
-      amount: (user.id === users[strategy - 1].id) ? totalAmount : 0
-    }))
+  else if (sum > totalAmount) {
+    throw 'The sum of the amounts is greater than the total amount'
   }
-  // Strategy -1: Custom amounts with validation
-  else if (strategy === -1) {
-    const selectedUsers = transactionDetails.filter((transactionDetails) => transactionDetails.amount !== undefined)
-    const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => (selectedUser.amount === null || selectedUser.amount === ''))
-    const sum = transactionDetails.reduce((acc: number, item) => acc + (parseFloat(item.amount) || 0), 0)
-    let error: string = '';
-    if (selectedUsers.length === 0) {
-      error = 'You must select at least one user'
-    }
-    else if (sum > totalAmount) {
-      error = 'The sum of the amounts is greater than the total amount'
-    }
-    else if (sum === totalAmount && usersWithoutInputAmount.length > 0) {
-      error = 'Some users are not participating in the transaction'
-    }
-    else if (sum < totalAmount && usersWithoutInputAmount.length === 0) {
-      error = 'Exact user amounts must add up to total amount'
-    }
-    if (error) {
-      return error
-    }
-    const remainingAmount = totalAmount - sum;
-    const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
-    const userDetails: CreateTransactionDetails[] = selectedUsers.map((selectedUser) => {
-      return {
-        userId: selectedUser.userId,
-        amount: (selectedUser.amount === '') ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
-      }
-    })
-    return userDetails
+  else if (sum === totalAmount && usersWithoutInputAmount.length > 0) {
+    throw 'Some users are not participating in the transaction'
   }
+  else if (sum < totalAmount && usersWithoutInputAmount.length === 0) {
+    throw 'Exact user amounts must add up to total amount'
+  }
+  const remainingAmount = totalAmount - sum;
+  const owedAmountPerRemainingUser = remainingAmount / usersWithoutInputAmount.length;
+  const userDetails: CreateTransactionDetails[] = selectedUsers.map((selectedUser) => {
+    return {
+      userId: selectedUser.userId,
+      amount: (selectedUser.amount === '') ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
+    }
+  })
+  return userDetails
 }
 
 
@@ -233,14 +196,9 @@ function Transaction(
   const { addToast } = CustomToast();
   const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
 
-  const { activeStep, setActiveStep } = useSteps({
-    index: 0,
-    count: steps.length,
-  })
-
   const defaultValues: FormTransaction = useMemo(() => (
-    transactionWithDetails ? mapTransactionToForm(transactionWithDetails) : getTransactionFormDefaultValues(group.id, sessionData?.user?.id!)
-  ), [sessionData, group, transactionWithDetails]);
+    transactionWithDetails ? mapTransactionToForm(transactionWithDetails) : getTransactionFormDefaultValues(group.id, sessionData?.user?.id!, users)
+  ), [sessionData, group, users, transactionWithDetails]);
 
   const methods = useForm<FormTransaction>({
     values: defaultValues
@@ -248,14 +206,18 @@ function Transaction(
   const {
     handleSubmit,
     setError,
+    clearErrors,
     formState: { isDirty, isValid }
   } = methods
 
   async function onSubmit(values: FormTransaction) {
-
-    const userDetails: CreateTransactionDetails[] | string | undefined = processUserDetailsByStrategy(values, users);
-    if (typeof userDetails === 'string') {
-      setError(FormIdEnum.transactionDetails, { message: userDetails as string })
+    clearErrors(FormIdEnum.transactionDetails);
+    let userDetails: CreateTransactionDetails[] = [];
+    try {
+      userDetails = processTransactionDetails(values);
+    }
+    catch (error) {
+      setError(FormIdEnum.transactionDetails, { message: error })
       return
     }
     // Build the transaction object
@@ -312,34 +274,13 @@ function Transaction(
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DrawerHeader w='100%'
-              zIndex={1} height={'15vh'} position='absolute' top={0}
+              zIndex={1700} height={'8vh'} position='absolute' top={0}
               fontWeight={300} fontSize={'md'} color={'white'} textAlign={'center'} letterSpacing={'widest'}>
               {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
-              <Stack letterSpacing={'wide'} fontWeight={400} mt={2}>
-                <Stepper index={activeStep} size={'sm'} colorScheme="green">
-                  {steps.map((step, index) => (
-                    <Step key={index}>
-                      <StepIndicator>
-                        <StepStatus
-                          complete={<StepIcon />}
-                          active={<MdCircle size={'0.2rem'} />}
-                        />
-                      </StepIndicator>
-                      <StepSeparator />
-                    </Step>
-                  ))}
-                </Stepper>
-                <HStack justifyContent={'center'} fontSize={'sm'} pt={0} mt={-2}>
-                  <Text textColor={'whiteAlpha.700'} letterSpacing={'wide'} fontWeight={300}>
-                    Step {activeStep + 1}:
-                  </Text>
-                  <Text>{steps[activeStep].title}</Text>
-                </HStack>
-              </Stack>
               <DrawerCloseButton />
             </DrawerHeader>
-            <DrawerBody  position='absolute' w='100%' paddingX={8} 
-              overflow={'scroll'} pt={'15vh'}
+            <DrawerBody  position='absolute' w='100%' paddingX={2} 
+              overflow={'scroll'} pt={'10vh'} paddingBottom={20}
               sx={{
                 '&::-webkit-scrollbar': {
                   display: 'none',
@@ -348,23 +289,27 @@ function Transaction(
               }}
               top={0}
               bottom={'10vh'}>
-              <ScaleFade in={activeStep === 0}>
-                <Flex direction={'column'} display={activeStep === 0 ? 'flex' : 'none'}>
-                  <FormItemId />
+              <FormItemId />
+              <VStack padding={2}>
+                <Text fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 1: Fill in details</Text>
+                <Divider marginBottom={2} />
+                <SimpleGrid columns={2} spacing={2}>
                   <FormItemName />
                   <FormItemDateTime />
                   <FormItemCategory />
                   <FormItemSubCategory />
+                </SimpleGrid>
+                <FormItemNote />
+                <SimpleGrid columns={2} spacing={2}>
                   <FormItemPaidBy {...{ users: users }} />
-                  <FormItemNote />
-                </Flex>
-              </ScaleFade>
-              <ScaleFade in={activeStep === 1}>
-                <Flex direction={'column'} display={activeStep === 1 ? 'flex' : 'none'}>
                   <FormItemAmount />
-                  <FormItemTransactionStrategy {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
-                </Flex>
-              </ScaleFade>
+                </SimpleGrid>
+              </VStack>
+              <VStack padding={2} marginY={4}>
+                <Text fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 2: Decide how to split</Text>
+                <Divider marginBottom={2} />
+                <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
+              </VStack>
             </DrawerBody>
             <DrawerFooter position={'absolute'}
               zIndex={1700}
@@ -374,7 +319,7 @@ function Transaction(
               h='10vh'
               overflow={'hidden'}
               bottom={0}>
-              <HStack justifyContent={'space-around'} w='100%'>
+              <HStack justifyContent={'space-between'} w='100%'>
                 {transactionWithDetails ?
                   <>
                     <IconButton w={'13%'}
@@ -388,21 +333,9 @@ function Transaction(
                   </> : <Box w={'13%'} />
                 }
                 <Button size={'sm'} w={'29%'}
-                  leftIcon={<IconPrev size={'1rem'} />}
-                  variant={'formNavigation'}
-                  aria-label="Back"
-                  isDisabled={activeStep !== 1}
-                  onClick={() => { setActiveStep(0) }}>Back</Button>
-                <Button size={'sm'} w={'29%'}
-                  leftIcon={<IconNext size={'1rem'} />}
-                  variant={'formNavigation'}
-                  aria-label="Next"
-                  isDisabled={activeStep === 1}
-                  onClick={() => { setActiveStep(1) }}>Next</Button>
-                <Button size={'sm'} w={'29%'}
                   leftIcon={transactionWithDetails ? <MdOutlineSync size={'1rem'} /> : <MdAdd size={'1rem'}/>}
                   variant={transactionWithDetails ? 'update' : 'add'}
-                  isDisabled={!isValid || !isDirty || activeStep !== 1} 
+                  isDisabled={!isValid || !isDirty} 
                   isLoading={methods.formState.isSubmitting} type='submit'>
                   {transactionWithDetails ? 'Update' : 'Add'}
                 </Button>

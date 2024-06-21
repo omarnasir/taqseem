@@ -1,9 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Input,
   Text,
-  Textarea,
   Select,
   NumberInput,
   NumberInputField,
@@ -11,19 +9,14 @@ import {
   VStack,
   HStack,
   Checkbox,
-  Radio, 
-  RadioGroup,
   FormControl,
   FormErrorMessage,
   InputRightElement,
   InputLeftAddon,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   InputLeftElement,
   FormLabel,
+  Button,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import {
   MdEuroSymbol, MdDriveFileRenameOutline, MdCategory,
@@ -53,9 +46,9 @@ function FormItemName() {
   const { formState: { errors }, register } = useFormContext()
 
   return (
-    <FormControl id={FormIdEnum.name} isInvalid={Boolean(errors[FormIdEnum.name])} marginBottom={3}>
+    <FormControl id={FormIdEnum.name} isInvalid={Boolean(errors[FormIdEnum.name])} marginBottom={1}>
       <FormLabel variant={'transaction'}>Name</FormLabel>
-      <InputGroup variant={"transaction"}>
+      <InputGroup variant={"transaction"} size={'sm'}>
         <InputLeftElement>
           <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{ color: "teal.600" }} />
         </InputLeftElement>
@@ -69,188 +62,138 @@ function FormItemName() {
   )
 }
 
-function TransactionStrategyDecisionRadio({ user, value, amount }: { user: UserBasicData, value: string, amount: number}) {
-  const { data: sessionData } = useSession();
 
-  const isUserSessionUser = useMemo(() => user.id === sessionData?.user?.id!, [user.id, sessionData?.user?.id!]);
-  const variant = useMemo(() => isUserSessionUser ? 'transactionStrategyYou' : 'transactionStrategyThem', [isUserSessionUser]);
-  
-  return (
-    <Radio variant={variant} value={value}>{isUserSessionUser ? 'You owe' : user.name + ' pays'} €{amount.toFixed(2)}
-    </Radio>
-  )
-}
-
-function FormItemTransactionStrategy({ users } : { users: UserBasicData[],  }) 
+function FormItemTransactionDetails({ users } : { users: UserBasicData[] }) 
 {
-  const { formState: { errors },
-    control,
-    setValue,
-    getValues } = useFormContext()
-  const { fields, replace, update, remove } = useFieldArray({
+  const {
+    clearErrors,
+    formState: { errors },
+    control } = useFormContext()
+  const { fields, replace, update } = useFieldArray({
     control,
     name: FormIdEnum.transactionDetails,
   })
-  const strategy = useWatch({
-    control,
-    name: FormIdEnum.strategy,
-  });
-
-  const amount = useWatch({
-    control,
-    name: FormIdEnum.amount,
-  });
-
-  const [radioStrategyValue, setRadioStrategyValue] = React.useState(strategy.toString());
-
   return (
-    <FormControl id={FormIdEnum.strategy} isInvalid={Boolean(errors[FormIdEnum.strategy])} marginBottom={3}>
-      <HStack>
-        <Accordion width={'100%'} defaultIndex={strategy === -1 ? [1] : [0]} variant='transaction'>
-          <AccordionItem>
-            <h2>
-              <AccordionButton onClick={() => {
-                remove()
-                setValue(FormIdEnum.strategy, 0);
-              }}
-              >
-                <Text alignSelf={'center'}>Based on People</Text>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel>
-              <VStack width={'100%'} spacing={3}>
-                <RadioGroup onChange={(e) => {
-                  remove();
-                  setValue(FormIdEnum.strategy, parseInt(e.toString()));
-                  setRadioStrategyValue(e.toString());
-                }
-                } value={radioStrategyValue} w={'100%'}>
-                  <VStack>
-                    <Radio value="0" variant={'transactionStrategyEveryone'}>Everyone pays €{(parseFloat(amount || 0) / users.length).toFixed(2)}</Radio>
-                    {users.map((user, index) =>
-                      user.id !== getValues(FormIdEnum.paidById) &&
-                      <TransactionStrategyDecisionRadio key={user.id} value={(index + 1).toString()} user={user} amount={parseFloat(amount || 0)} />
-                    )}
-                  </VStack>
-                </RadioGroup>
-              </VStack>
-            </AccordionPanel>
-          </AccordionItem>
-          <AccordionItem>
-            <h2>
-              <AccordionButton onClick={() => {
-                replace(users.map(user => ({
-                  userId: user.id,
-                  amount: ''
-                }
-                )));
-                setValue(FormIdEnum.strategy, -1);
-              }}>
-                <Text alignSelf={'center'}>Or specify what everyone owes:</Text>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel>
-              <Text alignSelf={'center'} fontSize={'xs'} fontWeight={'light'} mb={3}>
-                You can leave the amount for a user empty if you want us to calculate it for you.
-              </Text>
-              <FormControl id={FormIdEnum.transactionDetails}
-                isInvalid={Boolean(errors[FormIdEnum.transactionDetails])}>
-                <VStack alignItems={'center'} marginX={1}>
-                  {fields.map((field, index) => (
-                    <FormItemAmountDetailsUser
-                      key={field.id}
-                      control={control}
-                      update={update}
-                      user={users[index]}
-                      index={index}
-                      value={field} />
-                  ))}
-                </VStack>
-                <FormErrorMessage>{errors[FormIdEnum.transactionDetails]?.message?.toString()}</FormErrorMessage>
-              </FormControl>
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
-      </HStack>
-    </FormControl>
+    <VStack width={'100%'} >
+      {/* <Text fontSize={'xs'}>€{(parseFloat(amount || 0) / users.length).toFixed(2)} each</Text> */}
+      <FormControl id={FormIdEnum.transactionDetails} isInvalid={Boolean(errors[FormIdEnum.transactionDetails])}>
+        <ButtonGroup marginBottom={4}>
+          <Button onClick={() => {
+            clearErrors(FormIdEnum.transactionDetails);
+            replace(users.map(user => ({
+              userId: user.id,
+              amount: ''
+            })))
+          }}
+          variant={'outline'}
+          colorScheme={'purple'} size={'xs'} w='5rem'>
+            Everyone
+          </Button>
+          <Button onClick={() => {
+            clearErrors(FormIdEnum.transactionDetails);
+            replace(users.map(user => ({
+              userId: user.id,
+              amount: undefined
+            })))
+          }}
+            variant={'outline'}
+            colorScheme={'red'} size={'xs'} w='5rem'>
+            None
+          </Button>
+      {/* <Text alignSelf={'center'} fontSize={'2xs'} fontWeight={'light'} w='50%'>
+        You can leave the amount for a user empty if you want us to calculate it for you.
+      </Text> */}
+        </ButtonGroup>
+        <VStack width={'100%'} >
+          {fields && fields.map((field, index) => (
+            <FormItemAmountDetailsUser
+              key={field.id}
+              control={control}
+              update={update}
+              user={users[index]}
+              index={index}
+              value={field} />
+          ))}
+        </VStack>
+        <FormErrorMessage>{errors[FormIdEnum.transactionDetails]?.message?.toString()}</FormErrorMessage>
+      </FormControl>
+    </VStack>
   )
 }
 
 function FormItemAmountDetailsUser({ index, update, value, control, user }:
-  { user: UserBasicData, index: number, control: any, update: any, value: any }) {
+  { user: UserBasicData, index: number, control: any, update: any, value: any}) {
   const { clearErrors, getFieldState } = useFormContext()
   
   const registerAmount = useMemo(() => `${FormIdEnum.transactionDetails}.${index}.amount`, [index]);
 
-  const [selected, setSelected] = useState<boolean>(value.amount !== undefined)
+  const [selected, setSelected] = useState<boolean>(value.amount !== undefined && value.amount !== '0');
 
   return (
     <FormControl id={registerAmount}
       isInvalid={getFieldState(registerAmount).invalid}>
-      <HStack>
+      <HStack height={'2rem'}>
         <Checkbox onChange={(e) => {
           setSelected(e.target.checked);
           if (!e.target.checked) update(index, { ...value, amount: undefined });
           else update(index, { ...value, amount: '' });
+          clearErrors(FormIdEnum.transactionDetails);
         }}
           defaultChecked={selected}
-          colorScheme={'gray'}
           variant={'transactionDetailsUser'}
-          rounded='full'
-          size={'lg'}
           w='50%'>
-          <Text>{user.name}</Text>
+          <Text fontWeight={300}>{user.name}</Text>
         </Checkbox>
-        <InputGroup variant={"transaction"} w='50%'>
-          <InputLeftAddon>
-            <MdEuroSymbol size={'0.75rem'} />
-          </InputLeftAddon>
-          <Controller
-            name={registerAmount}
-            control={control}
-            disabled={!selected}
-            rules={{
-              required: false,
-              validate: (value) => value > 0 || value === ''
-            }}
-            render={({ field: { ref, name,onChange, ...restField } }) => (
-              <NumberInput size={'md'} variant={'transactionUserDetails'}
-                {...restField} 
-                onChange={(value) =>{
-                  getFieldState(FormIdEnum.transactionDetails).invalid && clearErrors(FormIdEnum.transactionDetails)
-                  onChange(value)
-                }}
-                isValidCharacter={(char) => {
-                  return (char >= '0' && char <= '9') || char === '.' || char === ','
-                }}
-                pattern={'[0-9]+([,.][0-9]+)?'}
-                parse={(value) => {
-                  return value.replace(',', '.')
-                }}
-                format={(value) => {
-                  // Count precision
-                  const [val, precision] = value.toString().split('.')
-                  if (precision && precision.length > 2) {
-                    return val + ',' + precision.slice(0, 2)
-                  }
-                  return value.toString().replace('.', ',')
-                }}
-              >
-                <NumberInputField
-                  ref={ref}
-                  name={name}
-                  disabled={restField.disabled}
-                  placeholder={'auto'}
-                  textIndent={'0.5rem'}
-                />
-                <InputRightElement color={'gray.500'}
-                  onClick={() => update(index, {...value, amount: ''})}>
-                  <MdOutlineCancel size={'1rem'} />
-                </InputRightElement>
-              </NumberInput>)} />
-        </InputGroup>
+        {selected &&
+          <InputGroup variant={"transaction"} size={'sm'}  w='50%'>
+            <InputLeftAddon>
+            <MdEuroSymbol size={'0.75rem'} color="green" />
+            </InputLeftAddon>
+            <Controller
+              name={registerAmount}
+              control={control}
+              disabled={!selected}
+              rules={{
+                required: false,
+                validate: (value) => value > 0 || value === ''
+              }}
+              render={({ field: { ref, name, onChange, ...restField } }) => (
+                <NumberInput size={'sm'} variant={'transaction'} w='100%'
+                  {...restField}
+                  onChange={(value) => {
+                    getFieldState(FormIdEnum.transactionDetails).invalid && clearErrors(FormIdEnum.transactionDetails)
+                    onChange(value)
+                  }}
+                  isValidCharacter={(char) => {
+                    return (char >= '0' && char <= '9') || char === '.' || char === ','
+                  }}
+                  pattern={'[0-9]+([,.][0-9]+)?'}
+                  parse={(value) => {
+                    return value.replace(',', '.')
+                  }}
+                  format={(value) => {
+                    // Count precision
+                    const [val, precision] = value.toString().split('.')
+                    if (precision && precision.length > 2) {
+                      return val + ',' + precision.slice(0, 2)
+                    }
+                    return value.toString().replace('.', ',')
+                  }}
+                >
+                  <NumberInputField
+                    ref={ref}
+                    name={name}
+                    disabled={restField.disabled}
+                    placeholder={'auto'}
+                    fontSize={'sm'}
+                  />
+                  <InputRightElement color={'gray.500'}
+                    onClick={() => update(index, { ...value, amount: '' }, clearErrors(FormIdEnum.transactionDetails))}>
+                    <MdOutlineCancel size={'0.8rem'} />
+                  </InputRightElement>
+                </NumberInput>)} />
+          </InputGroup>
+        }
       </HStack >
       <FormErrorMessage>
         {getFieldState(registerAmount).error?.message?.toString()}
@@ -263,12 +206,12 @@ function FormItemAmount() {
   const { formState: { errors }, control } = useFormContext()
 
   return (
-    <FormControl id={FormIdEnum.amount} isInvalid={Boolean(errors[FormIdEnum.amount])} marginBottom={3}>
+    <FormControl id={FormIdEnum.amount} isInvalid={Boolean(errors[FormIdEnum.amount])} marginBottom={1}>
       <FormLabel variant={'transaction'}>Amount</FormLabel>
-      <InputGroup variant={"transaction"}>
-      <InputLeftElement>
-        <CustomFormIcon icon={MdEuroSymbol} styleProps={{color:"green.600"}}/>
-      </InputLeftElement>
+      <InputGroup variant={"transaction"} size={'sm'} >
+        <InputLeftAddon>
+          <MdEuroSymbol size={'0.75rem'} color="green" />
+        </InputLeftAddon>
         <Controller
           name={FormIdEnum.amount}
           control={control}
@@ -279,7 +222,7 @@ function FormItemAmount() {
             }
           }}
           render={({ field: { ref, name, ...restField } }) => (
-            <NumberInput w='100%' variant={'transaction'}
+            <NumberInput w='100%' variant={'transaction'} size={'sm'}
               {...restField}
               isValidCharacter={(char) => {
                 return (char >= '0' && char <= '9') || char === '.' || char === ','
@@ -296,7 +239,7 @@ function FormItemAmount() {
                 placeholder="0"
                 ref={ref}
                 name={name}
-                fontSize={'lg'}
+                fontSize={'sm'}
               />
             </NumberInput>
           )}
@@ -310,9 +253,9 @@ function FormItemAmount() {
 function FormItemSubCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.subCategory} isInvalid={Boolean(errors[FormIdEnum.subCategory])} marginBottom={3}>
+    <FormControl id={FormIdEnum.subCategory} isInvalid={Boolean(errors[FormIdEnum.subCategory])} marginBottom={1}>
       <FormLabel variant={'transaction'}>SubCategory</FormLabel>
-      <InputGroup variant={"transaction"}>
+      <InputGroup variant={"transaction"} size={'sm'} >
       <InputLeftElement>
         <CustomFormIcon icon={MdOutlineCategory} styleProps={{color:"red.600"}}/>
       </InputLeftElement>
@@ -337,9 +280,9 @@ function FormItemSubCategory() {
 function FormItemCategory() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.category} isInvalid={Boolean(errors[FormIdEnum.category])} marginBottom={3}>
+    <FormControl id={FormIdEnum.category} isInvalid={Boolean(errors[FormIdEnum.category])} marginBottom={1}>
       <FormLabel variant={'transaction'}>Category</FormLabel>
-      <InputGroup variant={"transaction"}>
+      <InputGroup variant={"transaction"} size={'sm'} >
         <InputLeftElement>
         <CustomFormIcon icon={MdCategory} styleProps={{color:"red.600"}}/>
         </InputLeftElement>
@@ -364,9 +307,9 @@ function FormItemCategory() {
 function FormItemDateTime() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.paidAt} isInvalid={Boolean(errors[FormIdEnum.paidAt])} marginBottom={3}>
+    <FormControl id={FormIdEnum.paidAt} isInvalid={Boolean(errors[FormIdEnum.paidAt])} marginBottom={1}>
       <FormLabel variant={'transaction'}>Date</FormLabel>
-      <InputGroup variant={"transaction"}>
+      <InputGroup variant={"transaction"} size={'sm'} >
         <InputLeftElement>
           <CustomFormIcon icon={MdCalendarMonth} styleProps={{ color: "yellow.600" }} />
         </InputLeftElement>
@@ -387,9 +330,9 @@ function FormItemDateTime() {
 function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.paidById} isInvalid={Boolean(errors[FormIdEnum.paidById])} marginBottom={3}>
+    <FormControl id={FormIdEnum.paidById} isInvalid={Boolean(errors[FormIdEnum.paidById])} marginBottom={1}>
           <FormLabel variant={'transaction'}>Paid By</FormLabel>
-      <InputGroup variant={"transaction"}>
+      <InputGroup variant={"transaction"} size={'sm'} >
         <InputLeftElement>
           <CustomFormIcon icon={MdCategory} styleProps={{color:"purple.600"}}/>
         </InputLeftElement>
@@ -412,9 +355,9 @@ function FormItemPaidBy({ users }: { users: UserBasicData[] }) {
 function FormItemNote() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl id={FormIdEnum.notes} isInvalid={Boolean(errors[FormIdEnum.notes])} marginBottom={3}>
+    <FormControl id={FormIdEnum.notes} isInvalid={Boolean(errors[FormIdEnum.notes])} marginBottom={1}>
       <FormLabel variant={'transaction'}>Note</FormLabel>
-        <InputGroup variant={"transaction"}>
+        <InputGroup variant={"transaction"} size={'sm'} >
           <InputLeftElement>
             <CustomFormIcon icon={MdDriveFileRenameOutline} styleProps={{ color: "orange.600", }} />
           </InputLeftElement>
@@ -435,7 +378,7 @@ export {
   FormItemId,
   FormItemName,
   FormItemAmount,
-  FormItemTransactionStrategy,
+  FormItemTransactionDetails,
   FormItemCategory,
   FormItemSubCategory,
   FormItemDateTime,

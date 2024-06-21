@@ -44,18 +44,26 @@ export const buttonTheme = defineStyleConfig({
 
     },
     add: {
-      ...buttonFontSizes,
-      borderColor: 'whiteAlpha.200',
-      bg: 'gray.300',
-      _disabled: {
-        bg: 'whiteAlpha.300',
-        textColor: 'black',
-      },
+      _dark:{
+        ...buttonFontSizes,
+        borderColor: 'whiteAlpha.200',
+        bg: 'gray.300',
+        _disabled: {
+          bg: 'whiteAlpha.400',
+          textColor: 'black',
+        },
+      }
     },
     update: {
-      ...buttonFontSizes,
-      bg: 'orange.300',
-      opacity: 0.80,
+      _dark:{
+        ...buttonFontSizes,
+        bg: 'orange.300',
+        opacity: 0.80,
+        _disabled: {
+          opacity: 0.30,
+          textColor: 'black',
+        },
+      }
     },
     delete: {
       ...buttonFontSizes,

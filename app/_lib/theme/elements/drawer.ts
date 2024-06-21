@@ -6,7 +6,11 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const transaction = definePartsStyle({
   header: {
-
+    zIndex: 1700,
+    _dark: {
+      bg: 'bgModal',
+      boxShadow: 'lg',
+    },
   },
   dialog: {
     _dark: {

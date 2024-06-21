@@ -55,7 +55,6 @@ model Transactions {
   subCategory        Int
   notes              String?
   amount             Float
-  strategy           Int
   group              Groups               @relation(fields: [groupId], references: [id])
   groupId            String
   paidBy             Users                @relation("PaidBy", fields: [paidById], references: [id])

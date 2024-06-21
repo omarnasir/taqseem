@@ -89,15 +89,16 @@ const transactionStrategyYou = definePartsStyle({
 
 const transactionDetailsUser = definePartsStyle({
   label: {
-    fontSize: 'sm',
-    fontWeight: 300,
+    fontSize: 'xs',
     paddingLeft: 2,
   },
   control: {
-    boxSize: '1rem',
+    rounded: 'md',
+    boxSize: '1.3rem',
     _checked: {
       border: 'none',
-      bg: 'whiteAlpha.800',
+      bg: 'whiteAlpha.200',
+      color: 'green.300',
     },
     _focus: {
       boxShadow: 'none',

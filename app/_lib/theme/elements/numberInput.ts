@@ -9,18 +9,14 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const transaction = definePartsStyle({
   field: {
     ...base.field,
-    marginLeft: 6,
+    _dark: {
+      fontSize: 'xs',
+    },
+    color: 'whiteAlpha.800',
+    marginLeft: -2,
     _disabled: {
       background: "rgba(5,5,5, 1)",
     },
-  }
-})
-
-const transactionUserDetails = definePartsStyle({
-  field: {
-    ...base.field,
-    ...transaction.field,
-    marginLeft: 0,
   }
 })
 
@@ -36,4 +32,4 @@ const settlement = definePartsStyle({
   }
 })
 
-export const numberTheme = defineMultiStyleConfig({ variants: { transaction, transactionUserDetails, settlement } })
+export const numberTheme = defineMultiStyleConfig({ variants: { transaction, settlement } })
