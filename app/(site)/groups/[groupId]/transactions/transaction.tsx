@@ -38,7 +38,8 @@ import {
   FormItemDateTime,
   FormItemName,
   FormItemPaidBy,
-  FormItemNote
+  FormItemNote,
+  FormItemIsSettlement
 } from "./form-items";
 
 import { type GroupWithMembers } from "@/app/_types/model/groups";
@@ -64,7 +65,8 @@ enum FormIdEnum {
   subCategory = 'subCategory',
   paidAt = 'paidAt',
   paidById = 'paidById',
-  notes = 'notes'
+  notes = 'notes',
+  isSettlement = 'isSettlement',
 }
 
 // Reuse auto-generated types from Prisma.
@@ -142,6 +144,7 @@ function getTransactionFormDefaultValues(groupId: string, userId: string, users:
     transactionDetails: users.map(user => ({ userId: user.id, amount: '' })),
     category: 0,
     subCategory: 0,
+    isSettlement: false,
     paidAt: formatDateToString(new Date()),
     paidById: userId,
     notes: '',
@@ -275,7 +278,7 @@ function Transaction(
           <form onSubmit={handleSubmit(onSubmit)}>
             <DrawerHeader w='100%'
               zIndex={1700} height={'8vh'} position='absolute' top={0}
-              fontWeight={300} fontSize={'md'} color={'white'} textAlign={'center'} letterSpacing={'widest'}>
+              fontWeight={300} fontSize={'md'} color={'white'} textAlign={'start'} letterSpacing={'widest'}>
               {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
               <DrawerCloseButton />
             </DrawerHeader>
@@ -290,8 +293,11 @@ function Transaction(
               top={0}
               bottom={'10vh'}>
               <FormItemId />
-              <VStack padding={2}>
-                <Text fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 1: Fill in details</Text>
+              <VStack padding={2} w='100%'>
+                <HStack justifyContent={'space-around'} w='100%'>
+                  <Text width={'80%'} fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 1: Fill in details</Text>
+                  <FormItemIsSettlement />
+                </HStack>
                 <Divider marginBottom={2} />
                 <SimpleGrid columns={2} spacing={2}>
                   <FormItemName />
@@ -299,11 +305,11 @@ function Transaction(
                   <FormItemCategory />
                   <FormItemSubCategory />
                 </SimpleGrid>
-                <FormItemNote />
                 <SimpleGrid columns={2} spacing={2}>
                   <FormItemPaidBy {...{ users: users }} />
                   <FormItemAmount />
                 </SimpleGrid>
+                <FormItemNote />
               </VStack>
               <VStack padding={2} marginY={4}>
                 <Text fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 2: Decide how to split</Text>

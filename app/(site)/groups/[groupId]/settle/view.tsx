@@ -137,7 +137,6 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
       name: 'Settlement',
       category: -1,
       subCategory: -1,
-      strategy: 1,
       createdById: session.data?.user?.id! as string,
       createdAt: new Date().toISOString(),
       isSettlement: true,
@@ -255,8 +254,8 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
           } marginTop={2} />
           <IconButton variant={'outline'} size={'sm'} rounded={'full'} width={'10%'} icon={<MdResetIcon />} aria-label='Reset all settlements'
           onClick={() => 
-            {
-              fields.map((_, index) => remove(index));
+            { 
+              remove();
               settlementDetails.map((settlement) => {
                 append({
                   amount: settlement.amount.toString(),

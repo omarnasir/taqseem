@@ -48,7 +48,7 @@ const customTheme = extendTheme({ config, fonts },
 			// bgCard: 'linear-gradient(to right, rgba(49,51,53, 0.45) 35%, rgba(60,61,65, 0.35) 100%)',
 			bgModal: 'rgba(25,25,30, 1)',
 			bgListItem: '#282E33',
-			bgCard: '#282E33',
+			bgCard: '#282D33',
 			loginbtn: {
 				50: '#ffffff',
 				100: '#ffffff',

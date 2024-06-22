@@ -36,16 +36,6 @@ export const base = definePartsStyle({
   }
 })
 
-const transactionNote = definePartsStyle({
-  ...base,
-  group: {
-    ...base.group,
-    border: "1px solid",
-    borderWidth: "1px",
-    borderColor: "whiteAlpha.300",
-    borderRadius: "md",
-  },
-})
 
 const transactionStrategy = definePartsStyle({
   ...base,
@@ -74,7 +64,6 @@ const login = definePartsStyle({
 export const inputTheme = defineMultiStyleConfig({
   variants: {
     transaction: base,
-    transactionNote,
     transactionStrategy,
     login,
   },

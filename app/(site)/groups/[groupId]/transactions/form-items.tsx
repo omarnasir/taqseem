@@ -85,7 +85,7 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[] })
               amount: ''
             })))
           }}
-          variant={'outline'}
+          variant={'outline'} opacity={0.85}
           colorScheme={'purple'} size={'xs'} w='5rem'>
             Everyone
           </Button>
@@ -96,7 +96,7 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[] })
               amount: undefined
             })))
           }}
-            variant={'outline'}
+            variant={'outline'} opacity={0.85}
             colorScheme={'red'} size={'xs'} w='5rem'>
             None
           </Button>
@@ -147,7 +147,7 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
         {selected &&
           <InputGroup variant={"transaction"} size={'sm'}  w='50%'>
             <InputLeftAddon>
-            <MdEuroSymbol size={'0.75rem'} color="green" />
+              <MdEuroSymbol size={'0.75rem'} color="green" />
             </InputLeftAddon>
             <Controller
               name={registerAmount}
@@ -252,12 +252,15 @@ function FormItemAmount() {
 
 function FormItemSubCategory() {
   const { formState: { errors }, register } = useFormContext()
+
+  const isSettlement = useWatch({ name: FormIdEnum.isSettlement})
+
   return (
-    <FormControl id={FormIdEnum.subCategory} isInvalid={Boolean(errors[FormIdEnum.subCategory])} marginBottom={1}>
+    <FormControl isDisabled={isSettlement} id={FormIdEnum.subCategory} isInvalid={Boolean(errors[FormIdEnum.subCategory])} marginBottom={1}>
       <FormLabel variant={'transaction'}>SubCategory</FormLabel>
       <InputGroup variant={"transaction"} size={'sm'} >
       <InputLeftElement>
-        <CustomFormIcon icon={MdOutlineCategory} styleProps={{color:"red.600"}}/>
+        <CustomFormIcon icon={MdOutlineCategory} styleProps={{color: isSettlement ? "whiteAlpha.300" :  "red.600"}}/>
       </InputLeftElement>
         <Select {...register(FormIdEnum.subCategory, {
           required: true,
@@ -279,12 +282,15 @@ function FormItemSubCategory() {
 
 function FormItemCategory() {
   const { formState: { errors }, register } = useFormContext()
+
+  const isSettlement = useWatch({ name: FormIdEnum.isSettlement})
+
   return (
-    <FormControl id={FormIdEnum.category} isInvalid={Boolean(errors[FormIdEnum.category])} marginBottom={1}>
+    <FormControl isDisabled={isSettlement} id={FormIdEnum.category} isInvalid={Boolean(errors[FormIdEnum.category])} marginBottom={1}>
       <FormLabel variant={'transaction'}>Category</FormLabel>
       <InputGroup variant={"transaction"} size={'sm'} >
         <InputLeftElement>
-        <CustomFormIcon icon={MdCategory} styleProps={{color:"red.600"}}/>
+          <CustomFormIcon icon={MdCategory} styleProps={{color: isSettlement ? "whiteAlpha.300" :  "red.600"}}/>
         </InputLeftElement>
         <Select {...register(FormIdEnum.category, {
           required: true,
@@ -364,11 +370,29 @@ function FormItemNote() {
           <Input {...register(FormIdEnum.notes, {
             required: false
           })}
+
             placeholder='Add a note'
             background={"transparent"}
           />
         </InputGroup>
         <FormErrorMessage>{errors[FormIdEnum.notes]?.message?.toString()}</FormErrorMessage>
+    </FormControl>
+  )
+}
+
+
+function FormItemIsSettlement() {
+  const { formState: { errors }, register } = useFormContext()
+  return (
+    <FormControl w={'30%'} id={FormIdEnum.isSettlement} isInvalid={Boolean(errors[FormIdEnum.isSettlement])}>
+      <InputGroup size={'sm'} alignItems={'flex-start'}>
+      <FormLabel variant={'transaction'}>Settlement?</FormLabel>
+      <Checkbox variant={'settlement'}
+      {...register(FormIdEnum.isSettlement, {
+        required: false
+      })} />
+      </InputGroup>
+      <FormErrorMessage>{errors[FormIdEnum.isSettlement]?.message?.toString()}</FormErrorMessage>
     </FormControl>
   )
 }
@@ -383,5 +407,6 @@ export {
   FormItemSubCategory,
   FormItemDateTime,
   FormItemPaidBy,
-  FormItemNote
+  FormItemNote,
+  FormItemIsSettlement
 }

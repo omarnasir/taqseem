@@ -67,8 +67,9 @@ export const buttonTheme = defineStyleConfig({
     },
     delete: {
       ...buttonFontSizes,
-      color: 'whiteAlpha.900',
-      bg: 'red.800'
+      borderWidth: 1,
+      borderColor: 'red.300',
+      color: 'red.300',
     },
     deleteBin: {
       ...buttonFontSizes,
@@ -104,8 +105,9 @@ export const buttonTheme = defineStyleConfig({
     },
     action: {
       ...buttonFontSizes,
-      bg: 'blue.400',
-      color: 'black',
+      borderWidth: 1,
+      borderColor: 'blue.300',
+      color: 'blue.200',
       fontWeight: 500,
     },
     formNavigation: {
