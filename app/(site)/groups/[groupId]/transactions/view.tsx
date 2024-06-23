@@ -62,14 +62,17 @@ function AmountDisplay({ transaction, userId }:
 
 
   const amount = useMemo(() => {
+    if (paidById === userId) {
+      return totalAmount;
+    }
     return transactionDetails.map((td) => {
       return td.userId === userId ? td.userId === paidById ? totalAmount - td.amount : -1 * td.amount : 0;
     }).reduce((acc, val) => acc + val, 0);
-  }, [transactionDetails, userId, paidById, totalAmount]);
+  }, [totalAmount, paidById, transactionDetails, userId]);
 
 
-  const colorDarker = useMemo(() => (amount === 0 || transaction.category === -1) ? 'whiteAlpha.600' : amount > 0 ? 'green.500' : 'red.500', [amount, transaction.category]);
-  const colorLighter = useMemo(() => (amount === 0 || transaction.category === -1) ? 'whiteAlpha.600' : amount > 0 ? 'green.400' : 'red.400', [amount, transaction.category]);
+  const colorDarker = amount > 0 ? 'green.500' : amount < 0 ? 'red.500' : 'whiteAlpha.600';
+  const colorLighter = amount > 0 ? 'green.400' : amount < 0 ? 'red.400' : 'whiteAlpha.600';
 
   return (
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
@@ -80,7 +83,7 @@ function AmountDisplay({ transaction, userId }:
       <Text fontSize={'2xs'}
         color={colorLighter} opacity={0.65}
         fontWeight={'300'} letterSpacing={'tight'}>
-        {amount === 0 ? 'not involved' : amount > 0 ? 'you lent' : 'you borrowed'}
+        {paidById === userId ? 'you lent' : amount === 0 ? 'not involved' : 'you borrowed'}
       </Text>
     </VStack>
   )

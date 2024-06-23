@@ -116,15 +116,18 @@ function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransact
  * @param transaction - Transaction object.
  * @returns Form data.
  */
-function mapTransactionToForm(transaction: TransactionWithDetails): FormTransaction {
+function mapTransactionToForm(transaction: TransactionWithDetails, users: UserBasicData[]): FormTransaction {
   return {
     ...transaction,
+    category: transaction.isSettlement ? 0 : transaction.category,
+    subCategory: transaction.isSettlement ? 0 : transaction.subCategory,
     amount: transaction.amount.toFixed(2),
     paidAt: formatDateToString(transaction.paidAt),
-    transactionDetails: transaction.transactionDetails.map((detail) => {
+    transactionDetails: users.map((user) => {
+      const detail = transaction.transactionDetails.find((detail) => detail.userId === user.id)
       return {
-        userId: detail.userId,
-        amount: detail.amount.toString()
+        userId: user.id,
+        amount: detail ? detail.amount.toFixed(2) : undefined
       }
     })
   }
@@ -200,7 +203,7 @@ function Transaction(
   const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
 
   const defaultValues: FormTransaction = useMemo(() => (
-    transactionWithDetails ? mapTransactionToForm(transactionWithDetails) : getTransactionFormDefaultValues(group.id, sessionData?.user?.id!, users)
+    transactionWithDetails ? mapTransactionToForm(transactionWithDetails, users) : getTransactionFormDefaultValues(group.id, sessionData?.user?.id!, users)
   ), [sessionData, group, users, transactionWithDetails]);
 
   const methods = useForm<FormTransaction>({
