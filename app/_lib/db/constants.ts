@@ -69,15 +69,14 @@ function getTransactionIcon(category: number): IconType {
   return Icon
 }
 
-enum StrategyEnum {
-  Everyone = 0,
-  Single = 1,
-  Multiple = 2
+enum ActivityTypeEnum {
+  CREATE = 0,
+  UPDATE = 1
 }
 
 export {
   TransactionCategoryEnum,
   TransactionSubCategoryEnum,
-  StrategyEnum,
+  ActivityTypeEnum,
   getTransactionIcon
 }

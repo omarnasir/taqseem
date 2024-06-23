@@ -28,6 +28,7 @@ model Users {
   PaidBy             Transactions[]       @relation("PaidBy")
   CreatedBy          Transactions[]       @relation("CreatedBy")
   transactionDetails TransactionDetails[]
+  activity          Activity[]
 }
 
 model Groups {
@@ -37,6 +38,7 @@ model Groups {
   createdBy    Users          @relation(fields: [createdById], references: [id])
   createdById  String
   transactions Transactions[]
+  activity     Activity[]
 }
 
 model Memberships {
@@ -65,6 +67,7 @@ model Transactions {
   createdAt          DateTime             @default(now())
   transactionDetails TransactionDetails[]
   isSettlement       Boolean              @default(false)
+  activity           Activity[]
 }
 
 model TransactionDetails {
@@ -75,4 +78,16 @@ model TransactionDetails {
   userId        String
   amount        Float
   createdAt     DateTime     @default(now())
+}
+
+model Activity {
+  id           Int      @id @default(autoincrement())
+  action       Int
+  createdBy    Users    @relation(fields: [createdById], references: [id])
+  createdById  String
+  createdAt    DateTime @default(now())
+  transaction  Transactions @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  transactionId Int
+  group       Groups @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String
 }

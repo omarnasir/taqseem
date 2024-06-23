@@ -1,6 +1,6 @@
 "use server";
 import { 
-  getTransactionsByGroupAndUserId,
+  getTransactionsByGroupId,
   getTransactionsByUserIdAndDate,
  } from '@/app/_data/transactions';
 import {
@@ -43,7 +43,7 @@ async function getUserTransactionsByGroupIdService(groupId: string, cursor: numb
     throw new Error('Unauthorized');
   }
   try {
-    const response = await getTransactionsByGroupAndUserId(groupId, session?.user?.id as string, cursor);
+    const response = await getTransactionsByGroupId(groupId, cursor);
     const { transactions, cursor: newCursor } = response;
     let groupedTransactions: GroupedTransactions = []
     for (const transaction of transactions) {

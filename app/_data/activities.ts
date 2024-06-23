@@ -1,51 +1,51 @@
 'use server';
 import prisma from '@/app/_lib/db/prisma';
 import {
-  type TransactionWithDetails
-} from "@/app/_types/model/transactions";
+  type ActivityGetArgs,
+  type CreateActivity,
+} from "@/app/_types/model/activities";
 
 
-type ActivityByUserId = Pick<TransactionWithDetails, 'id' | 'name' | 'category' | 'createdAt' | 'createdById'> & {
-  transactionDetails: {
-    amount: number;
-    user: {
-      id: string;
-      name: string;
-    }
-  }[]
-};
-
-async function getActivitiesByUserId(userId: string,  cursor: number | undefined): 
-  Promise<{ activities: ActivityByUserId[], cursor: number | undefined }> {
+async function createActivity(activity: CreateActivity): Promise<void> {
   try {
-    const userActivity = await prisma.transactions.findMany({
-      where: {
-        transactionDetails: {
-          some: {
-            userId: userId,
-            amount: {
-              not: 0
+    await prisma.activity.create({
+      data: {
+        ...activity,
+      }
+    });
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to create activity");
+  }
+}
+
+async function getActivitiesByGroupIds(groupIds: string[], cursor: number | undefined): 
+Promise<{ activities: ActivityGetArgs[] | [], cursor: number | undefined }> {
+  try {
+    const activities = await prisma.activity.findMany({
+      include: {
+        createdBy: {
+          select: {
+            name: true
+          }
+        },
+        transaction: {
+          select: {
+            name: true,
+            isSettlement: true,
+            group: {
+              select: {
+                name: true,
+              }
             }
           }
         }
       },
-      select: {
-        id: true,
-        name: true,
-        category: true,
-        createdAt: true,
-        createdById: true,
-        transactionDetails: {
-          select: {
-            amount: true,
-            user: {
-              select: {
-                id: true,
-                name: true
-              }
-            }
-          },
-        },
+      where: {
+        groupId: {
+          in: groupIds
+        }
       },
       orderBy: {
         createdAt: 'desc'
@@ -56,17 +56,17 @@ async function getActivitiesByUserId(userId: string,  cursor: number | undefined
       } : undefined,
       skip: cursor ? 1 : undefined
     });
-    if (!userActivity || userActivity.length === 0) throw new Error("No transactions found");
-    return { activities: userActivity, cursor: userActivity[userActivity.length - 1].id };
+    if (!activities || activities.length === 0) return { activities: [], cursor: undefined };
+    return { activities, cursor: activities[activities.length - 1].id };
   }
   catch (e) {
     console.error(e);
-    throw new Error("Failed to get transactions");
+    throw new Error("Failed to get activities");
   }
 }
 
 
 export {
-  getActivitiesByUserId,
-  type ActivityByUserId
+  createActivity,
+  getActivitiesByGroupIds
 };

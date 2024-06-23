@@ -12,7 +12,7 @@ import {
   ListIcon,
   Button,
 } from "@chakra-ui/react"
-import { type ActivityByUserId } from "@/app/_data/activities"
+import { type ActivityByUserId } from "@/app/_data/model/activities"
 import Loading from "@/app/(site)/loading"
 import { getTransactionIcon } from "@/app/_lib/db/constants";
 import { getActivityService } from "@/app/_service/activities";

@@ -13,6 +13,10 @@ import {
   deleteTransaction
 } from '@/app/_data/transactions';
 
+import {
+  createActivity
+} from '@/app/_data/activities';
+import { ActivityTypeEnum } from '@/app/_lib/db/constants';
 
 async function createTransactionAction(groupId: string, data: CreateTransaction): Promise<Response> {
   const session = await auth();
@@ -22,7 +26,14 @@ async function createTransactionAction(groupId: string, data: CreateTransaction)
   }
 
   try {
-    await createTransaction(groupId, data);
+    const newTransaction = await createTransaction(groupId, data)
+    await createActivity({
+      groupId: groupId,
+      createdById: session.user.id as string,
+      action: ActivityTypeEnum.CREATE,
+      transactionId: newTransaction.id,
+      createdAt: newTransaction.createdAt
+    });
     return { success: true };
   }
   catch (e) {
@@ -38,7 +49,14 @@ async function updateTransactionAction(groupId: string, data: UpdateTransaction)
   }
 
   try {
-    await updateTransaction(groupId, data);
+    const updatedTransaction = await updateTransaction(groupId, data);
+    await createActivity({
+      groupId: groupId,
+      createdById: session.user.id as string,
+      action: ActivityTypeEnum.UPDATE,
+      transactionId: updatedTransaction.id,
+      createdAt: new Date().toISOString()
+    });
     return { success: true };
   }
   catch (e) {

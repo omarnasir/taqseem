@@ -17,17 +17,12 @@ import {
  * @param cursor 
  * @returns 
  */
-async function getTransactionsByGroupAndUserId(groupId: string, userId: string,
+async function getTransactionsByGroupId(groupId: string, 
   cursor: number | undefined): Promise<{ transactions: TransactionWithDetails[] | [], cursor: number | undefined }> {
   try {
     const transactions = await prisma.transactions.findMany({
       where: {
         groupId: groupId,
-        transactionDetails: {
-          some: {
-            userId: userId
-          }
-        }
       },
       include: {
         transactionDetails: true
@@ -398,7 +393,7 @@ async function getTransactionsByUserIdAndDate(userId: string, date: string) {
 }
 
 export { 
-  getTransactionsByGroupAndUserId,
+  getTransactionsByGroupId,
   createTransaction,
   updateTransaction,
   deleteTransaction,
