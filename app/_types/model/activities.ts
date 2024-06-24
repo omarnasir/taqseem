@@ -1,6 +1,16 @@
 import { Prisma } from '@prisma/client'
 
-const activity = Prisma.validator<Prisma.ActivityDefaultArgs>()
+const activity = Prisma.validator<Prisma.ActivityDefaultArgs>()({
+  select: {
+    id: true,
+    action: true,
+    createdAt: true,
+    transactionId: true,
+    createdById: true,
+    groupId: true,
+    amount: true,
+  }
+})
 
 const activityWithDetails = Prisma.validator<Prisma.ActivityDefaultArgs>()({
   include: {
@@ -14,6 +24,7 @@ const activityWithDetails = Prisma.validator<Prisma.ActivityDefaultArgs>()({
         name: true,
         isSettlement: true,
         category: true,
+        paidById: true,
         group: {
           select: {
             name: true,

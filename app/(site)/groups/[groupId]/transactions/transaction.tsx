@@ -63,11 +63,11 @@ import { formatDateToString,
 
 
 function processTransactionDetails(values: FormTransaction): CreateTransactionDetails[] {
-  const totalAmount = parseFloat(values[FormIdEnum.amount]);
+  const totalAmount = parseFloat(values[FormIdEnum.amount] as string);
   const transactionDetails = values[FormIdEnum.transactionDetails];
   const selectedUsers = transactionDetails.filter((transactionDetails) => transactionDetails.amount !== undefined)
   const usersWithoutInputAmount = selectedUsers.filter((selectedUser) => (selectedUser.amount === ''))
-  const sum = transactionDetails.reduce((acc: number, item) => acc + (parseFloat(item.amount) || 0), 0)
+  const sum = transactionDetails.reduce((acc: number, item) => acc + (parseFloat(item.amount as string) || 0), 0)
   if (selectedUsers.length === 0) {
     throw 'You must select at least one user'
   }

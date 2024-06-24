@@ -83,6 +83,7 @@ model TransactionDetails {
 model Activity {
   id           Int      @id @default(autoincrement())
   action       Int
+  amount       Float   @default(0)
   createdBy    Users    @relation(fields: [createdById], references: [id])
   createdById  String
   createdAt    DateTime @default(now())

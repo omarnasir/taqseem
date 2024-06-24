@@ -26,9 +26,10 @@ type ActivitiesByGroupIdsResult = Activity & {
   createdByName: string,
   transactionName: string,
   isSettlement: boolean,
-  category: string,
+  category: number,
   groupName: string,
-}[];
+  paidById: string,
+};
 
 
 async function getActivitiesByGroupIds(groupIds: string[], userId: string, cursor: number | undefined): 
@@ -42,14 +43,16 @@ async function getActivitiesByGroupIds(groupIds: string[], userId: string, curso
             a.transactionId,
             a.createdById,
             a.groupId,
+            a.amount as "amount",
             u.name as "createdByName",
-            t.name as "transactionName", 
-            t.isSettlement as "isSettlement", 
-            t.category as "category", 
+            t.name as "transactionName",
+            t.isSettlement as "isSettlement",
+            t.category as "category",
+            t.paidById as "paidById",
             g.name as "groupName"
       FROM Activity a
       JOIN 
-        (SELECT id, name, isSettlement, category
+        (SELECT id, name, isSettlement, category, paidById
         FROM transactions
         WHERE groupId IN (${Prisma.join(groupIds)})
         AND (createdById = ${userId} OR 
@@ -62,27 +65,32 @@ async function getActivitiesByGroupIds(groupIds: string[], userId: string, curso
       ORDER BY createdAt DESC
       LIMIT 20
       OFFSET ${cursor || 0}`;
-    if (!result || result.length === 0) return { result: [], cursor: undefined };
+    if (!result || result.length === 0) return { activities: [], cursor: undefined };
 
-    const activities = result.map((activity) => {
+    const activities : ActivityWithDetails[]  = result.map((activity) => {
       return {
         id: activity.id,
         action: activity.action,
         createdAt: activity.createdAt,
-        createdBy: {
-          name: activity.createdByName,
-        },
+        transactionId: activity.transactionId,
+        groupId: activity.groupId,
+        createdById: activity.createdById,
+        amount: activity.amount,
         transaction: {
           name: activity.transactionName,
           isSettlement: activity.isSettlement,
           category: activity.category,
+          paidById: activity.paidById,
           group: {
             name: activity.groupName,
-          },
+          }
         },
+        createdBy: {
+          name: activity.createdByName,
+        }
       };
-    });
-
+    }
+    );
     return { activities, cursor: cursor ? cursor + 20 : 20 };
   }
   catch (e) {

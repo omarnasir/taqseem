@@ -19,9 +19,9 @@ import { getActivityService } from "@/app/_service/activities";
 import { GroupData } from "@/app/_types/model/groups";
 
 const cardItemWidths = {
-  icon: '8%',
-  desc: '72%',
-  date: '20%',
+  icon: '7%',
+  desc: '77%',
+  date: '15%',
 }
 
 
@@ -56,37 +56,47 @@ function relativeTimeAgo(date: Date) {
 
 function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, userId: string }) {
   const action = activity.transaction.isSettlement ? 'settled' : activity.action === ActivityTypeEnum.CREATE ? 'added' : 'updated';
-  // const transactionName = 
+  const transactionName = activity.transaction.isSettlement ? '' : `'${activity.transaction.name}'`;
   return (
     <VStack w={cardItemWidths.desc} alignItems='start' ml={1}>
-      <HStack >
+      <HStack spacing={1}>
         <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
           {activity.createdById === userId ? 'You' : activity.createdBy?.name}
         </Text>
-        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{' '}{action}{' '}&quot;{activity.transaction.name}&quot;
+        <Text fontSize={'xs'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.transaction.group?.name}{'.'}
         </Text>
       </HStack>
-      {/* <HStack spacing={0}>
-        <Text fontSize={'xs'}
-          color={userActivity?.amount! >= 0 ? 'green.400' : 'red.400'} opacity={0.8}
-          fontWeight={'400'} letterSpacing={'tight'}>
-          you{' '}{userActivity?.amount! > 0 ? 'lent' : 'borrowed'}{' '}
-          {Math.abs(userActivity?.amount!).toFixed(2)}{' '}€</Text>
-      </HStack> */}
+      <HStack>
+        {activity.amount === 0 ?
+          <Text fontSize={'xs'} color={'whiteAlpha.600'} opacity={0.8} fontWeight={'400'} letterSpacing={'tight'}>
+            You are not involved</Text> :
+          activity.transaction.isSettlement ?
+            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'red.400' : 'green.400'} opacity={0.8} fontWeight={'500'} letterSpacing={'tight'}>
+              You{' '}{activity.transaction.paidById === userId ? 'paid' : 'get back'}{' '}
+              {Math.abs(activity.amount).toFixed(2)}{' '}€</Text> :
+            <Text fontSize={'xs'} color={activity.amount < 0 ? 'green.400' : 'red.400'} opacity={0.8} fontWeight={'500'} letterSpacing={'tight'}>
+              You{' '}{activity.amount < 0 ? 'lent' : 'borrowed'}{' '}
+              {Math.abs(activity.amount).toFixed(2)}{' '}€</Text>}
+      </HStack>
     </VStack>
   )
 }
 
-function ActivitiesList({ activities, userId }: { activities: ActivityWithDetails[], userId: string}) {
+export default function ActivityView({ userGroups, activities, firstCursor }: { userGroups: GroupData[], activities: ActivityWithDetails[], firstCursor: number}) {
+  const { data: sessionData } = useSession();
+  const [cursor, setCursor] = useState<number | undefined>(firstCursor);
 
-  return (
-    <>
+
+  return (activities == undefined || !sessionData?.user ? <Loading /> :
+    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
+      <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
+        position={'sticky'} top={'-40px'}>Activity</Text>
       {activities.map((activity) => (
         <List w='100%' variant={'activity'} key={activity.id}>
           <ListItem w='100%' key={activity.id}
             flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
             <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
-            <ActivitySummary activity={activity} userId={userId} />
+            <ActivitySummary activity={activity} userId={sessionData?.user?.id as string} />
             <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
               width={cardItemWidths.date} color={'whiteAlpha.700'}>
               {relativeTimeAgo(new Date(activity.createdAt))}
@@ -94,21 +104,6 @@ function ActivitiesList({ activities, userId }: { activities: ActivityWithDetail
           </ListItem>
         </List>
       ))}
-    </>
-  )
-}
-
-
-export default function ActivityView({ userGroups, activities, firstCursor }: { userGroups: GroupData[], activities: ActivityWithDetails[], firstCursor: number}) {
-  const { data: sessionData } = useSession();
-  const [cursor, setCursor] = useState<number | undefined>(firstCursor);
-
-  
-  return (activities == undefined || !sessionData?.user ? <Loading /> :
-    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
-        position={'sticky'} top={'-40px'}>Activity</Text>
-      <ActivitiesList activities={activities} userId={sessionData?.user?.id!} />
       <Button variant={'loadMore'}
         isDisabled={cursor === undefined}
         onClick={async () => {

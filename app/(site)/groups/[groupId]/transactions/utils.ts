@@ -1,5 +1,5 @@
-import { CreateTransactionDetails, CreateTransaction, UpdateTransaction, TransactionWithDetails } from "@/app/_types/transactions"
-import { UserBasicData } from "@/app/_types/users"
+import { CreateTransactionDetails, CreateTransaction, UpdateTransaction, TransactionWithDetails } from "@/app/_types/model/transactions"
+import { UserBasicData } from "@/app/_types/model/users"
 
 // Declare enum for form field ids to avoid hardcoding strings.
 enum FormIdEnum {
@@ -50,6 +50,8 @@ function formatDateToString(date: Date) {
 function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransactionDetails[], groupId: string): CreateTransaction | UpdateTransaction {
   return {
     ...form,
+    category: form.isSettlement ? -1 : form.category,
+    subCategory: form.isSettlement ? -1 : form.subCategory,
     amount: parseFloat(form.amount as string),
     groupId: groupId,
     paidAt: new Date(form.paidAt as string).toISOString(),
@@ -70,7 +72,7 @@ function mapTransactionToForm(transaction: TransactionWithDetails, users: UserBa
     amount: transaction.amount.toFixed(2),
     paidAt: formatDateToString(transaction.paidAt),
     transactionDetails: users.map((user) => {
-      const detail = transaction.transactionDetails.find((detail) => detail.userId === user.id)
+      const detail = transaction.transactionDetails.find((detail: TransactionWithDetails['transactionDetails']) => detail.userId === user.id)
       return {
         userId: user.id,
         amount: detail ? detail.amount.toFixed(2) : undefined
