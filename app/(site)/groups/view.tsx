@@ -39,7 +39,7 @@ import { MdPersonRemove, MdManageAccounts, MdGroups } from "react-icons/md"
 import { type GroupData } from "@/app/_types/model/groups";
 import { deleteGroupAction } from '@/app/_actions/groups';
 import { CustomToast } from '@/app/_components/toast';
-import Confirm from '@/app/(site)/_components/confirm';
+import { Confirm } from '@/app/(site)/_components/confirm';
 
 
 function CreateGroupModal() {

@@ -49,7 +49,7 @@ import {
 
 import { type CreateTransaction } from "@/app/_types/model/transactions";
 import { createTransactionAction } from '@/app/_actions/transactions';
-import Confirm from '@/app/(site)/_components/confirm';
+import { Confirm } from '@/app/(site)/_components/confirm';
 
 import { type SimplifiedBalances } from './page';
 

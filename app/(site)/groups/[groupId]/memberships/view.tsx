@@ -34,7 +34,7 @@ import {
 import { MdPerson, MdPersonRemove } from 'react-icons/md'
 
 import { CustomToast } from "@/app/_components/toast";
-import Confirm from "@/app/(site)/_components/confirm";
+import { Confirm } from "@/app/(site)/_components/confirm";
 
 import { createMembershipAction } from "@/app/_actions/memberships";
 

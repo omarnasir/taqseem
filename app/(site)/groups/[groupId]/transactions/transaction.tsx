@@ -52,7 +52,7 @@ import {
 }
   from "@/app/_types/model/transactions";
 import { CustomToast } from "@/app/_components/toast";
-import Confirm from "@/app/(site)/_components/confirm";
+import { Confirm } from "@/app/(site)/_components/confirm";
 import { UserBasicData } from "@/app/_types/model/users";
 
 // Declare enum for form field ids to avoid hardcoding strings.

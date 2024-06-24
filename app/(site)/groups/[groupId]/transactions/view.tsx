@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -42,12 +42,10 @@ const cardItemWidths = {
 }
 
 function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
-  const date = useMemo(() => {
-    return new Date(paidAt).toLocaleDateString('en-gb', {
+  const date = new Date(paidAt).toLocaleDateString('en-gb', {
       day: '2-digit',
       month: 'short',
     });
-  }, [paidAt]);
   return (
     <VStack w={cardItemWidths['date']} spacing={0} fontSize={'xs'}>
       <Text color='whiteAlpha.700' >{date.split(' ')[1]}</Text>
@@ -59,7 +57,6 @@ function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
 function AmountDisplay({ transaction, userId }:
   { transaction: TransactionWithDetails, userId: string }) {
   const { amount: totalAmount, paidById, transactionDetails } = transaction;
-
 
   const amount = useMemo(() => {
     if (paidById === userId) {
@@ -151,9 +148,7 @@ export default function TransactionsView({ group, transactions, firstCursor, ses
   const [cursor, setCursor] = useState<number | undefined>(firstCursor);
 
   const { onClick, buttonProps } = getButtonProps();
-  const disclosureProps = getDisclosureProps({
-    transaction: selectedTransaction,
-  });
+  const disclosureProps = getDisclosureProps();
 
 
   return (group === undefined ? <Loading /> :

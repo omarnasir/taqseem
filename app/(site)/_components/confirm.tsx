@@ -60,7 +60,7 @@ function getMessageAndTitle(mode: ConfirmProps['mode']): {
 }
 
 
-export default function Confirm({ onClose, isOpen, callback, mode }: ConfirmProps) {
+export function Confirm({ onClose, isOpen, callback, mode }: ConfirmProps) {
   const cancelRef = useRef(null)
   const [description, setDescription] = useState<{ message: string, title: string }>({
     message: '',
