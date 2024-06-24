@@ -12,10 +12,11 @@ import {
   ListIcon,
   Button,
 } from "@chakra-ui/react"
-import { type ActivityByUserId } from "@/app/_data/model/activities"
+import { type ActivityWithDetails } from '@/app/_types/model/activities';
 import Loading from "@/app/(site)/loading"
-import { getTransactionIcon } from "@/app/_lib/db/constants";
+import { ActivityTypeEnum, getTransactionIcon } from "@/app/_lib/db/constants";
 import { getActivityService } from "@/app/_service/activities";
+import { GroupData } from "@/app/_types/model/groups";
 
 const cardItemWidths = {
   icon: '8%',
@@ -53,38 +54,38 @@ function relativeTimeAgo(date: Date) {
 }
 
 
-function ActivitySummary({ activity, userId }: { activity: ActivityByUserId, userId: string }) {
-  const userActivity = useMemo(() => { return activity.transactionDetails.find(td => td.user.id === userId) }, [activity, userId]);
-
+function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, userId: string }) {
+  const action = activity.transaction.isSettlement ? 'settled' : activity.action === ActivityTypeEnum.CREATE ? 'added' : 'updated';
+  // const transactionName = 
   return (
     <VStack w={cardItemWidths.desc} alignItems='start' ml={1}>
       <HStack >
         <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
-          {activity.createdById === userId ? 'You' : activity.transactionDetails.find(td => td.user.id === activity.createdById)?.user.name}
+          {activity.createdById === userId ? 'You' : activity.createdBy?.name}
         </Text>
-        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{' '}added{' '}&quot;{activity.name}&quot;
+        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{' '}{action}{' '}&quot;{activity.transaction.name}&quot;
         </Text>
       </HStack>
-      <HStack spacing={0}>
+      {/* <HStack spacing={0}>
         <Text fontSize={'xs'}
           color={userActivity?.amount! >= 0 ? 'green.400' : 'red.400'} opacity={0.8}
           fontWeight={'400'} letterSpacing={'tight'}>
           you{' '}{userActivity?.amount! > 0 ? 'lent' : 'borrowed'}{' '}
           {Math.abs(userActivity?.amount!).toFixed(2)}{' '}€</Text>
-      </HStack>
+      </HStack> */}
     </VStack>
   )
 }
 
-function ActivitiesList({ activities, userId }: { activities: ActivityByUserId[], userId: string}) {
- 
+function ActivitiesList({ activities, userId }: { activities: ActivityWithDetails[], userId: string}) {
+
   return (
     <>
       {activities.map((activity) => (
         <List w='100%' variant={'activity'} key={activity.id}>
           <ListItem w='100%' key={activity.id}
             flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
-            <ListIcon as={getTransactionIcon(activity.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
+            <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
             <ActivitySummary activity={activity} userId={userId} />
             <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
               width={cardItemWidths.date} color={'whiteAlpha.700'}>
@@ -98,7 +99,7 @@ function ActivitiesList({ activities, userId }: { activities: ActivityByUserId[]
 }
 
 
-export default function ActivityView({ activities, firstCursor }: { activities: ActivityByUserId[], firstCursor: number}) {
+export default function ActivityView({ userGroups, activities, firstCursor }: { userGroups: GroupData[], activities: ActivityWithDetails[], firstCursor: number}) {
   const { data: sessionData } = useSession();
   const [cursor, setCursor] = useState<number | undefined>(firstCursor);
 
@@ -111,7 +112,7 @@ export default function ActivityView({ activities, firstCursor }: { activities: 
       <Button variant={'loadMore'}
         isDisabled={cursor === undefined}
         onClick={async () => {
-          const activitiesLatest = await getActivityService(cursor);
+          const activitiesLatest = await getActivityService(userGroups.map(group => group.id), cursor);
           if (!activitiesLatest.success) {
             setCursor(undefined);
             return;

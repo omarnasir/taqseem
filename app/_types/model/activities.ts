@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client'
 
-const activityGetArgs = Prisma.validator<Prisma.ActivityDefaultArgs>()({
+const activity = Prisma.validator<Prisma.ActivityDefaultArgs>()
+
+const activityWithDetails = Prisma.validator<Prisma.ActivityDefaultArgs>()({
   include: {
     createdBy: {
       select: {
@@ -11,6 +13,7 @@ const activityGetArgs = Prisma.validator<Prisma.ActivityDefaultArgs>()({
       select: {
         name: true,
         isSettlement: true,
+        category: true,
         group: {
           select: {
             name: true,
@@ -22,4 +25,5 @@ const activityGetArgs = Prisma.validator<Prisma.ActivityDefaultArgs>()({
 })
 
 export type CreateActivity = Prisma.ActivityUncheckedCreateInput
-export type ActivityGetArgs = Prisma.ActivityGetPayload<typeof activityGetArgs>
+export type Activity = Prisma.ActivityGetPayload<typeof activity>
+export type ActivityWithDetails = Prisma.ActivityGetPayload<typeof activityWithDetails>
