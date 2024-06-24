@@ -6,6 +6,7 @@ import {
   MdDirectionsTransit as TransportationIcon,
   MdFlight as VacationIcon,
   MdMoreHoriz as OtherIcon,
+  MdBalance as BalanceIcon
 } from "react-icons/md"
 import { IconType } from "react-icons"
 
@@ -44,6 +45,7 @@ enum TransactionSubCategoryEnum {
 
 // Transaction Icons
 function getTransactionIcon(category: number): IconType {
+  if (category === -1) return BalanceIcon;
   const categoryEnum = Object.values(TransactionCategoryEnum)[category]
   let Icon : IconType = OtherIcon
   switch (categoryEnum) {
@@ -64,6 +66,9 @@ function getTransactionIcon(category: number): IconType {
       break;
     case TransactionCategoryEnum.Vacation:
       Icon = VacationIcon
+      break;
+    default:
+      Icon = OtherIcon
       break;
   }
   return Icon

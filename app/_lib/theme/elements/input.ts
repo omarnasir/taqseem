@@ -22,7 +22,7 @@ export const base = definePartsStyle({
     borderRadius: "none",
     fontSize: {
       base: "xs",
-      md: "md",
+      md: "sm",
     },
     _invalid: {
       borderColor: "rgba(155, 25, 30, 1)",

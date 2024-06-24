@@ -189,19 +189,19 @@ function Transaction(
                   <FormItemIsSettlement />
                 </HStack>
                 <Divider marginBottom={2} />
-                <SimpleGrid columns={2} spacing={2}>
+                <SimpleGrid columns={2} spacing={2} width={'100%'}>
                   <FormItemName />
                   <FormItemDateTime />
                   <FormItemCategory />
                   <FormItemSubCategory />
                 </SimpleGrid>
-                <SimpleGrid columns={2} spacing={2}>
+                <SimpleGrid columns={2} spacing={2} width={'100%'}>
                   <FormItemPaidBy {...{ users: users }} />
                   <FormItemAmount />
                 </SimpleGrid>
                 <FormItemNote />
               </VStack>
-              <VStack padding={2} marginY={4}>
+              <VStack padding={2} marginY={4} width={'100%'}>
                 <Text fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 2: Decide how to split</Text>
                 <Divider marginBottom={2} />
                 <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />

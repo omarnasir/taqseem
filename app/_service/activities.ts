@@ -1,6 +1,6 @@
 "use server";
 import { getActivitiesByGroupIds } from '@/app/_data/activities';
-import { type ActivityWithDetails } from '@/app/_types/activities';
+import { type ActivityWithDetails } from '@/app/_types/model/activities';
 import { Response } from '@/app/_types/response';
 import { auth } from '@/auth';
 

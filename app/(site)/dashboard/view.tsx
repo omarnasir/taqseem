@@ -26,9 +26,9 @@ import { type Activity } from '@/app/_service/transactions';
 
 function formatBasedOnAmount({ amount, isColor, isType, isText }:
   { amount: number, isColor?: boolean, isType?: boolean, isText?: boolean }): string | undefined {
-  const color = amount < 1e-2 ? 'gray.500' : amount > 0 ? 'green.400' : 'red.400';
-  const type = amount > 1e-2 ? 'increase' : 'decrease';
-  const text = amount < 1e-2 ? 'All settled up!' : amount > 0 ? 'You get back' : 'You owe';
+  const color = Math.abs(amount) < 1e-2 ? 'gray.500' : amount > 0 ? 'green.400' : 'red.400';
+  const type = amount > 0 ? 'increase' : 'decrease';
+  const text = Math.abs(amount) < 1e-2 ? 'All settled up!' : amount > 0 ? 'You get back' : 'You owe';
 
   if (isColor) return color;
   if (isType) return type;
@@ -47,7 +47,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory, tota
           <StatLabel>Here&apos;s your balance</StatLabel>
           <StatNumber color={formatBasedOnAmount({ amount: totalBalance, isColor: true })}>€{Math.abs(totalBalance).toFixed(2)}</StatNumber>
           <StatHelpText>
-            {totalBalance > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: totalBalance, isType: true })} />}
+            {Math.abs(totalBalance) > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: totalBalance, isType: true })} />}
             {formatBasedOnAmount({ amount: totalBalance, isText: true })}
           </StatHelpText>
         </Stat>
@@ -77,7 +77,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory, tota
                     <StatLabel>{group.groupName}</StatLabel>
                     <StatNumber color={formatBasedOnAmount({ amount: group.balance, isColor: true })}>€{Math.abs(group.balance).toFixed(2)}</StatNumber>
                     <StatHelpText>
-                      {group.balance > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: group.balance, isType: true })} />}
+                      {Math.abs(group.balance) > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: group.balance, isType: true })} />}
                       {formatBasedOnAmount({ amount: group.balance, isText: true })}
                     </StatHelpText>
                   </Stat>

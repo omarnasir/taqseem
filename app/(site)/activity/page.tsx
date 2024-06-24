@@ -2,9 +2,11 @@
 import ActivityView from "./view";
 import { getActivityService } from "@/app/_service/activities";
 import { getAllGroupsService } from "@/app/_service/groups";
+import { auth } from "@/auth";
 
 
 export default async function TransactionsPage() {
+  const sessionData = await auth();
   const userGroups = await getAllGroupsService().then((response) => response.data ? response.data : undefined);
   if (!userGroups) {
     return (
@@ -16,6 +18,7 @@ export default async function TransactionsPage() {
   const data = await getActivityService(userGroups.map(group => group.id),undefined).then((response) => response.data ? response.data : undefined);
 
   return (data &&
-    <ActivityView userGroups={userGroups} activities={data.activities} firstCursor={data.cursor as number} />
+    <ActivityView userGroups={userGroups} activities={data.activities} firstCursor={data.cursor as number} 
+    sessionData={sessionData}/>
   );
 }

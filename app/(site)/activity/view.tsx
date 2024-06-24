@@ -1,6 +1,5 @@
 'use client'
-import React, { useMemo, useState } from "react"
-import { useSession } from 'next-auth/react';
+import React, { useState } from "react"
 
 import {
   Text,
@@ -13,7 +12,6 @@ import {
   Button,
 } from "@chakra-ui/react"
 import { type ActivityWithDetails } from '@/app/_types/model/activities';
-import Loading from "@/app/(site)/loading"
 import { ActivityTypeEnum, getTransactionIcon } from "@/app/_lib/db/constants";
 import { getActivityService } from "@/app/_service/activities";
 import { GroupData } from "@/app/_types/model/groups";
@@ -57,6 +55,7 @@ function relativeTimeAgo(date: Date) {
 function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, userId: string }) {
   const action = activity.transaction.isSettlement ? 'settled' : activity.action === ActivityTypeEnum.CREATE ? 'added' : 'updated';
   const transactionName = activity.transaction.isSettlement ? '' : `'${activity.transaction.name}'`;
+
   return (
     <VStack w={cardItemWidths.desc} alignItems='start' ml={1}>
       <HStack spacing={1}>
@@ -82,12 +81,12 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
   )
 }
 
-export default function ActivityView({ userGroups, activities, firstCursor }: { userGroups: GroupData[], activities: ActivityWithDetails[], firstCursor: number}) {
-  const { data: sessionData } = useSession();
+export default function ActivityView({ userGroups, activities, firstCursor, sessionData }: { userGroups: GroupData[], activities: ActivityWithDetails[], firstCursor: number, sessionData: any}) {
+
   const [cursor, setCursor] = useState<number | undefined>(firstCursor);
 
 
-  return (activities == undefined || !sessionData?.user ? <Loading /> :
+  return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
         position={'sticky'} top={'-40px'}>Activity</Text>
@@ -96,7 +95,7 @@ export default function ActivityView({ userGroups, activities, firstCursor }: { 
           <ListItem w='100%' key={activity.id}
             flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
             <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
-            <ActivitySummary activity={activity} userId={sessionData?.user?.id as string} />
+            <ActivitySummary activity={activity} userId={sessionData.user?.id as string} />
             <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
               width={cardItemWidths.date} color={'whiteAlpha.700'}>
               {relativeTimeAgo(new Date(activity.createdAt))}

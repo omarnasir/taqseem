@@ -9,9 +9,6 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const transaction = definePartsStyle({
   field: {
     ...base.field,
-    _dark: {
-      fontSize: 'xs',
-    },
     color: 'whiteAlpha.800',
     marginLeft: -2,
     _disabled: {

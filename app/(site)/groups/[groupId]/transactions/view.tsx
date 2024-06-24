@@ -17,7 +17,6 @@ import {
   Button,
 } from "@chakra-ui/react"
 
-import Loading from "@/app/(site)/loading"
 import { getTransactionIcon } from "@/app/_lib/db/constants";
 
 import { type UserBasicData } from "@/app/_types/model/users";
@@ -151,8 +150,7 @@ export default function TransactionsView({ group, transactions, firstCursor, ses
   const disclosureProps = getDisclosureProps();
 
 
-  return (group === undefined ? <Loading /> :
-    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
+  return (<Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
         position={'sticky'} top={'-40px'}>{group?.name}</Text>
       <Button size='sm' variant={'settle'} position={'relative'} top={'-40px'} alignSelf={'flex-end'} w={'20%'}
