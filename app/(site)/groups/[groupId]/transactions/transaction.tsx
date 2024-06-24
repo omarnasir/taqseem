@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -53,108 +53,13 @@ import {
   from "@/app/_types/model/transactions";
 import { CustomToast } from "@/app/_components/toast";
 import { Confirm } from "@/app/(site)/_components/confirm";
-import { UserBasicData } from "@/app/_types/model/users";
-
-// Declare enum for form field ids to avoid hardcoding strings.
-enum FormIdEnum {
-  id = 'id',
-  name = 'name',
-  amount = 'amount',
-  transactionDetails = 'transactionDetails',
-  category = 'category',
-  subCategory = 'subCategory',
-  paidAt = 'paidAt',
-  paidById = 'paidById',
-  notes = 'notes',
-  isSettlement = 'isSettlement',
-}
-
-// Reuse auto-generated types from Prisma.
-// Override amount fields to be string instead of number to match form input type.
-type FormTransactionDetails = Omit<CreateTransactionDetails, "amount"> & {
-  amount: string
-}
-
-interface FormTransaction extends Omit<CreateTransaction, "transactionDetails" | "amount"> {
-  amount: string,
-  transactionDetails: FormTransactionDetails[]
-}
-
-/**
- * Format date to string.
- * @param date - Date object.
- * @returns Formatted date string.
- */
-function formatDateToString(date: Date) {
-  const formattedDate = new Date(date).toLocaleDateString('en-ca', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
-  })
-  return formattedDate
-}
-
-/**
- * Map form data to transaction object.
- * @param form - Form data.
- * @param userDetails - Transaction details.
- * @param groupId - Group id.
- * @returns Transaction object.
-  */
-function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransactionDetails[], groupId: string): CreateTransaction | UpdateTransaction {
-  return {
-    ...form,
-    amount: parseFloat(form.amount),
-    groupId: groupId,
-    paidAt: new Date(form.paidAt as string).toISOString(),
-    transactionDetails: userDetails
-  }
-}
-
-/**
- * Map transaction object to form data.
- * @param transaction - Transaction object.
- * @returns Form data.
- */
-function mapTransactionToForm(transaction: TransactionWithDetails, users: UserBasicData[]): FormTransaction {
-  return {
-    ...transaction,
-    category: transaction.isSettlement ? 0 : transaction.category,
-    subCategory: transaction.isSettlement ? 0 : transaction.subCategory,
-    amount: transaction.amount.toFixed(2),
-    paidAt: formatDateToString(transaction.paidAt),
-    transactionDetails: users.map((user) => {
-      const detail = transaction.transactionDetails.find((detail) => detail.userId === user.id)
-      return {
-        userId: user.id,
-        amount: detail ? detail.amount.toFixed(2) : undefined
-      }
-    })
-  }
-}
-
-/**
- * Declare Transaction Form default values.
- * @param groupId - Group id of the active group.
- * @param userId - User id of the current user.
- * @returns Form data.
- */
-function getTransactionFormDefaultValues(groupId: string, userId: string, users: UserBasicData[]): FormTransaction {
-  return {
-    id: undefined,
-    name: '',
-    amount: '',
-    transactionDetails: users.map(user => ({ userId: user.id, amount: '' })),
-    category: 0,
-    subCategory: 0,
-    isSettlement: false,
-    paidAt: formatDateToString(new Date()),
-    paidById: userId,
-    notes: '',
-    groupId: groupId,
-    createdById: userId,
-  }
-}
+import { formatDateToString, 
+  FormIdEnum, 
+  type FormTransaction, 
+  getTransactionFormDefaultValues, 
+  mapFormToTransaction, 
+  mapTransactionToForm 
+} from "./utils";
 
 
 function processTransactionDetails(values: FormTransaction): CreateTransactionDetails[] {
@@ -199,8 +104,6 @@ function Transaction(
   const users = group.users!;
   const router = useRouter();
   const { data: sessionData } = useSession();
-  const { addToast } = CustomToast();
-  const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
 
   const defaultValues: FormTransaction = useMemo(() => (
     transactionWithDetails ? mapTransactionToForm(transactionWithDetails, users) : getTransactionFormDefaultValues(group.id, sessionData?.user?.id!, users)
@@ -209,12 +112,16 @@ function Transaction(
   const methods = useForm<FormTransaction>({
     values: defaultValues
   });
+
   const {
     handleSubmit,
     setError,
     clearErrors,
     formState: { isDirty, isValid }
   } = methods
+  const { addToast } = CustomToast();
+  const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
+
 
   async function onSubmit(values: FormTransaction) {
     clearErrors(FormIdEnum.transactionDetails);
@@ -228,43 +135,23 @@ function Transaction(
     }
     // Build the transaction object
     const transaction = mapFormToTransaction(values, userDetails as CreateTransactionDetails[], group.id)
-    if (values.id) {
-
-      const response = await updateTransactionAction(group.id, transaction as UpdateTransaction);
-      if (response.success) {
-        onCloseDrawer();
-        router.refresh();
-      }
-      else {
-        addToast("Error updating transaction", response.error, "error")
-      }
+    const response = await(values.id ? updateTransactionAction(group.id, transaction as UpdateTransaction) : 
+      createTransactionAction(group.id, transaction as CreateTransaction));
+    if (response.success) {
+      onCloseDrawer();
+      router.refresh();
     }
     else {
-
-      const response = await createTransactionAction(group.id, transaction as CreateTransaction);
-      if (response.success) {
-        onCloseDrawer();
-        router.refresh();
-      }
-      else {
-        addToast("Error creating transaction", response.error, "error")
-      }
+      addToast(values.id ? "Error updating transaction" : "Error creating transaction", response.error, "error")
     }
     return
   }
 
   async function onRemoveTransaction(id: number) {
     const res = await deleteTransactionAction(sessionData?.user?.id!, group?.id!, id)
-    if (res.success) {
-      addToast(`Transaction removed`, null, 'success')
-      onCloseDrawer();
-      router.refresh();
-    }
-    else {
-      addToast('Cannot delete transaction.', res.error, 'error')
-      onCloseDrawer();
-      router.refresh();
-    }
+    res.success ? addToast(`Transaction removed`, null, 'success') : addToast('Cannot delete transaction.', res.error, 'error')
+    onCloseDrawer();
+    router.refresh();
   }
 
   return (
@@ -359,6 +246,5 @@ function Transaction(
 
 export {
   Transaction,
-  FormIdEnum,
   formatDateToString
 }

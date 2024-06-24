@@ -26,8 +26,9 @@ import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-
 
 import { UserBasicData } from "@/app/_types/model/users";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/app/_lib/db/constants";
-import { FormIdEnum, formatDateToString } from "./transaction";
+import { formatDateToString } from "./transaction";
 import { CustomFormIcon } from "@/app/(site)/_components/cardIcon";
+import { FormIdEnum } from "./utils";
 
 
 function FormItemId() {
