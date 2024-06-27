@@ -1,6 +1,7 @@
 'use client';
 import { useMemo } from 'react';
-import { useSession, SessionProvider } from 'next-auth/react';
+import { useSessionHook } from '@/app/_hooks/use-current-user';
+
 import { useRouter } from 'next/navigation';
 import { Controller, FormProvider, useFieldArray, useForm, useWatch } from 'react-hook-form';
 
@@ -95,7 +96,7 @@ function SimplifiedBalancesPopover({ settlementDetails }: { settlementDetails: S
 function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
   { groupId: string , settlementDetails: SimplifiedBalances[] , groupBalancesDetails: GroupBalanceDetails }) {
 
-  const session = useSession();
+  const { session, status } = useSessionHook();
   const router = useRouter();
   const methods = useForm<SettlementForm>({
     defaultValues:  {
@@ -127,8 +128,6 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
     name: 'data',
   });
 
-  const { isOpen, onClose, onOpen } = useDisclosure()
-
   async function onSubmit(data: SettlementForm) {
     const transactions : CreateTransaction[] = data.data.map((settlement) => ({
       groupId: groupId,
@@ -137,7 +136,7 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
       name: 'Settlement',
       category: -1,
       subCategory: -1,
-      createdById: session.data?.user?.id! as string,
+      createdById: session?.user?.id as string,
       createdAt: new Date().toISOString(),
       isSettlement: true,
       paidAt: new Date().toISOString(),
@@ -161,8 +160,7 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
     });
   };
 
-  return (
-    <SessionProvider>
+  return (status === 'authenticated' &&
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <HStack spacing={1} align="stretch"  w={'100%'} justify={'space-between'}
@@ -267,11 +265,11 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
           } marginTop={2} />
           </HStack>
           <HStack spacing={2} w={'80%'} justifyContent={'flex-end'}>
-          <Button variant={'settle'} size={'sm'} w={'40%'} disabled={!isDirty || !isValid} marginTop={2} onClick={onOpen}
-          >Settle</Button>
-          <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-            handleSubmit(onSubmit)();
-          }} mode="settlement" />
+            <Confirm callback={() => {
+              handleSubmit(onSubmit)();
+            }} mode="settlement">
+              <Button variant={'settle'} size={'sm'} w={'40%'} disabled={!isDirty || !isValid} marginTop={2}>Settle</Button>
+            </Confirm>
           </HStack>
         </HStack>
           <FormErrorMessage>
@@ -279,7 +277,6 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
           </FormErrorMessage>
       </form>
     </FormProvider>
-    </SessionProvider>
   )
 }
 

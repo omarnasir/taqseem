@@ -12,7 +12,6 @@ export function useSessionHook(): { session: Session | null, status: 'loading' |
     queryKey: ["session"],
     queryFn: () => getSession().then((session) => {
       if (session) {
-        console.log('useSessionHook', session)
         return session
       }
       router.push("/login");

@@ -7,7 +7,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
+  useDisclosure,
 } from "@chakra-ui/react"
+import React from "react"
 import { useEffect, useRef, useState } from "react"
 
 enum ConfirmMessages {
@@ -25,10 +27,9 @@ enum ConfirmTitle {
 }
 
 type ConfirmProps = {
-  onClose: () => void,
-  isOpen: boolean,
   callback: () => void,
-  mode: 'removeUser' | 'removeGroup' | 'removeTransaction' | 'settlement'
+  mode: 'removeUser' | 'removeGroup' | 'removeTransaction' | 'settlement',
+  children: React.ReactNode
 }
 
 function getMessageAndTitle(mode: ConfirmProps['mode']): {
@@ -60,39 +61,39 @@ function getMessageAndTitle(mode: ConfirmProps['mode']): {
 }
 
 
-export function Confirm({ onClose, isOpen, callback, mode }: ConfirmProps) {
+export function Confirm({ callback, mode, children }: ConfirmProps) {
   const cancelRef = useRef(null)
-  const [description, setDescription] = useState<{ message: string, title: string }>({
-    message: '',
-    title: ''
-  })
-
-  useEffect(() => {
-    setDescription(getMessageAndTitle(mode))
-  }, [mode])
+  const description = getMessageAndTitle(mode)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
-    <AlertDialog
-      motionPreset='slideInBottom'
-      variant={'confirm'}
-      leastDestructiveRef={cancelRef}
-      onClose={onClose}
-      isOpen={isOpen}
-      isCentered>
-      <AlertDialogOverlay />
-      <AlertDialogContent>
-        <AlertDialogHeader>{description.title}</AlertDialogHeader>
-        <AlertDialogCloseButton />
-        <AlertDialogBody>{description.message}</AlertDialogBody>
-        <AlertDialogFooter>
-          <Button ref={cancelRef} onClick={onClose}>
-            No
-          </Button>
-          <Button colorScheme='red' ml={3} onClick={callback}>
-            Yes
-          </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <>
+      {children && React.cloneElement(children as React.ReactElement, { onClick: onOpen })}
+      <AlertDialog
+        motionPreset='slideInBottom'
+        variant={'confirm'}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered>
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader>{description.title}</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>{description.message}</AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={onClose}>
+              No
+            </Button>
+            <Button colorScheme='red' ml={3} onClick={() => {
+              callback()
+              onClose()
+            }}>
+              Yes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }

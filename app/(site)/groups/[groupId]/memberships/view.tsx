@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSessionHook } from '@/app/_hooks/use-current-user';
 
 import { FieldValues, useForm } from "react-hook-form";
 
@@ -124,9 +124,7 @@ export default function MembershipsView({ group, memberships }:
    { group: GroupData, memberships: UserBasicData[] }
 ) {
   const router = useRouter();
-  const { data: sessionData } = useSession();
-  
-  const { isOpen, onClose, onOpen } = useDisclosure()
+  const { session, status } = useSessionHook();
 
   const { addToast } = CustomToast()
 
@@ -141,7 +139,7 @@ export default function MembershipsView({ group, memberships }:
     }
   }
 
-  return (
+  return (status === 'authenticated' &&
     <Stack direction={'column'} spacing={4} display={'flex'}>
       <HStack w='100%'>
         <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }} w='70%'>
@@ -158,18 +156,18 @@ export default function MembershipsView({ group, memberships }:
               <Heading width={'50%'}
                 fontSize={'md'}
                 fontWeight={400}>{member.name}</Heading>
-              {(group.createdById === sessionData?.user?.id ||
-                member.id === sessionData?.user?.id) &&
+              {(group.createdById === session?.user?.id ||
+                member.id === session?.user?.id) &&
                 <HStack w='30%'>
-                  <Button leftIcon={<MdPersonRemove />}
-                    w='100%'
-                    variant={'delete'}
-                    onClick={onOpen}>
-                    Remove
-                  </Button>
-                  <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                    onRemoveUser(member.id); onClose();
-                  }} mode="removeUser" />
+                  <Confirm callback={() => {
+                    onRemoveUser(member.id);
+                  }} mode="removeUser">
+                    <Button leftIcon={<MdPersonRemove />}
+                      w='100%'
+                      variant={'delete'}>
+                      Remove
+                    </Button>
+                  </Confirm>
                 </HStack>
               }
             </ListItem>

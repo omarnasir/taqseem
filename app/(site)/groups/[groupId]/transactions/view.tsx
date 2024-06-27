@@ -31,6 +31,7 @@ import {
 import { MdAdd } from "react-icons/md"
 
 import { Transaction } from "./transaction"
+import { useQueryClient } from "@tanstack/react-query";
 
 
 const cardItemWidths = {
@@ -141,6 +142,9 @@ function TransactionsList({ transactions, group, sessionData, setSelectedTransac
 export default function TransactionsView({ group, transactions, firstCursor, sessionData }: 
   { group: GroupWithMembers, transactions: GroupedTransactions, firstCursor: number, sessionData: any})
 {
+  const queryClient = useQueryClient();
+  queryClient.setQueryData(['transactions', group.id], transactions);
+
   const router = useRouter();
   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
@@ -173,7 +177,12 @@ export default function TransactionsView({ group, transactions, firstCursor, ses
       <Button variant={'loadMore'}
         isDisabled={cursor === undefined}
         onClick={async () => {
-          const trasactionsLatest = await getUserTransactionsByGroupIdService(group.id, cursor);
+          const trasactionsLatest = await queryClient.fetchQuery(
+            {
+              queryKey:['transactions', group.id], 
+              queryFn: () => getUserTransactionsByGroupIdService(group.id, cursor),
+              staleTime: 100,
+          });
           if (!trasactionsLatest.success) {
             setCursor(undefined);
             return;

@@ -15,9 +15,9 @@ import {
   Button, 
   SimpleGrid, 
   ButtonGroup,
-  useDisclosure,
   CardHeader,
   FormControl,
+  useDisclosure,
   FormErrorMessage,
   Input,
   HStack,
@@ -55,7 +55,6 @@ function CreateGroupModal() {
   } = useForm()
 
   async function onSubmit(values: FieldValues) {
-    console.log(values)
     const response = await createGroupAction(values.name);
 
     if (response.success) {
@@ -115,7 +114,6 @@ function CreateGroupModal() {
 export default function GroupsView({ groups, sessionUserId }: {groups: GroupData[], sessionUserId: string}) {
   const router = useRouter();
 
-  const { isOpen, onClose, onOpen } = useDisclosure()
   const { addToast } = CustomToast();
 
   async function onRemoveGroup(id: string) {
@@ -165,15 +163,15 @@ export default function GroupsView({ groups, sessionUserId }: {groups: GroupData
                         `/groups/${group.id}/memberships?data=${JSON.stringify(group)}`,)}>
                       Manage
                     </Button>
-                    <Button leftIcon={<MdPersonRemove />}
-                      w='100%'
-                      variant="delete"
-                      onClick={onOpen}>
-                      Remove
-                    </Button>
-                    <Confirm isOpen={isOpen} onClose={onClose} callback={() => {
-                      onRemoveGroup(group.id); onClose();
-                    }} mode="removeGroup" />
+                    <Confirm callback={() => {
+                      onRemoveGroup(group.id)
+                    }} mode="removeGroup" >
+                      <Button leftIcon={<MdPersonRemove />}
+                        w='100%'
+                        variant="delete">
+                        Remove
+                      </Button>
+                    </Confirm>
                   </ButtonGroup>
                 }
               </CardBody>

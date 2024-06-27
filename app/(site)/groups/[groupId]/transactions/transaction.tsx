@@ -1,5 +1,4 @@
 import { useMemo, useCallback } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -29,6 +28,8 @@ import {
 
 import { FormProvider, useForm } from "react-hook-form";
 
+import { useSessionHook } from '@/app/_hooks/use-current-user';
+
 import {
   FormItemId,
   FormItemAmount,
@@ -50,7 +51,7 @@ import {
   type UpdateTransaction,
   type TransactionWithDetails
 }
-  from "@/app/_types/model/transactions";
+from "@/app/_types/model/transactions";
 import { CustomToast } from "@/app/_components/toast";
 import { Confirm } from "@/app/(site)/_components/confirm";
 import { formatDateToString, 
@@ -101,13 +102,13 @@ function Transaction(
     transactionWithDetails?: TransactionWithDetails,
   }
 ) {
-  const users = group.users!;
   const router = useRouter();
-  const { data: sessionData } = useSession();
+  const { session, status } = useSessionHook();
+  const users = group.users!;
 
   const defaultValues: FormTransaction = useMemo(() => (
-    transactionWithDetails ? mapTransactionToForm(transactionWithDetails, users) : getTransactionFormDefaultValues(group.id, sessionData?.user?.id!, users)
-  ), [sessionData, group, users, transactionWithDetails]);
+    transactionWithDetails ? mapTransactionToForm(transactionWithDetails, users) : getTransactionFormDefaultValues(group.id, session?.user?.id as string, users)
+  ), [session, group, users, transactionWithDetails]);
 
   const methods = useForm<FormTransaction>({
     values: defaultValues
@@ -120,7 +121,6 @@ function Transaction(
     formState: { isDirty, isValid }
   } = methods
   const { addToast } = CustomToast();
-  const { isOpen: isOpenRemoveTransaction, onOpen: onOpenRemoveTransaction, onClose: onCloseRemoveTransaction } = useDisclosure()
 
 
   async function onSubmit(values: FormTransaction) {
@@ -148,7 +148,7 @@ function Transaction(
   }
 
   async function onRemoveTransaction(id: number) {
-    const res = await deleteTransactionAction(sessionData?.user?.id!, group?.id!, id)
+    const res = await deleteTransactionAction(session?.user?.id!, group?.id!, id)
     res.success ? addToast(`Transaction removed`, null, 'success') : addToast('Cannot delete transaction.', res.error, 'error')
     onCloseDrawer();
     router.refresh();
@@ -218,14 +218,14 @@ function Transaction(
               <HStack justifyContent={'space-between'} w='100%'>
                 {transactionWithDetails ?
                   <>
-                    <IconButton w={'13%'}
-                      aria-label="Delete"
-                      icon={<MdDelete size={'1.5rem'} />}
-                      textAlign={'center'} variant={'deleteBin'}
-                      onClick={onOpenRemoveTransaction} />
-                    <Confirm isOpen={isOpenRemoveTransaction} onClose={onCloseRemoveTransaction} callback={() => {
-                      onRemoveTransaction(transactionWithDetails.id); onCloseRemoveTransaction();
-                    }} mode="removeTransaction" />
+                    <Confirm callback={() => {
+                      onRemoveTransaction(transactionWithDetails.id)
+                    }} mode="removeTransaction">
+                      <IconButton w={'13%'}
+                        aria-label="Delete"
+                        icon={<MdDelete size={'1.5rem'} />}
+                        textAlign={'center'} variant={'deleteBin'} />
+                    </Confirm>
                   </> : <Box w={'13%'} />
                 }
                 <Button size={'sm'} w={'29%'}

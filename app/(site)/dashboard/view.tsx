@@ -20,7 +20,7 @@ import {
 
 } from '@chakra-ui/react'
 
-import { type BalancesByUserGroups } from "@/app/_service/groups";
+import { type BalancesByUserGroups } from "@/app/_data/transactions";
 
 import { type Activity } from '@/app/_service/transactions';
 
@@ -36,21 +36,32 @@ function formatBasedOnAmount({ amount, isColor, isType, isText }:
   return undefined;
 }
 
-export default function DashboardView({ userGroupsBalance, activityHistory, totalBalance }: 
-  { userGroupsBalance: BalancesByUserGroups | {}, activityHistory?: Activity[], totalBalance: number}) 
+
+function Statistic({ label, value, variant, statProps }: 
+  { label: string, value: number, variant?: string, statProps?: any}) {
+
+  return (
+    <Stat variant={variant ? variant : 'primary'} {...statProps}>
+      <StatLabel>{label}</StatLabel>
+      <StatNumber color={formatBasedOnAmount({ amount: value, isColor: true })}>€{Math.abs(value).toFixed(2)}</StatNumber>
+      <StatHelpText>
+        {Math.abs(value) > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: value, isType: true })} />}
+        {formatBasedOnAmount({ amount: value, isText: true })}
+      </StatHelpText>
+    </Stat>
+  );
+}
+
+
+export default function DashboardView({ userGroupsBalance, activityHistory }: 
+  { userGroupsBalance: BalancesByUserGroups | undefined, activityHistory?: Activity[] }) 
 {
-  const router = useRouter();
+  const router = useRouter(); 
+  const totalBalance : number = userGroupsBalance && Object.values(userGroupsBalance).reduce((acc: number, group) => acc + group.balance, 0) || 0;
   return (
     <VStack spacing={4} align="stretch">
       <HStack rounded={'lg'} w={'100%'} border={'1px'} borderColor={'whiteAlpha.200'} boxShadow={'md'}>
-        <Stat variant={'primary'} w={'55%'}>
-          <StatLabel>Here&apos;s your balance</StatLabel>
-          <StatNumber color={formatBasedOnAmount({ amount: totalBalance, isColor: true })}>€{Math.abs(totalBalance).toFixed(2)}</StatNumber>
-          <StatHelpText>
-            {Math.abs(totalBalance) > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: totalBalance, isType: true })} />}
-            {formatBasedOnAmount({ amount: totalBalance, isText: true })}
-          </StatHelpText>
-        </Stat>
+        <Statistic label={'Total Balance'} value={totalBalance} statProps={{ width: '55%' }} />
         <VStack w={'45%'}>
           {!!activityHistory && activityHistory.length > 0 &&
             <ResponsiveContainer width="100%" height={80}>
@@ -66,21 +77,16 @@ export default function DashboardView({ userGroupsBalance, activityHistory, tota
         </VStack>
       </HStack>
 
-      {Object.keys(userGroupsBalance).length !== 0 ?
+      {userGroupsBalance && 
         <>
           <Text fontSize="sm" color="whiteAlpha.400">Your Groups</Text>
           <SimpleGrid spacing={2} columns={2}>
             {Object.entries(userGroupsBalance).map(([groupId, group]) =>
               <Card variant='summaryStat' size='sm' key={groupId}>
                 <CardBody>
-                  <Stat variant={'secondary'} as={NextLink} href={`/groups/${groupId}/transactions`} w='100%'>
-                    <StatLabel>{group.groupName}</StatLabel>
-                    <StatNumber color={formatBasedOnAmount({ amount: group.balance, isColor: true })}>€{Math.abs(group.balance).toFixed(2)}</StatNumber>
-                    <StatHelpText>
-                      {Math.abs(group.balance) > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: group.balance, isType: true })} />}
-                      {formatBasedOnAmount({ amount: group.balance, isText: true })}
-                    </StatHelpText>
-                  </Stat>
+                  <NextLink href={`/groups/${groupId}/transactions`}>
+                    <Statistic label={group.groupName} value={group.balance} variant={'secondary'} statProps={{ width: '100%' }} />
+                  </NextLink>
                 </CardBody>
                 <CardFooter w='100%' justifyContent={'flex-end'} >
                   <Button size='sm' variant={'settle'}
@@ -89,7 +95,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory, tota
               </Card>
             )}
           </SimpleGrid>
-        </> : null}
+        </>}
     </VStack>
   );
 }
