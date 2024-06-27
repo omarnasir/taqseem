@@ -5,6 +5,7 @@ import {
   UpdateTransaction,
   type TransactionWithDetails
 } from "@/app/_types/model/transactions";
+import { AssertionError } from 'assert';
 
 /**
  * Get transactions by group and user id.
@@ -172,23 +173,21 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
       return detail.userId === userId
     })
     const isUserCreatedBy = transaction?.createdById === userId;
-    const userAmount = transaction?.transactionDetails?.find(detail => detail.userId === userId)?.amount;
-    if (!isUserCreatedBy && (!isUserInvolved || userAmount === (undefined || null || 0)) ) {
-      throw new Error("User not involved in transaction");
+
+    if (!isUserCreatedBy && !isUserInvolved) {
+      throw new AssertionError({message: "You are not involved in transaction"});
     }
     // Delete transaction
     await prisma.transactions.delete({
       where: {
-        id: transactionId,
-        transactionDetails: {
-          some: {
-            userId: userId
-          }
-        }
+        id: transactionId
       }
     });
   }
   catch (e) {
+    if (e instanceof AssertionError) {
+      throw new Error(e.message);
+    }
     console.error(e);
     throw new Error("Failed to delete transaction");
   }
@@ -268,7 +267,7 @@ async function getGroupBalanceDetails(groupId: string, userId: string) : Promise
         FROM groupMembers) AS g
       ON combined.userId = g.userId
       GROUP BY combined.userId;`
-    if (!result) throw new Error("No amount found");
+    if (!result) throw new AssertionError({message: "No amount found"});
     const groupBalanceDetails : GroupBalanceDetails = {
       groupName: isUserInGroup.group.name,
       users: result.map(row => {
@@ -285,6 +284,9 @@ async function getGroupBalanceDetails(groupId: string, userId: string) : Promise
     return groupBalanceDetails;
   }
   catch (e) {
+    if (e instanceof AssertionError) {
+      throw new Error(e.message);
+    }
     console.error(e);
     throw new Error("Failed to get amount spent");
   }

@@ -37,4 +37,4 @@ const activityWithDetails = Prisma.validator<Prisma.ActivityDefaultArgs>()({
 
 export type CreateActivity = Prisma.ActivityUncheckedCreateInput
 export type Activity = Prisma.ActivityGetPayload<typeof activity>
-export type ActivityWithDetails = Prisma.ActivityGetPayload<typeof activityWithDetails>
+export type ActivityWithDetails = Prisma.ActivityGetPayload<typeof activityWithDetails> & { isInvolved: boolean }

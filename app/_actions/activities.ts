@@ -27,7 +27,7 @@ async function createActivityFromTransactionAction(transaction: CreateTransactio
   try {
     await createActivity({
       groupId: transaction.groupId as string,
-      createdById: transaction.createdById as string,
+      createdById: session.user.id as string,
       action: action as ActivityTypeEnum,
       transactionId: transaction.id as number,
       createdAt: (action === ActivityTypeEnum.CREATE ? transaction.createdAt : new Date().toISOString()) as string,

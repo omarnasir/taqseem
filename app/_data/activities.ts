@@ -29,12 +29,14 @@ type ActivitiesByGroupIdsResult = Activity & {
   category: number,
   groupName: string,
   paidById: string,
+  isInvolved: boolean
 };
 
 
 async function getActivitiesByGroupIds(groupIds: string[], userId: string, cursor: number | undefined): 
   Promise<{ activities: ActivityWithDetails[] | [], cursor: number | undefined }> 
 {
+
   try {
     const result : ActivitiesByGroupIdsResult[] = await prisma.$queryRaw`
       SELECT a.id,
@@ -49,16 +51,22 @@ async function getActivitiesByGroupIds(groupIds: string[], userId: string, curso
             t.isSettlement as "isSettlement",
             t.category as "category",
             t.paidById as "paidById",
-            g.name as "groupName"
+            g.name as "groupName",
+            t.isInvolved as "isInvolved"
       FROM Activity a
       JOIN 
-        (SELECT id, name, isSettlement, category, paidById
+        (SELECT id, name, isSettlement, category, paidById, 
+                CASE WHEN td.transactionId IS NULL 
+                    THEN false
+                    ELSE true 
+                    END AS isInvolved
         FROM transactions
-        WHERE groupId IN (${Prisma.join(groupIds)})
-        AND (createdById = ${userId} OR 
-            id IN (SELECT transactionId 
+        LEFT OUTER JOIN (SELECT transactionId 
               FROM TransactionDetails 
-              WHERE userId = ${userId}))) AS t
+              WHERE userId = ${userId}) AS td
+          ON transactions.id = td.transactionId
+        WHERE groupId IN (${Prisma.join(groupIds)})
+        ) AS t
       ON a.transactionId = t.id
       JOIN groups g ON a.groupId = g.id
       JOIN users u ON a.createdById = u.id
@@ -76,6 +84,7 @@ async function getActivitiesByGroupIds(groupIds: string[], userId: string, curso
         groupId: activity.groupId,
         createdById: activity.createdById,
         amount: activity.amount,
+        isInvolved: activity.isInvolved,
         transaction: {
           name: activity.transactionName,
           isSettlement: activity.isSettlement,
