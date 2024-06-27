@@ -15,6 +15,7 @@ import { type ActivityWithDetails } from '@/app/_types/model/activities';
 import { ActivityTypeEnum, getTransactionIcon } from "@/app/_lib/db/constants";
 import { getActivityService } from "@/app/_service/activities";
 import { GroupData } from "@/app/_types/model/groups";
+import { useQueryClient } from "@tanstack/react-query";
 
 const cardItemWidths = {
   icon: '7%',
@@ -53,7 +54,7 @@ function relativeTimeAgo(date: Date) {
 
 
 function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, userId: string }) {
-  const action = activity.transaction.isSettlement ? 'settled' : activity.action === ActivityTypeEnum.CREATE ? 'added' : 'updated';
+  const action = (activity.action === ActivityTypeEnum.CREATE ? 'added' : 'updated') + ` ${activity.transaction.isSettlement ? 'a settlement' : ''}`;
   const transactionName = activity.transaction.isSettlement ? '' : `'${activity.transaction.name}'`;
 
   return (
@@ -66,15 +67,11 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
         </Text>
       </HStack>
       <HStack>
-        {activity.amount === 0 ?
+        {!activity.isInvolved ?
           <Text fontSize={'xs'} color={'whiteAlpha.600'} opacity={0.8} fontWeight={'400'} letterSpacing={'tight'}>
             You are not involved</Text> :
-          activity.transaction.isSettlement ?
-            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'red.400' : 'green.400'} opacity={0.8} fontWeight={'500'} letterSpacing={'tight'}>
-              You{' '}{activity.transaction.paidById === userId ? 'paid' : 'get back'}{' '}
-              {Math.abs(activity.amount).toFixed(2)}{' '}€</Text> :
-            <Text fontSize={'xs'} color={activity.amount < 0 ? 'green.400' : 'red.400'} opacity={0.8} fontWeight={'500'} letterSpacing={'tight'}>
-              You{' '}{activity.amount < 0 ? 'lent' : 'borrowed'}{' '}
+            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'green.400' : 'red.400'} opacity={0.8} fontWeight={'500'} letterSpacing={'tight'}>
+              You{' '}{activity.transaction.paidById === userId ? (activity.transaction.isSettlement ? 'paid' : 'lent') :(activity.transaction.isSettlement ? 'get back' : 'borrowed')}{' '}
               {Math.abs(activity.amount).toFixed(2)}{' '}€</Text>}
       </HStack>
     </VStack>
@@ -82,9 +79,10 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
 }
 
 export default function ActivityView({ userGroups, activities, firstCursor, sessionData }: { userGroups: GroupData[], activities: ActivityWithDetails[], firstCursor: number, sessionData: any}) {
+  const queryClient = useQueryClient();
+  queryClient.setQueryData(['activities', sessionData.user?.id], activities);
 
   const [cursor, setCursor] = useState<number | undefined>(firstCursor);
-
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
@@ -106,7 +104,12 @@ export default function ActivityView({ userGroups, activities, firstCursor, sess
       <Button variant={'loadMore'}
         isDisabled={cursor === undefined}
         onClick={async () => {
-          const activitiesLatest = await getActivityService(userGroups.map(group => group.id), cursor);
+          const activitiesLatest = await queryClient.fetchQuery(
+          {
+            queryKey: ['activities', sessionData.user?.id],
+            queryFn: () => getActivityService(userGroups.map(group => group.id), cursor), 
+            staleTime: 100
+          });
           if (!activitiesLatest.success) {
             setCursor(undefined);
             return;

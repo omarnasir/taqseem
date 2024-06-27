@@ -47,13 +47,14 @@ function formatDateToString(date: Date) {
  * @param groupId - Group id.
  * @returns Transaction object.
   */
-function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransactionDetails[], groupId: string): CreateTransaction | UpdateTransaction {
+function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransactionDetails[], groupId: string, userId: string): CreateTransaction | UpdateTransaction {
   return {
     ...form,
     category: form.isSettlement ? -1 : form.category,
     subCategory: form.isSettlement ? -1 : form.subCategory,
     amount: parseFloat(form.amount as string),
     groupId: groupId,
+    createdById: userId,
     paidAt: new Date(form.paidAt as string).toISOString(),
     transactionDetails: userDetails
   }

@@ -141,19 +141,12 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
       isSettlement: true,
       paidAt: new Date().toISOString(),
       transactionDetails: 
-        groupBalancesDetails.users.map((user) => {
-          if (user.userId === settlement.paidforId) {
-            return {
-              userId: user.userId,
-              amount: parseFloat(settlement.amount),
-            }
-          } else {
-            return {
-              userId: user.userId,
-              amount: 0,
-            }
-          }
-        })
+      groupBalancesDetails.users.filter((user) => user.userId === settlement.paidById).map((user) => {
+        return {
+          userId: user.userId,
+          amount: parseFloat(settlement.amount),
+        }
+      })
     }));
     await Promise.all(transactions.map((transaction) => createTransactionAction(groupId, transaction))).then(() => {
       router.push(`/groups/${groupId}/transactions`);

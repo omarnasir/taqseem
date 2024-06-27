@@ -90,7 +90,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory }:
                 </CardBody>
                 <CardFooter w='100%' justifyContent={'flex-end'} >
                   <Button size='sm' variant={'settle'}
-                  isDisabled={group.balance < 1e-2} disabled={group.balance < 1e-2} onClick={(e) => router.push(`/groups/${groupId}/settle`)}>Settle up</Button>
+                  isDisabled={Math.abs(group.balance) < 1e-2} disabled={Math.abs(group.balance) < 1e-2} onClick={(e) => router.push(`/groups/${groupId}/settle`)}>Settle up</Button>
                 </CardFooter>
               </Card>
             )}
