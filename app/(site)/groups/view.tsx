@@ -111,7 +111,7 @@ function CreateGroupModal() {
   )
 }
 
-export default function GroupsView({ groups, sessionUserId }: {groups: GroupData[], sessionUserId: string}) {
+export default function GroupsView({ groups, sessionUserId }: {groups?: GroupData[], sessionUserId: string}) {
   const router = useRouter();
 
   const { addToast } = CustomToast();
@@ -119,7 +119,7 @@ export default function GroupsView({ groups, sessionUserId }: {groups: GroupData
   async function onRemoveGroup(id: string) {
     const res = await deleteGroupAction(id);
     if (res.success) {
-      const groupName = groups.find(g => g.id === id)?.name
+      const groupName = groups?.find(g => g.id === id)?.name
       addToast(`Group ${groupName} removed`, null, 'success')
       router.refresh()
     }
@@ -138,7 +138,7 @@ export default function GroupsView({ groups, sessionUserId }: {groups: GroupData
         <CreateGroupModal />
       </HStack>
       <SimpleGrid spacing={4}>
-        {!!groups &&
+        {groups &&
           groups.map((group) => (
             <Card key={group.id}
               size={'sm'}
