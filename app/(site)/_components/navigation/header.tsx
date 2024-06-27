@@ -1,18 +1,11 @@
 import { useRouter } from 'next/navigation';
 
 import { Image, Link, IconButton, Container, Spacer } from "@chakra-ui/react";
-import { MdOutlineArrowLeft, MdOutlineMenu
- } from "react-icons/md";
-import NavbarMenu from './menu';
+import { MdOutlineArrowLeft } from "react-icons/md";
 
 
-export default function Header(
-  props: {
-    userName: string | undefined
-  }
-) {
+export default function Header({children}: {children: React.ReactNode}) {
   const router = useRouter();
-  const { userName } = props;
 
   return (
     <Container flexDirection='row' display='flex' w='100%'
@@ -32,7 +25,7 @@ export default function Header(
           alt={'taqseem'} />
       </Link>
       <Spacer />
-      <NavbarMenu {...{ userName: userName! }} />
+      {children}
     </Container>
   )
 }

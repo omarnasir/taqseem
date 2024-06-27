@@ -2,10 +2,10 @@ import './globals.css';
 
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'
-import { auth } from '@/auth';
 
 import ChakraProvider from '@/app/_lib/providers/ChakraProvider';
-import { SessionProvider } from 'next-auth/react';
+import { AuthProvider } from '@/app/_lib/providers/AuthProvider';
+import { ReactQueryClientProvider } from '@/app/_lib/providers/ReactQueryProvider';
 
 export const metadata: Metadata = {
 	title: 'Taqseem',
@@ -18,15 +18,16 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const session = await auth();
 
 	return (
-		<html lang="en" data-theme='dark'>
-			<body className={inter.className}>
-				<SessionProvider session={session}>
+		<ReactQueryClientProvider>
+			<html lang="en" data-theme='dark' suppressHydrationWarning>
+				<body className={inter.className}>
+					{/* <AuthProvider session={session} refetchInterval={1000}> */}
 					<ChakraProvider>{children}</ChakraProvider>
-				</SessionProvider>
-			</body>
-		</html>
+					{/* </AuthProvider> */}
+				</body>
+			</html>
+		</ReactQueryClientProvider>
 	);
 }

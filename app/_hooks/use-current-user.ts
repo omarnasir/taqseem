@@ -1,15 +1,26 @@
 'use client'
+import { useQuery } from "@tanstack/react-query";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation"
 
 
-export function useCurrentUser() : Session["user"] {
+export function useSessionHook(): { session: Session | null, status: 'loading' | 'authenticated' | 'unauthenticated' } {
   const router = useRouter();
-  const { data: session } = useSession();
 
-  if (session) {
-    return session.user
+  const queryResponse = useQuery({
+    queryKey: ["session"],
+    queryFn: () => getSession().then((session) => {
+      if (session) {
+        console.log('useSessionHook', session)
+        return session
+      }
+      router.push("/login");
+    })
+  });
+  return {
+    session: queryResponse.data ?? null,
+    status: queryResponse.status === 'pending' ?
+      'loading' : queryResponse.data ? 'authenticated' : 'unauthenticated'
   }
-  router.push("/login");
 }

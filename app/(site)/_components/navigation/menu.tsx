@@ -11,7 +11,7 @@ import {
   IconButton,
   Text,
   Link,
-  useDisclosure,
+
   Menu,
   MenuButton,
   MenuGroup,
@@ -19,11 +19,10 @@ import {
   MenuList
 } from "@chakra-ui/react";
 import { signOutAction } from '@/app/_actions/auth';
+import { Session } from 'next-auth';
 
-export default function NavbarMenu(props: {
-  userName: string
-}) {
 
+export default function NavbarMenu({session }: {session: Session}) {
   const linkItems = [
     { name: 'Home', href: '/dashboard', icon: MdHomeFilled },
     { name: 'Groups', href: '/groups', icon: MdGroup },
@@ -40,7 +39,7 @@ export default function NavbarMenu(props: {
         variant='headerButton'
         icon={<MdOutlineMenu size={25} />} />
       <MenuList>
-        <MenuGroup title={`Hello, ${props.userName}!`} fontSize={'md'}>
+        <MenuGroup title={`Hello, ${session?.user?.name}`} fontSize={'md'}>
           {linkItems.map((linkItem, index) => (
             <MenuItem key={index} href={linkItem.href} as={Link}
               padding={4}
