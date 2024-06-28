@@ -25,23 +25,18 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "auth": [
-        "./auth"
-      ]
+      "@/*": ["./src/*"],
+      "@/public/*": ["./public/*"]
     }
   },
   "include": [
-    "process.d.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "next-auth.d.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
-  ],
-  "typeRoots": ["./types", "./types/**"]
+  ]
 }
