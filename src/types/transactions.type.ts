@@ -24,3 +24,9 @@ export type GroupedTransactions = {
     data: TransactionWithDetails[]
   }[]
 }[]
+
+export type TransactionsService = {
+  transactions: TransactionWithDetails[],
+  nextCursor?: number,
+  prevCursor?: number
+}

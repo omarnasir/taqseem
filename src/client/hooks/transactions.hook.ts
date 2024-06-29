@@ -1,45 +1,34 @@
 'use client'
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { GroupedTransactions } from "@/types/transactions.type";
-import { fetchGroupTransactions } from "@/client/service/transactions.service";
-import { useState } from "react";
+import { type TransactionsService,
+  TransactionWithDetails
+ } from "@/types/transactions.type";
 
-export function useGetGroupTransactions(groupId: string,
-  transactionsInitialData: {
-    groupedTransactions: GroupedTransactions,
-    cursor: number | undefined
-  }) {
-  const [cursor, setCursor] = useState(transactionsInitialData.cursor);
-  const [transactions, setTransactions] = useState(transactionsInitialData.groupedTransactions);
+
+export function useGetGroupTransactions(groupId: string, transactionsInitialData: TransactionsService) {
   const query = useInfiniteQuery({
     queryKey: ['transactions', groupId],
-    queryFn: async ({ pageParam }) => await fetchGroupTransactions(groupId, pageParam),
-    initialPageParam: 0,
-    initialData: { pages: [transactionsInitialData], pageParams: [0] },
-    getNextPageParam: (lastPage, allPages) => lastPage?.cursor,
-    maxPages: 3
+    queryFn: async ({ pageParam }) => {
+      const res = await fetch(`/api/groups/transactions?groupId=${groupId}${pageParam ? `&cursor=${pageParam}` : ''}`);
+      const data = await res.json();
+      return data as TransactionsService
+    },
+    initialPageParam: transactionsInitialData.prevCursor,
+    initialData: { pages: [transactionsInitialData], pageParams: [transactionsInitialData.prevCursor] },
+    getNextPageParam: (lastPage) => lastPage?.nextCursor,
+    getPreviousPageParam: (firstPage) => firstPage?.prevCursor,
+    maxPages: 3,
   });
 
-  if (cursor !== query.data?.pages[query.data.pages.length - 1].cursor) {
-    let newTransactions = transactions;
-    query.data.pages[query.data.pages.length - 1].groupedTransactions.forEach((yearData) => {
-      const yearIndex = transactions.findIndex((yearDataOld) => yearDataOld.year === yearData.year);
-      if (yearIndex === -1) {
-        newTransactions.push(yearData);
-      } else {
-        yearData.data.forEach((monthData) => {
-          const monthIndex = transactions[yearIndex].data.findIndex((monthDataOld) => monthDataOld.monthName === monthData.monthName);
-          if (monthIndex === -1) {
-            newTransactions[yearIndex].data.push(monthData);
-          } else {
-            newTransactions[yearIndex].data[monthIndex].data.push(...monthData.data);
-          }
-        });
+  let transactions: TransactionWithDetails[] = [];
+  query.data.pages.forEach((page) => {
+    page.transactions.forEach((transaction) => {
+      const transactionIndex = transactions.findIndex((transactionOld) => transactionOld.id === transaction.id);
+      if (transactionIndex === -1) {
+        transactions.push(transaction);
       }
-    }
-    );
-    setTransactions(newTransactions);
-    setCursor(query.data.pages[query.data.pages.length - 1].cursor);
-  }
-  return { ...query, transactions };
+    });
+  });
+
+  return { ...query, transactions }
 }

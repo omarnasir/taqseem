@@ -23,12 +23,13 @@ import { type UserBasicData } from "@/types/users.type";
 import { type TransactionWithDetails } from "@/types/transactions.type";
 import { GroupWithMembers } from "@/types/groups.type"
 
-import { type GroupedTransactions } from "@/types/transactions.type";
+import { type GroupedTransactions, type TransactionsService } from "@/types/transactions.type";
 
 import { MdAdd } from "react-icons/md"
 
 import { Transaction } from "./transaction"
 import { useGetGroupTransactions } from "@/client/hooks/transactions.hook";
+
 
 
 const cardItemWidths = {
@@ -102,10 +103,36 @@ function SummaryDisplay({ transaction, users, userId }:
 
 
 function TransactionsList({ transactions, group, sessionData, setSelectedTransaction, onClick }:
-  { transactions: GroupedTransactions, group: GroupWithMembers, sessionData: any, setSelectedTransaction: any, onClick: any}) {
+  { transactions: TransactionWithDetails[], group: GroupWithMembers, sessionData: any, setSelectedTransaction: any, onClick: any}) {
+
+  const [groupedTransactions, setGroupedTransactions] = useState<GroupedTransactions>([]);
+
+  useMemo(() => {
+    let data: GroupedTransactions = []
+    for (const transaction of transactions) {
+        const date = new Date(transaction.paidAt);
+        const month = date.getMonth()
+        const year = date.getFullYear()
+        if (!data.find((group) => group.year === year)) {
+          data.push({ year, data: [] })
+        }
+        const groupIndex = data.findIndex((group) => group.year === year)
+        if (!data[groupIndex].data.find((data) => data.month === month)) {
+          data[groupIndex].data.push({ month, monthName: date.toLocaleString('default', { month: 'long' }), data: [] })
+        }
+        const monthIndex = data[groupIndex].data.findIndex((data) => data.month === month)
+        data[groupIndex].data[monthIndex].data.push(transaction)
+      }
+      data.sort((a, b) => b.year - a.year)
+      for (const group of data) {
+        group.data.sort((a, b) => b.month - a.month)
+      }
+      setGroupedTransactions(data)
+  }, [setGroupedTransactions, transactions]);
+
   return (
     <>
-    {transactions.map((yearData, index) => (
+    {groupedTransactions.map((yearData, index) => (
       <List w='100%' variant={'transaction'} key={index}>
         <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'sm'} fontWeight={500} color={'whiteAlpha.800'} marginTop={3}>{yearData.year}</Text>
         {yearData.data.map((monthData, index) => (
@@ -137,10 +164,7 @@ function TransactionsList({ transactions, group, sessionData, setSelectedTransac
 
 
 export default function TransactionsView({ group, transactionsInitialData, sessionData }: 
-  { group: GroupWithMembers, transactionsInitialData: {
-    groupedTransactions: GroupedTransactions,
-    cursor: number | undefined
-  }, sessionData: any})
+  { group: GroupWithMembers, transactionsInitialData: TransactionsService, sessionData: any})
 {
   const router = useRouter();
   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
@@ -152,7 +176,10 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
   const { transactions,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage
    } = useGetGroupTransactions(group.id, transactionsInitialData);
 
   return (
@@ -166,6 +193,12 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
           onClick={() => { setSelectedTransaction(undefined); onClick() }}
           {...buttonProps}>new</IconButton>
       <Divider/>
+      {hasPreviousPage &&
+      <Button variant={'loadMore'}
+        isDisabled={!hasPreviousPage}
+        isLoading={isFetchingPreviousPage}
+        onClick={() => fetchPreviousPage()}>Load Previous</Button>
+      }
       <TransactionsList transactions={transactions} group={group} sessionData={sessionData} setSelectedTransaction={setSelectedTransaction} onClick={onClick} />
       {isOpen &&
         <Transaction

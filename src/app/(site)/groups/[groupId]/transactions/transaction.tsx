@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Button,
   DrawerHeader,
@@ -98,11 +98,12 @@ function Transaction(
     disclosureProps: any,
     isOpen: boolean,
     onCloseDrawer: () => void,
-    transactionWithDetails?: TransactionWithDetails,
+    transactionWithDetails?: TransactionWithDetails
   }
 ) {
   const router = useRouter();
   const { session, status } = useSessionHook();
+  const queryClient = useQueryClient();
   const users = group.users!;
 
   const defaultValues: FormTransaction = useMemo(() => (
@@ -138,6 +139,8 @@ function Transaction(
       createTransactionAction(group.id, transaction as CreateTransaction));
     if (response.success) {
       onCloseDrawer();
+      queryClient.invalidateQueries({queryKey: ['transactions', group.id]})
+      queryClient.prefetchQuery({queryKey: ['transactions', group.id]})
       router.refresh();
     }
     else {
@@ -150,6 +153,8 @@ function Transaction(
     const res = await deleteTransactionAction(session?.user?.id!, group?.id!, id)
     res.success ? addToast(`Transaction removed`, null, 'success') : addToast('Cannot delete transaction.', res.error, 'error')
     onCloseDrawer();
+    queryClient.invalidateQueries({queryKey: ['transactions', group.id]})
+    queryClient.prefetchQuery({queryKey: ['transactions', group.id]})
     router.refresh();
   }
 

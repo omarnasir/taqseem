@@ -18,8 +18,10 @@ import { AssertionError } from 'assert';
  * @param cursor 
  * @returns 
  */
-async function getTransactionsByGroupId(groupId: string, 
-  cursor: number | undefined): Promise<{ transactions: TransactionWithDetails[] | [], cursor: number | undefined }> {
+async function getTransactionsByGroupId(groupId: string, cursor?: number): 
+  Promise<{ transactions: TransactionWithDetails[] | [], nextCursor?: number, prevCursor?: number }> 
+{
+  const TAKE_DEFAULT = 20;
   try {
     const transactions = await prisma.transactions.findMany({
       where: {
@@ -31,17 +33,17 @@ async function getTransactionsByGroupId(groupId: string,
       orderBy: {
         paidAt: 'desc'
       },
-      take: 20,
-      cursor: cursor ? {
-        id: cursor
-      } : undefined,
-      skip: cursor ? 1 : undefined
+      take: TAKE_DEFAULT,
+      skip: cursor
     });
-    if (!transactions || transactions.length === 0) return { transactions: [], cursor: undefined };
+    if (!transactions || transactions.length === 0) return { transactions: [], nextCursor: undefined, prevCursor: undefined };
     transactions.map(transaction => {
       return transaction.amount = transaction.amount < 0 ? -1 * transaction.amount : transaction.amount;
     });
-    return { transactions, cursor: transactions[transactions.length - 1].id }
+
+    return { transactions, 
+      nextCursor: transactions.length < TAKE_DEFAULT ? undefined : cursor ? cursor + TAKE_DEFAULT : TAKE_DEFAULT,
+      prevCursor: cursor ? cursor - TAKE_DEFAULT : undefined };
   }
   catch (e) {
     console.error(e);

@@ -4,17 +4,14 @@ import {
   getTransactionsByUserIdAndDate,
  } from '@/server/data/transactions.data';
 import {
- type GroupedTransactions
+  type TransactionsService
 } from "@/types/transactions.type";
 import { type ActivityHistoryItem } from "@/types/activities.type";
 import { ServiceResponse } from '@/types/service-response.type';
 import { auth } from '@/lib/auth';
 
 type GETGroupedTransactionsResponse = Omit<ServiceResponse, "data"> & {
-  data?: {
-    groupedTransactions: GroupedTransactions,
-    cursor: number | undefined
-  }
+  data?: TransactionsService
 }
 
 type GETActivityHistory = Omit<ServiceResponse, "data"> & {
@@ -22,35 +19,15 @@ type GETActivityHistory = Omit<ServiceResponse, "data"> & {
 }
 
 
-async function getUserTransactionsByGroupIdService(groupId: string, cursor: number | undefined): Promise<GETGroupedTransactionsResponse> {
+async function getUserTransactionsByGroupIdService(groupId: string, cursor?: number): Promise<GETGroupedTransactionsResponse> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
     const response = await getTransactionsByGroupId(groupId, cursor);
-    const { transactions, cursor: newCursor } = response;
-    let groupedTransactions: GroupedTransactions = []
-    for (const transaction of transactions) {
-      const date = new Date(transaction.paidAt);
-      const month = date.getMonth()
-      const year = date.getFullYear()
-      if (!groupedTransactions.find((group) => group.year === year)) {
-        groupedTransactions.push({ year, data: [] })
-      }
-      const groupIndex = groupedTransactions.findIndex((group) => group.year === year)
-      if (!groupedTransactions[groupIndex].data.find((data) => data.month === month)) {
-        groupedTransactions[groupIndex].data.push({ month, monthName: date.toLocaleString('default', { month: 'long' }), data: [] })
-      }
-      const monthIndex = groupedTransactions[groupIndex].data.findIndex((data) => data.month === month)
-      groupedTransactions[groupIndex].data[monthIndex].data.push(transaction)
-    }
-    groupedTransactions.sort((a, b) => b.year - a.year)
-    for (const group of groupedTransactions) {
-      group.data.sort((a, b) => b.month - a.month)
-    }
 
-    return { success: true, data: { groupedTransactions, cursor: newCursor } };
+    return { success: true, data: response };
   }
   catch (e) {
     return { success: false, error: e.message };
