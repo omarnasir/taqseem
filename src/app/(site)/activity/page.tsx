@@ -1,5 +1,5 @@
 "use server";
-import ActivityView from "./view";
+import ActivityView from "./activity.view";
 import { getActivityService } from "@/server/service/activities.service";
 import { getAllGroupsService } from "@/server/service/groups.service";
 import { auth } from "@/lib/auth";
@@ -18,7 +18,6 @@ export default async function TransactionsPage() {
   const data = await getActivityService(userGroups.map(group => group.id),undefined).then((response) => response.data ? response.data : undefined);
 
   return (data &&
-    <ActivityView userGroups={userGroups} activities={data.activities} firstCursor={data.cursor as number} 
-    sessionData={sessionData}/>
+    <ActivityView userGroups={userGroups} activitiesInitialData={data} sessionData={sessionData}/>
   );
 }

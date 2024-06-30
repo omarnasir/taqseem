@@ -19,17 +19,17 @@ const activityWithDetails = Prisma.validator<Prisma.ActivityDefaultArgs>()({
         name: true,
       }
     },
+    group: {
+      select: {
+        name: true
+      }
+    },
     transaction: {
       select: {
         name: true,
         isSettlement: true,
         category: true,
         paidById: true,
-        group: {
-          select: {
-            name: true,
-          }
-        }
       }
     }
   }
@@ -43,4 +43,9 @@ export type ActivityHistoryItem = {
   owe: number,
   getBack: number,
   paidAt: Date,
+}
+
+export type ActivityService = {
+  activities: ActivityWithDetails[],
+  cursor?: number
 }

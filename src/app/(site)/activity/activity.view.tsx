@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from "react"
+import React from "react"
 
 import {
   Text,
@@ -11,11 +11,12 @@ import {
   ListIcon,
   Button,
 } from "@chakra-ui/react"
-import { type ActivityWithDetails } from '@/types/activities.type';
+import { ActivityService, type ActivityWithDetails } from '@/types/activities.type';
 import { ActivityTypeEnum, getTransactionIcon } from "@/lib/db/constants";
-import { getActivityService } from "@/server/service/activities.service";
+
 import { GroupData } from "@/types/groups.type";
-import { useQueryClient } from "@tanstack/react-query";
+
+import { useGetUserActivity } from "@/client/hooks/activities.hook";
 
 const cardItemWidths = {
   icon: '7%',
@@ -63,7 +64,7 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
         <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
           {activity.createdById === userId ? 'You' : activity.createdBy?.name}
         </Text>
-        <Text fontSize={'xs'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.transaction.group?.name}{'.'}
+        <Text fontSize={'xs'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
         </Text>
       </HStack>
       <HStack>
@@ -78,45 +79,38 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
   )
 }
 
-export default function ActivityView({ userGroups, activities, firstCursor, sessionData }: { userGroups: GroupData[], activities: ActivityWithDetails[], firstCursor: number, sessionData: any}) {
-  const queryClient = useQueryClient();
-  queryClient.setQueryData(['activities', sessionData.user?.id], activities);
-
-  const [cursor, setCursor] = useState<number | undefined>(firstCursor);
+export default function ActivityView({ userGroups, activitiesInitialData, sessionData }: 
+  { userGroups: GroupData[], activitiesInitialData: ActivityService, sessionData: any}) 
+{
+  const { data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+   } = useGetUserActivity(sessionData.user?.id as string, userGroups.map(group => group.id), activitiesInitialData);
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
         position={'sticky'} top={'-40px'}>Activity</Text>
-      {activities.map((activity) => (
-        <List w='100%' variant={'activity'} key={activity.id}>
-          <ListItem w='100%' key={activity.id}
-            flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
-            <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
-            <ActivitySummary activity={activity} userId={sessionData.user?.id as string} />
-            <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
-              width={cardItemWidths.date} color={'whiteAlpha.700'}>
-              {relativeTimeAgo(new Date(activity.createdAt))}
-            </Text>
-          </ListItem>
-        </List>
+      {data.pages.map((page) => (
+        page.activities.map((activity) => (
+          <List w='100%' variant={'activity'} key={activity.id}>
+            <ListItem w='100%' key={activity.id}
+              flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
+              <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
+              <ActivitySummary activity={activity} userId={sessionData.user?.id as string} />
+              <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
+                width={cardItemWidths.date} color={'whiteAlpha.700'}>
+                {relativeTimeAgo(new Date(activity.createdAt))}
+              </Text>
+            </ListItem>
+          </List>
+        ))
       ))}
       <Button variant={'loadMore'}
-        isDisabled={cursor === undefined}
-        onClick={async () => {
-          const activitiesLatest = await queryClient.fetchQuery(
-          {
-            queryKey: ['activities', sessionData.user?.id],
-            queryFn: () => getActivityService(userGroups.map(group => group.id), cursor), 
-            staleTime: 100
-          });
-          if (!activitiesLatest.success) {
-            setCursor(undefined);
-            return;
-          }
-          setCursor(activitiesLatest.data?.cursor as number);
-          activities.push(...activitiesLatest.data?.activities ?? []);
-        }}>Load More</Button>
+        isDisabled={!hasNextPage}
+        isLoading={isFetchingNextPage}
+        onClick={() => fetchNextPage()}>Load More</Button>
     </Flex>
   );
 } 

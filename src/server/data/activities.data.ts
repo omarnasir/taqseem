@@ -1,8 +1,7 @@
 'use server';
 import prisma from '@/lib/db/prisma';
-import {Prisma} from '@prisma/client';
+
 import {
-  type Activity,
   type ActivityWithDetails,
   type CreateActivity,
 } from "@/types/activities.type";
@@ -22,85 +21,66 @@ async function createActivity(activity: CreateActivity): Promise<void> {
   }
 }
 
-type ActivitiesByGroupIdsResult = Activity & {
-  createdByName: string,
-  transactionName: string,
-  isSettlement: boolean,
-  category: number,
-  groupName: string,
-  paidById: string,
-  isInvolved: boolean
-};
-
-
-async function getActivitiesByGroupIds(groupIds: string[], userId: string, cursor: number | undefined): 
-  Promise<{ activities: ActivityWithDetails[] | [], cursor: number | undefined }> 
+async function getActivitiesByGroupIds(groupIds: string[], userId: string, cursor?: number): 
+  Promise<{ activities: ActivityWithDetails[] | [], cursor?: number }> 
 {
-
+  const TAKE_DEFAULT = 20;
   try {
-    const result : ActivitiesByGroupIdsResult[] = await prisma.$queryRaw`
-      SELECT a.id,
-            a.action,
-            a.createdAt,
-            a.transactionId,
-            a.createdById,
-            a.groupId,
-            a.amount as "amount",
-            u.name as "createdByName",
-            t.name as "transactionName",
-            t.isSettlement as "isSettlement",
-            t.category as "category",
-            t.paidById as "paidById",
-            g.name as "groupName",
-            t.isInvolved as "isInvolved"
-      FROM Activity a
-      JOIN 
-        (SELECT id, name, isSettlement, category, paidById, 
-                CASE WHEN td.transactionId IS NULL 
-                    THEN false
-                    ELSE true 
-                    END AS isInvolved
-        FROM transactions
-        LEFT OUTER JOIN (SELECT transactionId 
-              FROM TransactionDetails 
-              WHERE userId = ${userId}) AS td
-          ON transactions.id = td.transactionId
-        WHERE groupId IN (${Prisma.join(groupIds)})
-        ) AS t
-      ON a.transactionId = t.id
-      JOIN groups g ON a.groupId = g.id
-      JOIN users u ON a.createdById = u.id
-      ORDER BY createdAt DESC
-      LIMIT 20
-      OFFSET ${cursor || 0}`;
-    if (!result || result.length === 0) return { activities: [], cursor: undefined };
-
-    const activities : ActivityWithDetails[]  = result.map((activity) => {
-      return {
-        id: activity.id,
-        action: activity.action,
-        createdAt: activity.createdAt,
-        transactionId: activity.transactionId,
-        groupId: activity.groupId,
-        createdById: activity.createdById,
-        amount: activity.amount,
-        isInvolved: activity.isInvolved,
+    const result = await prisma.activity.findMany({
+      select: {
+        id: true,
+        action: true,
+        createdAt: true,
+        transactionId: true,
+        createdById: true,
+        groupId: true,
+        amount: true,
+        group: {
+          select: {
+            name: true
+          }
+        },
         transaction: {
-          name: activity.transactionName,
-          isSettlement: activity.isSettlement,
-          category: activity.category,
-          paidById: activity.paidById,
-          group: {
-            name: activity.groupName,
+          select: {
+            name: true,
+            isSettlement: true,
+            category: true,
+            paidById: true,
+            transactionDetails: {
+              select: {
+                userId: true
+              }
+            }
           }
         },
         createdBy: {
-          name: activity.createdByName,
+          select: {
+            name: true
+          }
         }
-      };
-    }
-    );
-    return { activities, cursor: cursor ? cursor + 20 : 20 };
+      },
+      where: {
+        groupId: {
+            in: groupIds
+        },
+      },
+      orderBy: {
+        id: 'desc'
+      },
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      take: TAKE_DEFAULT,
+    });
+
+    if (!result || result.length === 0) return { activities: [], cursor: undefined };
+    const activities : ActivityWithDetails[]  = result.map((activity) => {
+      return {
+        ...activity,
+        isInvolved: activity.transaction.transactionDetails.some(td => td.userId === userId),
+      }
+    });
+
+    return { activities, cursor: activities[activities.length - 1].id };
   }
   catch (e) {
     console.error(e);

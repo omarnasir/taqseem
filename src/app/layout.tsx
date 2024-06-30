@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'
 
 import ChakraProvider from '@/lib/providers/ChakraProvider';
-import { AuthProvider } from '@/lib/providers/AuthProvider';
+// import { AuthProvider } from '@/lib/providers/AuthProvider';
 import { ReactQueryClientProvider } from '@/lib/providers/ReactQueryProvider';
 
 export const metadata: Metadata = {
