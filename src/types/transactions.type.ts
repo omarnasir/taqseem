@@ -25,8 +25,18 @@ export type GroupedTransactions = {
   }[]
 }[]
 
-export type TransactionsService = {
+export type GetTransactionsInput = {
+  groupId: string,
+  cursor: string,
+  direction: 'prev' | 'next',
+  isFirstFetch?: boolean
+}
+
+export type GetTransactionsResponse = {
   transactions: TransactionWithDetails[],
-  nextCursor?: number,
-  prevCursor?: number
+  cursor: {
+    next?: string,
+    prev?: string,
+    direction: 'prev' | 'next'
+  }
 }

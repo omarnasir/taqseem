@@ -4,7 +4,8 @@ import { type ServiceResponse } from '@/types/service-response.type';
 import { auth } from '@/lib/auth';
 import {
   type UpdateTransaction,
-  type CreateTransaction
+  type CreateTransaction,
+  TransactionWithDetails
 } from '@/types/transactions.type';
 
 import {
@@ -18,24 +19,29 @@ import {
 } from '@/server/actions/activities.action';
 import { ActivityTypeEnum } from '@/lib/db/constants';
 
-async function createTransactionAction(groupId: string, data: CreateTransaction): Promise<Response> {
+type CreateTransactionResponse = Omit<ServiceResponse, 'data'> & { data?: TransactionWithDetails };
+type UpdateTransactionResponse = Omit<ServiceResponse, 'data'> & { data?: TransactionWithDetails };
+
+
+async function createTransactionAction(groupId: string, data: CreateTransaction): Promise<CreateTransactionResponse> {
   const session = await auth();
 
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
+  console.log(data.paidAt)
 
   try {
     const newTransaction = await createTransaction(groupId, data)
     await createActivityFromTransactionAction(newTransaction, ActivityTypeEnum.CREATE);
-    return { success: true };
+    return { success: true, data: newTransaction};
   }
   catch (e) {
     return { success: false, error: e.message };
   }
 }
 
-async function updateTransactionAction(groupId: string, data: UpdateTransaction): Promise<Response> {
+async function updateTransactionAction(groupId: string, data: UpdateTransaction): Promise<UpdateTransactionResponse> {
   const session = await auth();
 
   if (!session?.user) {
@@ -45,7 +51,7 @@ async function updateTransactionAction(groupId: string, data: UpdateTransaction)
   try {
     const updatedTransaction = await updateTransaction(groupId, data);
     await createActivityFromTransactionAction(updatedTransaction, ActivityTypeEnum.UPDATE);
-    return { success: true };
+    return { success: true, data: updatedTransaction };
   }
   catch (e) {
     return { success: false, error: e.message };
@@ -54,7 +60,7 @@ async function updateTransactionAction(groupId: string, data: UpdateTransaction)
 
 async function deleteTransactionAction(userId: string,
   groupId: string,
-  transactionId: number): Promise<Response> {
+  transactionId: number): Promise<ServiceResponse> {
   const session = await auth();
 
   if (!session?.user) {

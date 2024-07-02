@@ -3,7 +3,8 @@ import prisma from '@/lib/db/prisma';
 import {
   CreateTransaction,
   UpdateTransaction,
-  type TransactionWithDetails
+  type GetTransactionsInput,
+  type GetTransactionsResponse
 } from "@/types/transactions.type";
 import { AssertionError } from 'assert';
 
@@ -18,32 +19,42 @@ import { AssertionError } from 'assert';
  * @param cursor 
  * @returns 
  */
-async function getTransactionsByGroupId(groupId: string, cursor?: number): 
-  Promise<{ transactions: TransactionWithDetails[] | [], nextCursor?: number, prevCursor?: number }> 
+async function getTransactionsByGroupId({ groupId, cursor, direction, isFirstFetch }: GetTransactionsInput) :
+  Promise<GetTransactionsResponse> 
 {
-  const TAKE_DEFAULT = 20;
+  const TAKE_DEFAULT = 2;
   try {
     const transactions = await prisma.transactions.findMany({
-      where: {
-        groupId: groupId,
-      },
       include: {
         transactionDetails: true
       },
-      orderBy: {
-        paidAt: 'desc'
+      where: {
+        groupId: groupId,
+        paidAt: direction === 'next' ? {
+          lte: new Date(cursor)
+        } : {
+          gt: new Date(cursor)
+        }
       },
-      take: TAKE_DEFAULT,
-      skip: cursor
+      orderBy: {
+          paidAt: 'desc'
+      },
+      take: direction === 'next' ? TAKE_DEFAULT : TAKE_DEFAULT * -1,
+      skip: isFirstFetch ? 0 : direction === 'next' ? 1 : 0
     });
-    if (!transactions || transactions.length === 0) return { transactions: [], nextCursor: undefined, prevCursor: undefined };
+
+    if (!transactions || transactions.length === 0) return { transactions: [], cursor: { next: undefined, prev: undefined, direction: direction } };
     transactions.map(transaction => {
       return transaction.amount = transaction.amount < 0 ? -1 * transaction.amount : transaction.amount;
     });
 
-    return { transactions, 
-      nextCursor: transactions.length < TAKE_DEFAULT ? undefined : cursor ? cursor + TAKE_DEFAULT : TAKE_DEFAULT,
-      prevCursor: cursor ? cursor - TAKE_DEFAULT : undefined };
+    return {
+      transactions, cursor: {
+        next: transactions.length < TAKE_DEFAULT ? undefined : transactions[transactions.length - 1].paidAt.toISOString(),
+        prev: transactions.length < TAKE_DEFAULT ? undefined : transactions[0].paidAt.toISOString(),
+        direction: direction
+      }
+    }
   }
   catch (e) {
     console.error(e);

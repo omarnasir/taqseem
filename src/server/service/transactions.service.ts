@@ -4,14 +4,15 @@ import {
   getTransactionsByUserIdAndDate,
  } from '@/server/data/transactions.data';
 import {
-  type TransactionsService
+  type GetTransactionsInput,
+  type GetTransactionsResponse
 } from "@/types/transactions.type";
 import { type ActivityHistoryItem } from "@/types/activities.type";
 import { ServiceResponse } from '@/types/service-response.type';
 import { auth } from '@/lib/auth';
 
 type GETGroupedTransactionsResponse = Omit<ServiceResponse, "data"> & {
-  data?: TransactionsService
+  data?: GetTransactionsResponse
 }
 
 type GETActivityHistory = Omit<ServiceResponse, "data"> & {
@@ -19,13 +20,13 @@ type GETActivityHistory = Omit<ServiceResponse, "data"> & {
 }
 
 
-async function getUserTransactionsByGroupIdService(groupId: string, cursor?: number): Promise<GETGroupedTransactionsResponse> {
+async function getUserTransactionsByGroupIdService(input: GetTransactionsInput): Promise<GETGroupedTransactionsResponse> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    const response = await getTransactionsByGroupId(groupId, cursor);
+    const response = await getTransactionsByGroupId(input);
 
     return { success: true, data: response };
   }

@@ -68,6 +68,8 @@ model Transactions {
   transactionDetails TransactionDetails[]
   isSettlement       Boolean              @default(false)
   activity           Activity[]
+
+  @@unique([paidAt(sort: Desc), groupId], name: "transactionCursor")
 }
 
 model TransactionDetails {
