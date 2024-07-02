@@ -11,7 +11,7 @@ import { ActivityTypeEnum } from '@/lib/db/constants';
 
 
 async function createActivityFromTransactionAction(transaction: CreateTransaction | UpdateTransaction, action: ActivityTypeEnum): 
-  Promise<Response> {
+  Promise<ServiceResponse> {
   const session = await auth();
 
   if (!session?.user) {

@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useReducer, useState } from "react"
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -23,13 +23,12 @@ import { type UserBasicData } from "@/types/users.type";
 import { type TransactionWithDetails } from "@/types/transactions.type";
 import { GroupWithMembers } from "@/types/groups.type"
 
-import { type GroupedTransactions, type TransactionsService } from "@/types/transactions.type";
+import { type GroupedTransactions, type GetTransactionsResponse } from "@/types/transactions.type";
 
 import { MdAdd } from "react-icons/md"
 
 import { Transaction } from "./transaction"
 import { useGetGroupTransactions } from "@/client/hooks/transactions.hook";
-
 
 
 const cardItemWidths = {
@@ -102,77 +101,68 @@ function SummaryDisplay({ transaction, users, userId }:
 }
 
 
-function TransactionsList({ transactions, group, sessionData, setSelectedTransaction, onClick }:
-  { transactions: TransactionWithDetails[], group: GroupWithMembers, sessionData: any, setSelectedTransaction: any, onClick: any}) {
-
-  const [groupedTransactions, setGroupedTransactions] = useState<GroupedTransactions>([]);
-
-  useMemo(() => {
-    let data: GroupedTransactions = []
-    for (const transaction of transactions) {
-        const date = new Date(transaction.paidAt);
-        const month = date.getMonth()
-        const year = date.getFullYear()
-        if (!data.find((group) => group.year === year)) {
-          data.push({ year, data: [] })
-        }
-        const groupIndex = data.findIndex((group) => group.year === year)
-        if (!data[groupIndex].data.find((data) => data.month === month)) {
-          data[groupIndex].data.push({ month, monthName: date.toLocaleString('default', { month: 'long' }), data: [] })
-        }
-        const monthIndex = data[groupIndex].data.findIndex((data) => data.month === month)
-        data[groupIndex].data[monthIndex].data.push(transaction)
-      }
-      data.sort((a, b) => b.year - a.year)
-      for (const group of data) {
-        group.data.sort((a, b) => b.month - a.month)
-      }
-      setGroupedTransactions(data)
-  }, [setGroupedTransactions, transactions]);
-
-  return (
-    <>
-    {groupedTransactions.map((yearData, index) => (
-      <List w='100%' variant={'transaction'} key={index}>
-        <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'sm'} fontWeight={500} color={'whiteAlpha.800'} marginTop={3}>{yearData.year}</Text>
-        {yearData.data.map((monthData, index) => (
-          <div key={index}>
-            <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={300} color={'whiteAlpha.800'} marginY={3}>{monthData.monthName}</Text>
-            {monthData.data.map((transaction) => (
-              <ListItem w='100%' key={transaction.id}
-                flexDirection={'row'} display={'flex'} justifyContent={'space-between'}
-                onClick={
-                  () => {
-                    setSelectedTransaction(transaction)
-                    onClick();
-                  }
-                }>
-                <DateDisplay paidAt={transaction.paidAt} />
-                <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='5' color='whiteAlpha.700' />
-                <SummaryDisplay transaction={transaction} users={group?.users!} userId={sessionData?.user?.id!} />
-                <AmountDisplay transaction={transaction} userId={sessionData?.user?.id!} />
-              </ListItem>
-            ))}
-          </div>
-        ))}
-        <Divider marginY={1} />
-      </List >
-      ))}
-    </>
-  )
-}
-
-
-export default function TransactionsView({ group, transactionsInitialData, sessionData }: 
-  { group: GroupWithMembers, transactionsInitialData: TransactionsService, sessionData: any})
-{
-  const router = useRouter();
+function TransactionDisclosureWrapper({
+  transactions, group, sessionData, refetch }:
+  { transactions: GroupedTransactions, group: GroupWithMembers, sessionData: any, refetch: any
+}) {
   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
 
   const { onClick, buttonProps } = getButtonProps();
   const disclosureProps = getDisclosureProps();
 
+  return (
+    <>
+      <IconButton variant={'new'} size={'lg'}
+        icon={<MdAdd />}
+        onClick={() => { setSelectedTransaction(undefined); onClick() }}
+        {...buttonProps}>new</IconButton>
+      {transactions.map((yearData, index) => (
+        <List w='100%' variant={'transaction'} key={index}>
+          <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'sm'} fontWeight={500} color={'whiteAlpha.800'} marginTop={3}>{yearData.year}</Text>
+          {yearData.data.map((monthData, index) => (
+            <div key={index}>
+              <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={300} color={'whiteAlpha.800'} marginY={3}>{monthData.monthName}</Text>
+              {monthData.data.map((transaction) => (
+                <ListItem w='100%' key={transaction.id}
+                  flexDirection={'row'} display={'flex'} justifyContent={'space-between'}
+                  onClick={
+                    () => {
+                      setSelectedTransaction(transaction)
+                      onClick();
+                    }
+                  }>
+                  <DateDisplay paidAt={transaction.paidAt} />
+                  <ListIcon as={getTransactionIcon(transaction.category)} width={cardItemWidths['icon']} h='5' color='whiteAlpha.700' />
+                  <SummaryDisplay transaction={transaction} users={group?.users!} userId={sessionData?.user?.id!} />
+                  <AmountDisplay transaction={transaction} userId={sessionData?.user?.id!} />
+                </ListItem>
+              ))}
+            </div>
+          ))}
+          <Divider marginY={1} />
+        </List >
+        ))}
+      {isOpen &&
+        <Transaction
+          {...{
+            disclosureProps,
+            isOpen, onCloseDrawer: onClose,
+            group: group!,
+            transactionWithDetails: selectedTransaction,
+            refetch,
+          }} />
+      }
+    </>
+  )
+}
+
+
+export default function TransactionsView({ group, transactionsInitialData, sessionData }: 
+  { group: GroupWithMembers, transactionsInitialData: GetTransactionsResponse, sessionData: any})
+{
+  const router = useRouter();
+  
   const { transactions,
     fetchNextPage,
     hasNextPage,
@@ -188,10 +178,6 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
         position={'sticky'} top={'-40px'}>{group?.name}</Text>
       <Button size='sm' variant={'settle'} position={'relative'} top={'-40px'} alignSelf={'flex-end'} w={'20%'}
           onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
-      <IconButton variant={'new'} size={'lg'}
-          icon={<MdAdd />}
-          onClick={() => { setSelectedTransaction(undefined); onClick() }}
-          {...buttonProps}>new</IconButton>
       <Divider/>
       {hasPreviousPage &&
       <Button variant={'loadMore'}
@@ -199,16 +185,7 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
         isLoading={isFetchingPreviousPage}
         onClick={() => fetchPreviousPage()}>Load Previous</Button>
       }
-      <TransactionsList transactions={transactions} group={group} sessionData={sessionData} setSelectedTransaction={setSelectedTransaction} onClick={onClick} />
-      {isOpen &&
-        <Transaction
-          {...{
-            disclosureProps,
-            isOpen, onCloseDrawer: onClose,
-            group: group!,
-            transactionWithDetails: selectedTransaction,
-          }} />
-      }
+      <TransactionDisclosureWrapper transactions={transactions} group={group} sessionData={sessionData} />
       <Button variant={'loadMore'}
         isDisabled={!hasNextPage}
         isLoading={isFetchingNextPage}

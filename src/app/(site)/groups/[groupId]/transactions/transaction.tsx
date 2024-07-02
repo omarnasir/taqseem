@@ -1,6 +1,4 @@
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from '@tanstack/react-query'
 import {
   Button,
   DrawerHeader,
@@ -28,6 +26,7 @@ import {
 import { FormProvider, useForm } from "react-hook-form";
 
 import { useSessionHook } from '@/client/hooks/session.hook';
+import { useMutationAction } from "@/client/hooks/transactions.hook";
 
 import {
   FormItemId,
@@ -85,7 +84,7 @@ function processTransactionDetails(values: FormTransaction): CreateTransactionDe
   const userDetails: CreateTransactionDetails[] = selectedUsers.map((selectedUser) => {
     return {
       userId: selectedUser.userId,
-      amount: (selectedUser.amount === '') ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount)
+      amount: (selectedUser.amount === '') ? owedAmountPerRemainingUser : parseFloat(selectedUser.amount as string)
     }
   })
   return userDetails
@@ -101,10 +100,10 @@ function Transaction(
     transactionWithDetails?: TransactionWithDetails
   }
 ) {
-  const router = useRouter();
-  const { session, status } = useSessionHook();
-  const queryClient = useQueryClient();
+  const { session } = useSessionHook();
   const users = group.users!;
+
+  const mutation = useMutationAction();
 
   const defaultValues: FormTransaction = useMemo(() => (
     transactionWithDetails ? mapTransactionToForm(transactionWithDetails, users) : getTransactionFormDefaultValues(group.id, session?.user?.id as string, users)
@@ -124,7 +123,7 @@ function Transaction(
 
 
   async function onSubmit(values: FormTransaction) {
-    clearErrors(FormIdEnum.transactionDetails);
+    clearErrors(FormIdEnum.transactionDetails)
     let userDetails: CreateTransactionDetails[] = [];
     try {
       userDetails = processTransactionDetails(values);
@@ -138,10 +137,13 @@ function Transaction(
     const response = await(values.id ? updateTransactionAction(group.id, transaction as UpdateTransaction) : 
       createTransactionAction(group.id, transaction as CreateTransaction));
     if (response.success) {
+      mutation.mutate({
+        action: values.id ? 'update' : 'create',
+        data: response.data,
+        transactionId: response.data?.id as number,
+        groupId: group.id
+      });
       onCloseDrawer();
-      queryClient.invalidateQueries({queryKey: ['transactions', group.id]})
-      queryClient.prefetchQuery({queryKey: ['transactions', group.id]})
-      router.refresh();
     }
     else {
       addToast(values.id ? "Error updating transaction" : "Error creating transaction", response.error, "error")
@@ -151,11 +153,18 @@ function Transaction(
 
   async function onRemoveTransaction(id: number) {
     const res = await deleteTransactionAction(session?.user?.id!, group?.id!, id)
-    res.success ? addToast(`Transaction removed`, null, 'success') : addToast('Cannot delete transaction.', res.error, 'error')
+    if (res.success) {
+      mutation.mutate({
+        action: 'remove',
+        transactionId: id,
+        groupId: group.id
+      });
+      addToast(`Transaction removed`, null, 'success')
+    }
+    else {
+      addToast('Cannot delete transaction.', res.error, 'error')
+    }
     onCloseDrawer();
-    queryClient.invalidateQueries({queryKey: ['transactions', group.id]})
-    queryClient.prefetchQuery({queryKey: ['transactions', group.id]})
-    router.refresh();
   }
 
   return (

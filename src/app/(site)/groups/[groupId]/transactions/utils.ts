@@ -53,6 +53,7 @@ function formatDateToString(date: Date) {
  * @returns Transaction object.
   */
 function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransactionDetails[], groupId: string, userId: string): CreateTransaction | UpdateTransaction {
+
   return {
     ...form,
     category: form.isSettlement ? -1 : form.category,
@@ -60,7 +61,7 @@ function mapFormToTransaction(form: FormTransaction, userDetails: CreateTransact
     amount: parseFloat(form.amount as string),
     groupId: groupId,
     createdById: userId,
-    paidAt: new Date(form.paidAt as string).toISOString(),
+    paidAt: new Date(form.paidAt + 'T' + new Date().toISOString().split('T')[1]),
     transactionDetails: userDetails
   }
 }

@@ -10,7 +10,7 @@ export default async function TransactionsPage({ params: { groupId } }:
 
   const [groupResponse, transactionsResponse, sessionData] = await Promise.all([
     getGroupDetailsService(groupId),
-    getUserTransactionsByGroupIdService(groupId, undefined),
+    getUserTransactionsByGroupIdService({ groupId: groupId, cursor: new Date().toISOString(), direction: 'next', isFirstFetch: true }),
     auth()
   ]);
 
