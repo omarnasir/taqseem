@@ -129,7 +129,7 @@ export default function MembershipsView({ membershipsInitialData,  groupsInitial
   const group = groups?.find((g: GroupData) => g.id === groupId) as GroupData;
 
   async function onRemoveUser(userId: string) {
-    const res = await deleteMembershipAction(group.id, userId)
+    const res = await deleteMembershipAction({groupId: group.id, userId: userId})
     if (res.success) {
       addToast('User removed from group', null, 'success')
       router.refresh()

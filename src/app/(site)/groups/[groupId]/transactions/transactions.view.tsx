@@ -72,7 +72,7 @@ function AmountDisplay({ transaction, userId }:
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
       <HStack>
         <Text color={colorDarker}
-          fontSize={'lg'} letterSpacing={'tight'}>{amount === 0 ? '' : amount > 0 ? `${amount.toFixed(1)} €` : `${(-1 * amount).toFixed(1)} €`}</Text>
+          fontSize={'lg'} letterSpacing={'tight'}>{amount === 0 ? '' : amount > 0 ? `${amount.toFixed(1)} €` : `${(Math.abs(amount)).toFixed(1)} €`}</Text>
       </HStack>
       <Text fontSize={'2xs'}
         color={colorLighter} opacity={0.65}
@@ -94,7 +94,7 @@ function SummaryDisplay({ transaction, users, userId }:
       <Text textAlign={'start'} letterSpacing={'wide'} fontSize={'md'} color='whiteAlpha.900'>
         {transaction.name}</Text>
       <Text color='whiteAlpha.600' textAlign={'start'} fontSize={'2xs'}>
-        {name + ' paid ' + transaction.amount.toFixed(2) + ' €'}
+        {name + ' paid ' + Math.abs(transaction.amount).toFixed(1) + ' €'}
       </Text>
     </VStack>
   )
@@ -102,8 +102,8 @@ function SummaryDisplay({ transaction, users, userId }:
 
 
 function TransactionDisclosureWrapper({
-  transactions, group, sessionData, refetch }:
-  { transactions: GroupedTransactions, group: GroupWithMembers, sessionData: any, refetch: any
+  transactions, group, sessionData }:
+  { transactions: GroupedTransactions, group: GroupWithMembers, sessionData: any
 }) {
   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
@@ -150,7 +150,6 @@ function TransactionDisclosureWrapper({
             isOpen, onCloseDrawer: onClose,
             group: group!,
             transactionWithDetails: selectedTransaction,
-            refetch,
           }} />
       }
     </>

@@ -7,6 +7,11 @@ import {
 } from "@/types/activities.type";
 
 
+/**
+ * Create a new activity.
+ * @param activity The activity data.
+ * @throws Error
+*/
 async function createActivity(activity: CreateActivity): Promise<void> {
   try {
     await prisma.activity.create({
@@ -21,7 +26,22 @@ async function createActivity(activity: CreateActivity): Promise<void> {
   }
 }
 
-async function getActivitiesByGroupIds(groupIds: string[], userId: string, cursor?: number): 
+
+/**
+ * Get activities by group IDs.
+ * 
+ * This function uses cursor based pagination. The activity page implements uni-directional infinite scroll.
+ * Cursor is based on the id of the last activity in the previous page. We skip the first activity in the next page.
+ * @param groupIds 
+ * @param userId
+ * @param cursor activity id
+ * @returns 
+ * - An array of activities with details.
+ * - Cursor for the next page.
+ * - If no activities are found, return an empty array and undefined cursor.
+ * @throws Error
+ */
+async function getActivitiesByGroupIds({ groupIds, userId, cursor }: {groupIds: string[], userId: string, cursor?: number}): 
   Promise<{ activities: ActivityWithDetails[] | [], cursor?: number }> 
 {
   const TAKE_DEFAULT = 20;

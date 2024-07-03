@@ -22,8 +22,7 @@ import { ActivityTypeEnum } from '@/lib/db/constants';
 import { getMembershipsByGroupAndUserId } from '@/server/data/memberships.data';
 
 
-type CreateTransactionResponse = Omit<ServiceResponse, 'data'> & { data?: TransactionWithDetails };
-type UpdateTransactionResponse = Omit<ServiceResponse, 'data'> & { data?: TransactionWithDetails };
+type CreateOrUpdateTransactionResponse = ServiceResponse<TransactionWithDetails>
 
 /**
  * Create a new transaction.
@@ -39,14 +38,14 @@ type UpdateTransactionResponse = Omit<ServiceResponse, 'data'> & { data?: Transa
  * - If any userId involved in the transaction (paidById or transactionDetails.userId) is not part of the group, 
  * return failure with error message.
  */
-async function createTransactionAction(groupId: string, data: CreateTransaction): Promise<CreateTransactionResponse> {
+async function createTransactionAction(groupId: string, data: CreateTransaction): Promise<CreateOrUpdateTransactionResponse> {
   try {
     const session = await auth();
     if (!session?.user) {
       throw new Error('Unauthorized');
     }
 
-    const memberships = await getMembershipsByGroupAndUserId(groupId, session.user.id as string);
+    const memberships = await getMembershipsByGroupAndUserId({groupId, userId: session.user.id as string});
 
     const paidByUser = memberships.some(member => member.id === data.paidById);
     const transactionDetailsUser = data.transactionDetails?.every(detail => {
@@ -77,14 +76,14 @@ async function createTransactionAction(groupId: string, data: CreateTransaction)
  * - If the userIds specified in the transaction as part of the Transaction data, either as paidById or
  * transactionDetails.userId are not part of the group, return failure with error message.
  */
-async function updateTransactionAction(groupId: string, data: UpdateTransaction): Promise<UpdateTransactionResponse> {
+async function updateTransactionAction(groupId: string, data: UpdateTransaction): Promise<CreateOrUpdateTransactionResponse> {
   const session = await auth();
 
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    const memberships = await getMembershipsByGroupAndUserId(groupId, session.user.id as string);
+    const memberships = await getMembershipsByGroupAndUserId({groupId, userId: session.user.id as string});
 
     const paidByUser = memberships.some(member => member.id === data.paidById);
     const transactionDetailsUser = data.transactionDetails?.every(detail => {

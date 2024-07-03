@@ -5,18 +5,24 @@ import { ServiceResponse } from '@/types/service-response.type';
 import { auth } from '@/lib/auth';
 
 
-type GETActivitiesResponseType = Omit<ServiceResponse, "data"> & {
-  data?: ActivityService
-}
+type GETActivitiesResponseType = ServiceResponse<ActivityService>
 
-async function getActivityService(groupIds: string[], cursor?: number): Promise<GETActivitiesResponseType> {
+/**
+ * Get activities by group IDs.
+ * 
+ * If the data layer throws an exception, return failure with the error message.
+ * @param groupIds 
+ * @param cursor 
+ * @returns 
+ */
+async function getActivityService({ groupIds, cursor }: { groupIds: string[], cursor?: number }): Promise<GETActivitiesResponseType> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
 
   try {
-    const response = await getActivitiesByGroupIds(groupIds, session?.user?.id as string, cursor);
+    const response = await getActivitiesByGroupIds({groupIds, userId: session?.user?.id as string, cursor});
 
     return { success: true, data: response };
   }

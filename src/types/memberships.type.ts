@@ -9,4 +9,7 @@ export type CreateMembershipArgs = {
   userEmail: string,
 }
 
-export type MembershipDefaultArgs = Prisma.MembershipsGetPayload<typeof membershipDefaultArgs>
+/**
+ * A Membership type to indicate a relationship between a user and a group.
+ */
+export type Membership = Prisma.MembershipsGetPayload<typeof membershipDefaultArgs>

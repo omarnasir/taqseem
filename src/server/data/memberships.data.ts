@@ -1,58 +1,83 @@
-'use server'
 import prisma from "@/lib/db/prisma";
 import { UserBasicData } from "@/types/users.type";
+import { type Membership } from "@/types/memberships.type";
 
-
-async function getMembershipsByGroupId(groupId: string, userId: string): Promise<UserBasicData[]> {
-  const memberships = await prisma.memberships.findMany({
-    select: {
-      user: {
-        select: {
-          id: true,
-          name: true,
+/**
+ * Get all memberships by group and user id.
+ * The userId is required to ensure that the memberships are only returned if the user is part of the group.
+ * @param groupId The group id.
+ * @param userId The user id. Must be a member of the group.
+ * @returns An array of user basic data.
+ */
+async function getMembershipsByGroupAndUserId({ groupId, userId }: Membership): Promise<UserBasicData[]> {
+  try {
+    const memberships = await prisma.memberships.findMany({
+      select: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
+      },
+      where: {
+        groupId: groupId,
+        AND: {
+          group: {
+            users: {
+              some: {
+                userId: userId
+              }
+            }
+          }
         }
       }
-    },
-    where: {
-      groupId: groupId
-    }
-  });
-  // check if user belongs to the group
-  if (!memberships.find((membership) => membership.user.id === userId)) {
-    throw new Error("Unauthorized");
+    });
+    const membershipsArray = memberships.map((user) => user.user);
+    return membershipsArray;
   }
-  if (!memberships) throw new Error("No users found");
-  const membershipsArray = memberships.map((user) => user.user);
-  return membershipsArray;
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to get memberships");
+  }
 }
 
-async function createMembership(userEmail: string, groupId: string): Promise<UserBasicData> {
-  const user = await prisma.users.findUnique({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      email: userEmail
-    }
-  });
-  if (!user) throw new Error("User not found");
-  const isMemberAlready = await prisma.memberships.findFirst({
-    where: {
-      groupId: groupId,
-      userId: user.id
-    }
-  });
-  if (isMemberAlready) throw new Error("User is already a member");
-  // create new membership
+/**
+ * Check if a user is a member of a group.
+ * @param groupId The group id.
+ * @param userId The user id.
+ * @returns True if the user is a member of the group, false otherwise.
+ */
+async function isUserMemberOfGroup({ groupId, userId }: Membership): Promise<boolean> {
+  try {
+    const membership = await prisma.memberships.findFirst({
+      where: {
+        userId: userId,
+        groupId: groupId
+      }
+    });
+    return membership ? true : false;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to check membership");
+  }
+}
+
+
+/**
+ * Create a new membership.
+ * @param groupId The group id.
+ * @param userId The user id.
+ */
+async function createMembership({ groupId, userId }: Membership): Promise<void> {
   try {
     await prisma.memberships.create({
       data: {
         groupId: groupId,
-        userId: user.id
+        userId: userId
       }
     });
-    return user;
   }
   catch (e) {
     console.error(e);
@@ -60,25 +85,13 @@ async function createMembership(userEmail: string, groupId: string): Promise<Use
   }
 }
 
-async function deleteMembership(groupId: string, userId: string): Promise<void> {
-  const isOwner = await prisma.groups.findFirst({
-    where: {
-      id: groupId,
-      createdById: userId
-    }
-  });
-  if (isOwner) throw new Error("Owner cannot be deleted");
-  const hasTransactions = await prisma.transactions.findFirst({
-    where: {
-      groupId: groupId,
-      transactionDetails: {
-        some: {
-          userId: userId
-        }
-      }
-    }
-  });
-  if (hasTransactions) throw new Error("This user has transactions in the group and cannot be deleted");
+
+/**
+ * Delete a membership.
+ * @param groupId 
+ * @param userId 
+ */
+async function deleteMembership({ groupId, userId }: Membership): Promise<void> {
   try {
     await prisma.memberships.delete({
       where: {
@@ -96,7 +109,8 @@ async function deleteMembership(groupId: string, userId: string): Promise<void> 
 }
 
 export {
-  getMembershipsByGroupId,
+  isUserMemberOfGroup,
+  getMembershipsByGroupAndUserId,
   createMembership,
   deleteMembership
 };

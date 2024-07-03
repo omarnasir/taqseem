@@ -11,15 +11,16 @@ import { type ActivityHistoryItem } from "@/types/activities.type";
 import { ServiceResponse } from '@/types/service-response.type';
 import { auth } from '@/lib/auth';
 
-type GETGroupedTransactionsResponse = Omit<ServiceResponse, "data"> & {
-  data?: GetTransactionsResponse
-}
 
-type GETActivityHistory = Omit<ServiceResponse, "data"> & {
-  data?: ActivityHistoryItem[]
-}
+type GETGroupedTransactionsResponse = ServiceResponse<GetTransactionsResponse>
+type GETActivityHistory = ServiceResponse<ActivityHistoryItem[]>
 
 
+/**
+ * Get transactions by group ID. Service to get transactions by group ID using cursor based pagination.
+ * @param input 
+ * @returns 
+ */
 async function getUserTransactionsByGroupIdService(input: GetTransactionsInput): Promise<GETGroupedTransactionsResponse> {
   const session = await auth();
   if (!session?.user) {
@@ -46,7 +47,8 @@ async function getActivityHistoryByTimePeriodService(timePeriod?: number): Promi
     let date = new Date();
     date.setDate(date.getDate() - timePeriod);
     const transactions = await getTransactionsByUserIdAndDate(session?.user?.id as string, date.toLocaleDateString());
-  
+    if (!transactions) throw new Error("No transactions found")
+
     const dates = transactions.map((transaction) => new Date(transaction.paidAt).toLocaleDateString());
     const missingDates = [];
     for (let i = 0; i < timePeriod; i++) {

@@ -1,5 +1,6 @@
 'use server';
 import prisma from '@/lib/db/prisma';
+import { GroupBalanceDetails } from '@/types/groups.type';
 import {
   CreateTransaction,
   TransactionWithDetails,
@@ -208,44 +209,21 @@ async function deleteTransaction(userId: string, groupId: string, transactionId:
   }
 }
 
-type MemberBalanceByGroupQueryResult = {
-  groupName: string;
-  userId: string;
-  userName: string;
-  lent: number;
-  spent: number;
-  balance: number;
-}[]
-
-type GroupBalanceDetails = {
-  groupName: string;
-  users: {
-    userId: string;
-    userName: string;
-    lent: number;
-    spent: number;
-    balance: number;
-  }[]
-}
-
-
-async function getGroupBalanceDetails(groupId: string, userId: string) : Promise<GroupBalanceDetails> {
+/**
+ * Get each member's balance for the provided group. The lent amount is non-zero for the user who 
+ * paid for the transaction. The spent amount is non-zero for the user who was part of the transaction
+ * but did not pay for it. The total balance is the sum of lent and spent.
+ * 
+ * The response will contain the amount lent, spent and total balance for each user.
+ * 
+ * Warning: This query only requires groupId as input. It does not implement validation whether
+ * the requesting resource has access to the group. This should be implemented in the service layer.
+ * @param groupId 
+ * @returns 
+ */
+async function getGroupBalanceDetails(groupId: string) : Promise<GroupBalanceDetails> {
   try {
-    const isUserInGroup = await prisma.memberships.findFirst({
-      include: {
-        group: {
-          select: {
-            name: true
-          }
-        }
-      },
-      where: {
-        groupId: groupId,
-        userId: userId
-      }
-    });
-    if (!isUserInGroup) throw new Error("User not in group");
-    const result : MemberBalanceByGroupQueryResult = await prisma.$queryRaw`
+    const result : GroupBalanceDetails['users'] = await prisma.$queryRaw`
       WITH groupMembers AS (
         SELECT userId, u.name as userName
         FROM Memberships as m
@@ -284,7 +262,6 @@ async function getGroupBalanceDetails(groupId: string, userId: string) : Promise
       GROUP BY combined.userId;`
     if (!result) throw new AssertionError({message: "No amount found"});
     const groupBalanceDetails : GroupBalanceDetails = {
-      groupName: isUserInGroup.group.name,
       users: result.map(row => {
         return {
           userId: row.userId,
@@ -299,9 +276,6 @@ async function getGroupBalanceDetails(groupId: string, userId: string) : Promise
     return groupBalanceDetails;
   }
   catch (e) {
-    if (e instanceof AssertionError) {
-      throw new Error(e.message);
-    }
     console.error(e);
     throw new Error("Failed to get amount spent");
   }
@@ -324,6 +298,14 @@ type BalancesByUserGroups = {
   }
 }
 
+
+/**
+ * Get the balances for the user in each group they are part of. The response is keyed by the groupId
+ * and contains the amount lent, spent, current balance for the user in the group.
+ * @param userId 
+ * @returns 
+ * @throws Error if failed to get amount spent
+ */
 async function getBalancesByUserGroups(userId: string) : Promise<BalancesByUserGroups> {
   try {
     const result : UserBalanceByGroupQueryResult = await prisma.$queryRaw`
@@ -380,27 +362,34 @@ async function getBalancesByUserGroups(userId: string) : Promise<BalancesByUserG
 }
 
 
+/**
+ * Get transactions by user id and date.
+ * @param userId 
+ * @param date 
+ * @returns 
+ * @throws Error if failed to get transactions
+ */
 async function getTransactionsByUserIdAndDate(userId: string, date: string) {
-  const transactions = await prisma.transactions.findMany({
-    where: {
-      transactionDetails: {
-        some: {
-          userId: userId
+  try {
+    const transactions = await prisma.transactions.findMany({
+      where: {
+        transactionDetails: {
+          some: {
+            userId: userId
+          }
+        },
+        paidAt: {
+          gte: new Date(date)
         }
       },
-      paidAt: {
-        gte: new Date(date)
+      include: {
+        transactionDetails: true
+      },
+      orderBy: {
+        paidAt: 'desc'
       }
-    },
-    include: {
-      transactionDetails: true
-    },
-    orderBy: {
-      paidAt: 'desc'
-    }
-  });
-  if (!transactions || transactions.length === 0 ) throw new Error("No transactions found");
-  try {
+    });
+    if (!transactions || transactions.length === 0 ) return null;
     return transactions;
   }
   catch (e) {
@@ -408,6 +397,34 @@ async function getTransactionsByUserIdAndDate(userId: string, date: string) {
     throw new Error("Failed to get transactions");
   }
 }
+
+
+/**
+ * Check if the user has transactions in the group.
+ * @param groupId 
+ * @param userId 
+ * @returns 
+ */
+async function hasSomeTransactions(groupId: string, userId: string) {
+  try {
+    const transactions = await prisma.transactions.findFirst({
+      where: {
+        groupId: groupId,
+        transactionDetails: {
+          some: {
+            userId: userId
+          }
+        }
+      }
+    });
+    return transactions ? true : false;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to check transactions");
+  }
+}
+
 
 export { 
   getTransactionById,
@@ -417,5 +434,6 @@ export {
   deleteTransaction,
   getTransactionsByUserIdAndDate,
   getGroupBalanceDetails,
-  getBalancesByUserGroups
+  getBalancesByUserGroups,
+  hasSomeTransactions
 }

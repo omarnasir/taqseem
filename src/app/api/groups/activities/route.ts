@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const groupIds = searchParams.get('groupIds') ? (searchParams.get('groupIds') as string).split(',') as string[] : []
   const cursor = searchParams.get('cursor') ? parseInt(searchParams.get('cursor') as string) : undefined
 
-  const response = await getActivityService(groupIds, cursor)
+  const response = await getActivityService({groupIds, cursor})
 
   if (!response.success) {
     return NextResponse.json({ error: response.error }, { status: 500 })

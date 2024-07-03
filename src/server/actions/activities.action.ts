@@ -10,6 +10,16 @@ import { type CreateTransaction, type UpdateTransaction } from '@/types/transact
 import { ActivityTypeEnum } from '@/lib/db/constants';
 
 
+/**
+ * Create an activity from a transaction action.
+ * 
+ * The only information recorded in the activity is the current Transaction amount. This is the total
+ * amount of the transaction if the paidById is the current user, otherwise it is the amount that the
+ * current user owes.
+ * @param transaction 
+ * @param action 
+ * @returns 
+ */
 async function createActivityFromTransactionAction(transaction: CreateTransaction | UpdateTransaction, action: ActivityTypeEnum): 
   Promise<ServiceResponse> {
   const session = await auth();
@@ -18,7 +28,7 @@ async function createActivityFromTransactionAction(transaction: CreateTransactio
     throw new Error('Unauthorized');
   }
 
-  const amount = transaction.paidById === transaction.createdById ? transaction.amount : 
+  const amount = transaction.paidById === session.user.id as string ? transaction.amount : 
     transaction.transactionDetails.find(td => td.userId === transaction.createdById)?.amount || 0;
 
   try {

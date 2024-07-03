@@ -15,7 +15,8 @@ export default async function TransactionsPage() {
       </div>
     )
   }
-  const data = await getActivityService(userGroups.map(group => group.id),undefined).then((response) => response.data ? response.data : undefined);
+  const data = await getActivityService({ groupIds: userGroups.map(group => group.id), cursor: undefined })
+    .then((response) => response.data ? response.data : undefined);
 
   return (data &&
     <ActivityView userGroups={userGroups} activitiesInitialData={data} sessionData={sessionData}/>

@@ -45,6 +45,7 @@ import { MdEuroSymbol,
  } from 'react-icons/md';
 
 import {
+  GroupBalanceDetailsWithName,
   type GroupBalanceDetails
 } from "@/types/groups.type";
 
@@ -274,7 +275,7 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
 }
 
 export function SettleView({ groupId, groupBalancesDetails, settlementDetails }:
-  { groupId: string , groupBalancesDetails: GroupBalanceDetails, settlementDetails: SimplifiedBalances[] }) {
+  { groupId: string , groupBalancesDetails: GroupBalanceDetailsWithName, settlementDetails: SimplifiedBalances[] }) {
 
   const chartData = useMemo(() => {
     const balances = groupBalancesDetails.users.sort((a, b) => b.balance - a.balance);

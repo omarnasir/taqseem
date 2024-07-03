@@ -1,19 +1,45 @@
 'use server'
 import prisma from "@/lib/db/prisma";
-import { GroupData, CreateGroup, GroupDeleteArgs, GroupWithMembers } from "@/types/groups.type";
+import { 
+  type GroupData, 
+  type CreateGroup, 
+  type GroupWithMembers, 
+  type GroupAndCreatedByID } from "@/types/groups.type";
+import { type Membership } from "@/types/memberships.type";
 
-
-async function createGroupByUserId(data: CreateGroup): Promise<void> {
-  // check if group already exists
-  const group = await prisma.groups.findFirst({
-    where: {
-      name: data.name,
-      createdById: data.createdById!
-    }
-  });
-  if (group) throw new Error("Group already exists");
+/**
+ * Get group by name and member id.
+ * @param groupName 
+ * @param memberId 
+ * @returns
+ */
+async function getGroupByNameAndMemberId({ groupName, memberId }: { groupName: string, memberId: string }): Promise<GroupData | null>
+{
   try {
-    // create new group
+    const group = await prisma.groups.findFirst({
+      where: {
+        name: groupName,
+        users: {
+          some: {
+            userId: memberId
+          }
+        }
+      }
+    });
+    return group;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Error fetching group");
+  }
+}
+
+/**
+ * Create group.
+ * @param data 
+ */
+async function createGroupByUserId(data: CreateGroup): Promise<void> {
+  try {
     await prisma.groups.create({
       data: {
         name: data.name,
@@ -37,30 +63,29 @@ async function createGroupByUserId(data: CreateGroup): Promise<void> {
   }
 }
 
-async function deleteGroupById(data: GroupDeleteArgs): Promise<void> {
-  const members = await prisma.memberships.findMany({
-    select: {
-      userId: true
-    },
-    where: {
-      groupId: data.id,
-      NOT: {
-        userId: data.createdById
-      }
-    }
-  });
-  if (members.length > 0) {
-    throw new Error("Group contains other users. Please remove those users from the group first.");
-  }
+
+/**
+ * Delete group.
+ *
+ * The group is only deleted if the requesting user is the creator of the group. The relations defined by
+ * the prisma schema are deleted along with the group as a cascade delete.
+ * @param groupId 
+ * @param createdById 
+ * @returns
+ */
+async function deleteGroupById({ groupId, createdById }: GroupAndCreatedByID): Promise<void> {
   try {
     const deleteRelation = prisma.memberships.deleteMany({
       where: {
-        groupId: data.id
+        groupId: groupId,
+        group: {
+          createdById: createdById
+        }
       }
     });
     const deleteGroup = prisma.groups.delete({
       where: {
-        id: data.id
+        id: groupId
       }
     });
     await prisma.$transaction([deleteRelation, deleteGroup]);
@@ -71,8 +96,44 @@ async function deleteGroupById(data: GroupDeleteArgs): Promise<void> {
   }
 }
 
+/**
+ * Get the number of members in a group other than the creator.
+ * @param groupId 
+ * @param createdById
+ * @returns 
+ */
+async function getMemberCountExcludingCreatedById({ groupId, createdById }: GroupAndCreatedByID): Promise<number> {
+  try {
+    const count = await prisma.memberships.count({
+      where: {
+        groupId: groupId,
+        NOT: {
+          userId: createdById
+        }
+      }
+    });
+    return count;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Error fetching group members");
+  }
+}
 
-async function getGroupById(groupId: string, userId: string): Promise<GroupWithMembers> {
+
+/**
+ * Get group by id.
+ * 
+ * The include object is filtered to only return the user id and name. This is to avoid returning the
+ * user's email address.
+ * 
+ * The group is only returned if the requesting user is a member of the group.
+ * @param groupId 
+ * @param userId Must be a member of the group.
+ * @returns Group with members.
+ * @throws Error if the group is not found or the user is not a member of the group.
+ */
+async function getGroupById({ groupId, userId }: Membership ): Promise<GroupWithMembers> {
   const group = await prisma.groups.findUnique({
     include: {
       users: {
@@ -106,24 +167,55 @@ async function getGroupById(groupId: string, userId: string): Promise<GroupWithM
 }
 
 
-
+/**
+ * Get groups by user id.
+ * @param userId
+ * @throws Error if no groups are found.
+ */
 async function getGroupsByUserId(userId: string) : Promise<GroupData[]>{
-  const userGroups = await prisma.memberships.findMany({
-    select: {
-      group: true
-    },
+  const groups = await prisma.groups.findMany({
     where: {
-      userId: userId
+      users: {
+        some: {
+          userId: userId
+        }
+      }
     }
   });
-  if (!userGroups) throw new Error("No groups found");
-  const filteredUserGroups = userGroups.map((userGroup) => userGroup.group);
-  return filteredUserGroups;
+  if (!groups) throw new Error("No groups found");
+  return groups;
 }
 
+
+/**
+ * Check if the user is the owner of the group.
+ * @param groupId 
+ * @param userId
+ * @returns 
+ */
+async function isGroupOwner({ groupId, createdById }: GroupAndCreatedByID): Promise<boolean> {
+  try {
+    const group = await prisma.groups.findFirst({
+      where: {
+        id: groupId,
+        createdById: createdById
+      }
+    });
+    return group ? true : false;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to check group ownership");
+  }
+}
+
+
 export {
+  getGroupByNameAndMemberId,
   createGroupByUserId,
   deleteGroupById,
+  getMemberCountExcludingCreatedById,
   getGroupById,
-  getGroupsByUserId
+  getGroupsByUserId,
+  isGroupOwner
 }

@@ -13,25 +13,20 @@ import {
   getBalancesByUserGroups
  } from '@/server/data/transactions.data';
 
-import { type GroupBalanceDetails } from '@/types/groups.type';
+import { type GroupBalanceDetailsWithName } from '@/types/groups.type';
 import { type BalancesByUserGroups } from '@/types/users.type';
 
-type GetAllGroupsResponse = Omit<ServiceResponse, 'data'> & {
-  data?: GroupData[];
-}
 
-type GetGroupResponse = Omit<ServiceResponse, 'data'> & {
-  data?: GroupWithMembers
-}
+type GetAllGroupsResponse = ServiceResponse<GroupData[]>
+type GetGroupResponse = ServiceResponse<GroupWithMembers>
+type GETGroupBalanceDetailsByUserResponse = ServiceResponse<GroupBalanceDetailsWithName>
+type GETBalancesByUserGroupsResponse = ServiceResponse<BalancesByUserGroups>
 
-type GETGroupBalanceDetailsByUserResponse = Omit<ServiceResponse, "data"> & {
-  data?: GroupBalanceDetails
-}
 
-type GETBalancesByUserGroupsResponse = Omit<ServiceResponse, "data"> & {
-  data?: BalancesByUserGroups
-}
-
+/**
+ * Get all groups by the session user ID.
+ * @returns
+ */
 async function getAllGroupsService(): Promise<GetAllGroupsResponse> {
   try {
     const session = await auth();
@@ -46,13 +41,19 @@ async function getAllGroupsService(): Promise<GetAllGroupsResponse> {
   }
 }
 
+
+/**
+ * Get group details by group ID.
+ * @param groupId 
+ * @returns 
+ */
 async function getGroupDetailsService(groupId: string): Promise<GetGroupResponse> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    const response = await getGroupById(groupId, session.user.id as string);
+    const response = await getGroupById({groupId, userId: session.user.id as string});
 
     return { success: true, data: response };
   }
@@ -61,21 +62,42 @@ async function getGroupDetailsService(groupId: string): Promise<GetGroupResponse
   }
 }
 
+/**
+ * Get each member's balance details by group ID.
+ * 
+ * Checks if the user is a member of the group and whether the group exists. It will throw an error otherwise.
+ * 
+ * Since the response from getGroupBalanceDetails does not contain the group name, we can use the name attribute 
+ * from the returned group details.
+ * @param groupId 
+ * @returns 
+ */
 async function getGroupBalanceDetailsByGroup(groupId: string): Promise<GETGroupBalanceDetailsByUserResponse> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    const response = await getGroupBalanceDetails(groupId, session?.user?.id as string);
+    const group = await getGroupById({groupId, userId: session.user.id as string});
+    const response = await getGroupBalanceDetails(groupId);
 
-    return { success: true, data: response };
+    return {
+      success: true, 
+      data: {
+        ...response,
+        groupName: group.name
+      }
+    };
   }
   catch (e) {
     return { success: false, error: e.message };
   }
 }
 
+/**
+ * Get balances by user groups. Use the session user ID to get the balances.
+ * @returns
+ */
 async function getBalancesByUserGroupsService(): Promise<GETBalancesByUserGroupsResponse> {
   const session = await auth();
   if (!session?.user) {
