@@ -32,11 +32,16 @@ export type GetTransactionsInput = {
   isFirstFetch?: boolean
 }
 
+/**
+ * The direction object is not required as a return param, however in the bi-directional InfiniteQuery
+ * we have to set the direction parameter in the getNext/PrevPage functions, so it can be passed
+ * on to the queryFn and eventually the data layer.
+ */
 export type GetTransactionsResponse = {
   transactions: TransactionWithDetails[],
   cursor: {
     next?: string,
     prev?: string,
-    direction: 'prev' | 'next'
+    direction?: 'prev' | 'next'
   }
 }

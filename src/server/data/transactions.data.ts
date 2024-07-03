@@ -2,27 +2,57 @@
 import prisma from '@/lib/db/prisma';
 import {
   CreateTransaction,
+  TransactionWithDetails,
   UpdateTransaction,
   type GetTransactionsInput,
   type GetTransactionsResponse
 } from "@/types/transactions.type";
 import { AssertionError } from 'assert';
 
+
+async function getTransactionById(transactionId: number) : Promise<TransactionWithDetails>{
+  try {
+    const transaction = await prisma.transactions.findUnique({
+      where: {
+        id: transactionId
+      },
+      include: {
+        transactionDetails: true
+      }
+    });
+    if (!transaction) throw new Error("Transaction not found");
+    return transaction;
+  }
+  catch (e) {
+    console.error(e);
+    throw new Error("Failed to get transaction");
+  }
+}
+
+
 /**
- * Get transactions by group and user id.
- * This function is intended to be used in the service layer to display transactions
- * in the frontend for a specific user in a group.
+ * Get transactions by group id.
+ * 
  * The amount field is converted to positive if it is negative for UX purposes and to facilitate
  * the calculations of whether the user owes or is owed money.
- * @param groupId - The group id
- * @param userId 
- * @param cursor 
- * @returns 
+ * 
+ * We are using cursor pagination to fetch transactions. Since the frontend uses bi-directional pagination,
+ * we need to fetch one extra transaction to determine if there are more transactions in the next page. 
+ * For the previous direction, we simply use greaterthan operator to fetch the previous page.
+ * If the returned cursor is undefined, the corresponding infinite query will set the hasNextPage to false, 
+ * which we can use to disable the next/previous button.
+ * 
+ * @param groupId The group id
+ * @param cursor Specified as the paidAt date of the last/first transaction in the current page.
+ * @param direction The direction of the cursor. Either 'next' or 'prev'
+ * @param isFirstFetch The first fetch happens in the server component and the skip value is set to 0.
+ * @returns The transactions and the cursor object.
+ * @throws Error if failed to get transactions
  */
 async function getTransactionsByGroupId({ groupId, cursor, direction, isFirstFetch }: GetTransactionsInput) :
   Promise<GetTransactionsResponse> 
 {
-  const TAKE_DEFAULT = 2;
+  const TAKE_DEFAULT = 25;
   try {
     const transactions = await prisma.transactions.findMany({
       include: {
@@ -43,7 +73,8 @@ async function getTransactionsByGroupId({ groupId, cursor, direction, isFirstFet
       skip: isFirstFetch ? 0 : direction === 'next' ? 1 : 0
     });
 
-    if (!transactions || transactions.length === 0) return { transactions: [], cursor: { next: undefined, prev: undefined, direction: direction } };
+    if (!transactions || transactions.length === 0) 
+      return { transactions: [], cursor: { next: undefined, prev: undefined, direction: direction } };
     transactions.map(transaction => {
       return transaction.amount = transaction.amount < 0 ? -1 * transaction.amount : transaction.amount;
     });
@@ -52,7 +83,6 @@ async function getTransactionsByGroupId({ groupId, cursor, direction, isFirstFet
       transactions, cursor: {
         next: transactions.length < TAKE_DEFAULT ? undefined : transactions[transactions.length - 1].paidAt.toISOString(),
         prev: transactions.length < TAKE_DEFAULT ? undefined : transactions[0].paidAt.toISOString(),
-        direction: direction
       }
     }
   }
@@ -63,30 +93,13 @@ async function getTransactionsByGroupId({ groupId, cursor, direction, isFirstFet
 }
 
 
-async function createTransaction(groupId: string, data: CreateTransaction) {
-  const members = await prisma.memberships.findMany({
-    where: {
-      groupId: groupId
-    },
-    select: {
-      userId: true
-    }
-  });
-  // Validate if paidById, createdById and transactionDetails.userId are part of the group
-  const paidByUser = members.some(member => member.userId === data.paidById);
-  const createdByUser = members.some(member => member.userId === data.createdById);
-  const transactionDetailsUser = data.transactionDetails?.every(detail => {
-    return members.some(member => member.userId === detail.userId);
-  });
-  if (!paidByUser || !createdByUser || !transactionDetailsUser) {
-    throw new Error("Incorrect user ids provided");
-  }
+async function createTransaction(userId: string, data: CreateTransaction) {
   try {
     const newTransaction = await prisma.transactions.create({
       data: {
         ...data,
         amount: -1 * data.amount,
-        notes: data.notes || '',
+        createdById: userId,
         transactionDetails: {
           create: data.transactionDetails?.map(detail => {
             return {
@@ -98,7 +111,7 @@ async function createTransaction(groupId: string, data: CreateTransaction) {
       },
       include: {
         transactionDetails: true
-      }
+      },
     });
     return newTransaction;
   }
@@ -108,35 +121,37 @@ async function createTransaction(groupId: string, data: CreateTransaction) {
   }
 }
 
-
-async function updateTransaction(groupId: string, data: UpdateTransaction) {
-  const members = await prisma.memberships.findMany({
-    where: {
-      groupId: groupId as string
-    },
-    select: {
-      userId: true
-    }
-  });
-  // Validate if paidById, createdById and transactionDetails.userId are part of the group
-  const paidByUser = members.some(member => member.userId === data.paidById);
-  const createdByUser = members.some(member => member.userId === data.createdById);
-  const transactionDetailsUser = data.transactionDetails?.every(detail => {
-    return members.some(member => member.userId === detail.userId);
-  });
-  if (!paidByUser || !createdByUser || !transactionDetailsUser) {
-    throw new Error("Incorrect user ids provided");
-  }
+/**
+ * Update an existing transaction.
+ * The transaction is updated only if the provided transactionId is found in the group and the user
+ * requesting the update is part of the group.
+ * @param userId
+ * @param groupId
+ * @param data
+ * @throws Error if failed to update transaction
+ * @returns The updated transaction
+ * - If the requesting user is not part of the group, return failure with error message.
+*/
+async function updateTransaction(userId: string, groupId: string, data: UpdateTransaction) {
   try {
-  // if the transactionId is provided, update the transaction
   const updatedTransaction = await prisma.transactions.update({
     where: {
-      id: data.id as number
+      id: data.id as number,
+      groupId: groupId,
+      AND: {
+        group: {
+          users: {
+            some: {
+              userId: userId
+            }
+          }
+        }
+      }
     },
     data: {
       ...data,
+      createdById: userId,
       amount: -1 * data.amount,
-      notes: data.notes || '',
       transactionDetails: {
         deleteMany: {
           transactionId: data.id as number
@@ -160,47 +175,34 @@ async function updateTransaction(groupId: string, data: UpdateTransaction) {
   }
 }
 
-
+/**
+ * Delete a transaction.
+ * The transaction is deleted only if the provided transactionId is found in the group and the user
+ * requesting the deletion is part of the group.
+ * @param userId 
+ * @param groupId 
+ * @param transactionId 
+ * @throws Error if failed to delete transaction
+ */
 async function deleteTransaction(userId: string, groupId: string, transactionId: number) {
   try {
-    const transaction = await prisma.transactions.findUnique({
+    await prisma.transactions.delete({
       where: {
-        id: transactionId
-      },
-      select: {
-        createdById: true,
-        transactionDetails: {
-          select: {
-            id: true,
-            userId: true,
-            amount: true
+        id: transactionId,
+        groupId: groupId,
+        AND: {
+          group: {
+            users: {
+              some: {
+                userId: userId
+              }
+            }
           }
         }
       }
     });
-    if (!transaction) {
-      throw new Error("Transaction not found");
-    }
-    // Check if the requesting user is involved in the transaction
-    const isUserInvolved = transaction?.transactionDetails?.some(detail => { 
-      return detail.userId === userId
-    })
-    const isUserCreatedBy = transaction?.createdById === userId;
-
-    if (!isUserCreatedBy && !isUserInvolved) {
-      throw new AssertionError({message: "You are not involved in transaction"});
-    }
-    // Delete transaction
-    await prisma.transactions.delete({
-      where: {
-        id: transactionId
-      }
-    });
   }
   catch (e) {
-    if (e instanceof AssertionError) {
-      throw new Error(e.message);
-    }
     console.error(e);
     throw new Error("Failed to delete transaction");
   }
@@ -408,6 +410,7 @@ async function getTransactionsByUserIdAndDate(userId: string, date: string) {
 }
 
 export { 
+  getTransactionById,
   getTransactionsByGroupId,
   createTransaction,
   updateTransaction,

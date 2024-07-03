@@ -133,7 +133,7 @@ function Transaction(
       return
     }
     // Build the transaction object
-    const transaction = mapFormToTransaction(values, userDetails as CreateTransactionDetails[], group.id, session?.user?.id as string)
+    const transaction = mapFormToTransaction(values, userDetails as CreateTransactionDetails[], group.id)
     const response = await(values.id ? updateTransactionAction(group.id, transaction as UpdateTransaction) : 
       createTransactionAction(group.id, transaction as CreateTransaction));
     if (response.success) {

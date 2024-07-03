@@ -25,7 +25,7 @@ export function useGetGroupTransactions(groupId: string, transactionsInitialData
       firstPage.cursor.direction = 'prev'
       return firstPage.cursor.prev !== transactionsInitialData.cursor.prev ? firstPage.cursor : undefined
     },
-    maxPages: 3,
+    maxPages: 4,
     enabled: false,
   });
 
