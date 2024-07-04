@@ -64,14 +64,14 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
         <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
           {activity.createdById === userId ? 'You' : activity.createdBy?.name}
         </Text>
-        <Text fontSize={'xs'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
+        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
         </Text>
       </HStack>
       <HStack>
         {!activity.isInvolved ?
-          <Text fontSize={'xs'} color={'whiteAlpha.600'} opacity={0.8} fontWeight={'400'} letterSpacing={'tight'}>
+          <Text fontSize={'xs'} color={'whiteAlpha.600'} opacity={0.8} fontWeight={'300'} letterSpacing={'normal'}>
             You are not involved</Text> :
-            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'green.400' : 'red.400'} opacity={0.8} fontWeight={'500'} letterSpacing={'tight'}>
+            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'green.400' : 'red.400'} opacity={0.8} fontWeight={'300'} letterSpacing={'normal'}>
               You{' '}{activity.transaction.paidById === userId ? (activity.transaction.isSettlement ? 'paid' : 'lent') :(activity.transaction.isSettlement ? 'get back' : 'borrowed')}{' '}
               {Math.abs(activity.amount).toFixed(2)}{' '}€</Text>}
       </HStack>

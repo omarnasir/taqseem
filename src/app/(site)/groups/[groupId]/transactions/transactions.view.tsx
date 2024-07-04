@@ -91,7 +91,7 @@ function SummaryDisplay({ transaction, users, userId }:
 
   return (
     <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'}>
-      <Text textAlign={'start'} letterSpacing={'wide'} fontSize={'md'} color='whiteAlpha.900'>
+      <Text textAlign={'start'} letterSpacing={'normal'} fontSize={'md'} color='whiteAlpha.900' marginBottom={1}>
         {transaction.name}</Text>
       <Text color='whiteAlpha.600' textAlign={'start'} fontSize={'2xs'}>
         {name + ' paid ' + Math.abs(transaction.amount).toFixed(1) + ' €'}

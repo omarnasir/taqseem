@@ -79,7 +79,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory }:
 
       {userGroupsBalance && 
         <>
-          <Text fontSize="sm" color="whiteAlpha.400">Your Groups</Text>
+          <Text fontSize="md" color="whiteAlpha.700">Your Groups</Text>
           <SimpleGrid spacing={2} columns={2}>
             {Object.entries(userGroupsBalance).map(([groupId, group]) =>
               <Card variant='summaryStat' size='sm' key={groupId}>

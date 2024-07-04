@@ -13,18 +13,18 @@ const transaction = definePartsStyle({
     rounded: 'md',
     paddingY: 3,
     paddingX: 4,
-    backgroundColor: 'bgCard',
+    backgroundColor: 'bgListItem',
   },
 })
 
 const activity = definePartsStyle({
   item: {
     alignItems: 'center',
-    marginY: 1.5,
+    marginY: 1,
     rounded: 'md',
     paddingY: 3,
     paddingX: 4,
-    backgroundColor: 'bgCard',
+    backgroundColor: 'bgListItem',
   },
 })
 
@@ -38,7 +38,7 @@ const members = definePartsStyle({
     rounded: 'md',
     paddingY: 2,
     paddingX: 4,
-    backgroundColor: 'bgCard',
+    backgroundColor: 'bgListItem',
   },
 })
 

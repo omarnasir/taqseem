@@ -11,7 +11,7 @@ const infoCard = definePartsStyle({
     letterSpacing: 'normal',
   },
   container: {
-    bg: 'bgCard',
+    bg: 'itemSurface',
     borderRadius: "lg",
     boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
   },
@@ -38,7 +38,7 @@ const createCard = definePartsStyle({
 
 const summaryStat = definePartsStyle({
   container: {
-    bg: 'bgCard',
+    bg: 'itemSurface',
     borderRadius: "lg",
     boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
   },
@@ -62,7 +62,7 @@ const loginCard = definePartsStyle({
 
 const settlementCard = definePartsStyle({
   container: {
-    bg: 'bgCard',
+    bg: 'itemSurface',
     borderRadius: "lg",
     boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
   },
