@@ -19,6 +19,10 @@ export default async function TransactionsPage({ params: { groupId } }:
     auth()
   ]);
 
+  if (!groupResponse.success || !transactionsResponse.success) {
+    return null;
+  }
+
   return (groupResponse.data && transactionsResponse.data &&
     <TransactionsView group={groupResponse.data} transactionsInitialData={transactionsResponse.data} sessionData={sessionData}/>
   );

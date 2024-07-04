@@ -13,7 +13,7 @@ export default async function GroupsPage() {
     return null;
   }
 
-  return (
-    <GroupsView groupsInitialData={response.data} sessionUserId={session?.user?.id as string} />
+  return (response &&
+    <GroupsView groups={response.data} sessionUserId={session?.user?.id as string} />
   );
 }

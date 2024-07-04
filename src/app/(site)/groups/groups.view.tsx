@@ -111,10 +111,10 @@ function CreateGroupModal() {
   )
 }
 
-export default function GroupsView({ groupsInitialData, sessionUserId }: {groupsInitialData?: GroupData[], sessionUserId: string}) {
+export default function GroupsView({ groups, sessionUserId }: {groups?: GroupData[], sessionUserId: string}) {
   const router = useRouter();
 
-  const groups = useGetUserGroups(sessionUserId, groupsInitialData);
+  // const groups = useGetUserGroups(sessionUserId, groupsInitialData);
 
   const { addToast } = CustomToast();
 

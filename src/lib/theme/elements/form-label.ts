@@ -10,7 +10,7 @@ const transaction = {
   marginBottom: 2,
   fontWeight: 300,
   letterSpacing: 'normal',
-  fontSize: 'xs',
+  fontSize: 'sm',
 }
 
 export const formLabelTheme = defineStyleConfig({

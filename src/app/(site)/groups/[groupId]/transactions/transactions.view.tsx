@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useReducer, useState } from "react"
+import React, { useState } from "react"
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -172,17 +172,17 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
    } = useGetGroupTransactions(group.id, transactionsInitialData);
 
   return (
-  <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
+    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
         position={'sticky'} top={'-40px'}>{group?.name}</Text>
       <Button size='sm' variant={'settle'} position={'relative'} top={'-40px'} alignSelf={'flex-end'} w={'20%'}
-          onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
-      <Divider/>
+        onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
+      <Divider />
       {hasPreviousPage &&
-      <Button variant={'loadMore'}
-        isDisabled={!hasPreviousPage}
-        isLoading={isFetchingPreviousPage}
-        onClick={() => fetchPreviousPage()}>Load Previous</Button>
+        <Button variant={'loadMore'}
+          isDisabled={!hasPreviousPage}
+          isLoading={isFetchingPreviousPage}
+          onClick={() => fetchPreviousPage()}>Load Previous</Button>
       }
       <TransactionDisclosureWrapper transactions={transactions} group={group} sessionData={sessionData} />
       <Button variant={'loadMore'}

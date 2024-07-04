@@ -10,7 +10,7 @@ const transaction = definePartsStyle({
   field: {
     ...base.field,
     color: 'whiteAlpha.800',
-    marginLeft: -2,
+    marginLeft: -4,
     _disabled: {
       background: "rgba(5,5,5, 1)",
     },
@@ -22,7 +22,6 @@ const settlement = definePartsStyle({
     textAlign: 'start',
     fontSize: 'sm',
     background: 'blackAlpha.400',
-    height: 8,
     _disabled: {
       background: "rgba(5,5,5, 1)",
     },

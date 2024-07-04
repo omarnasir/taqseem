@@ -30,3 +30,15 @@ export type GroupBalanceDetails = {
 }
 
 export type GroupBalanceDetailsWithName = GroupBalanceDetails & { groupName: string }
+
+export type SimplifiedBalances = {
+  payor: {
+    userId: string,
+    userName: string
+  }
+  payee: {
+    userId: string,
+    userName: string
+  }
+  amount: number
+}

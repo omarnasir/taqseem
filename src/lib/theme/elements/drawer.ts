@@ -9,7 +9,7 @@ const transaction = definePartsStyle({
     zIndex: 1700,
     _dark: {
       bg: 'bgModal',
-      boxShadow: 'lg',
+      textAlign: 'center',
     },
   },
   dialog: {

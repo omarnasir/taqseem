@@ -6,24 +6,18 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 export const base = definePartsStyle({
   group: {
-    borderRadius: 4,
-    bg: "whiteAlpha.100",
+    borderRadius: 6,
+    bg: "whiteAlpha.200",
   },
   addon: {
     textColor: "whiteAlpha.600",
     letterSpacing: "wide",
     fontWeight: 300,
-    fontSize: {
-      base: "xs",
-      md: "sm",
-    }
+    fontSize: "md"
   },
   field: {
     borderRadius: "none",
-    fontSize: {
-      base: "xs",
-      md: "sm",
-    },
+    fontSize: "md",
     _invalid: {
       borderColor: "rgba(155, 25, 30, 1)",
       borderBottomWidth: "2px",

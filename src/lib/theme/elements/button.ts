@@ -2,7 +2,7 @@ import { defineStyleConfig } from '@chakra-ui/react'
 
 const buttonFontSizes = {
   fontSize: {
-    base: 'xs',
+    base: 'sm',
     '2xl': 'md',
   }
 }
@@ -140,6 +140,25 @@ export const buttonTheme = defineStyleConfig({
         bg: 'whiteAlpha.200',
         color: 'whiteAlpha.600',
       },
+    },
+    detailsUserEveryone: {
+      ...buttonFontSizes,
+      fontSize: 'sm',
+      fontWeight: 500,
+      opacity: 0.8,
+      color: 'blackAlpha.900',
+      width: '7rem',
+      bg: 'pink.300',
+    },
+    detailsUserNone: {
+      ...buttonFontSizes,
+      fontSize: 'sm',
+      fontWeight: 500,
+      opacity: 0.8,
+      color: 'whiteAlpha.800',
+      width: '5rem',
+      borderColor: 'pink.300',
+      borderWidth: 1,
     },
   }
 })

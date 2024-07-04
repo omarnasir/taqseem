@@ -13,8 +13,8 @@ import {
   Box,
   Text,
   SimpleGrid,
-  VStack,
   Divider,
+  Tabs, TabList, TabPanels, Tab, TabPanel,
 } from "@chakra-ui/react"
 
 import {
@@ -169,56 +169,65 @@ function Transaction(
 
   return (
     <Drawer
-      size={'md'}
-      placement="bottom"
+      size={{ base: 'full', md: 'md' }}
+      placement={{ base: 'bottom', lg: 'right' }}
+      allowPinchZoom={true}
       variant={'transaction'}
       isOpen={isOpen}
       onClose={() => { onCloseDrawer() }}
       {...disclosureProps}>
       <DrawerOverlay />
-      <DrawerContent height='100%' width={{ base: '100%', sm: 'xl' }} margin='auto'>
+      <DrawerContent height='100%' margin='auto'>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DrawerHeader w='100%'
               zIndex={1700} height={'8vh'} position='absolute' top={0}
-              fontWeight={300} fontSize={'md'} color={'white'} textAlign={'start'} letterSpacing={'widest'}>
+              fontWeight={400} fontSize={'md'} color={'white'} textAlign={'start'} letterSpacing={'wider'}>
               {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
               <DrawerCloseButton />
             </DrawerHeader>
-            <DrawerBody  position='absolute' w='100%' paddingX={2} 
-              overflow={'scroll'} pt={'10vh'} paddingBottom={20}
+            <DrawerBody position='absolute' overflowX={'clip'} p={{ base: 1, sm: 2 }} width='100%'
+              overflowY={'scroll'} paddingBottom={20}
               sx={{
                 '&::-webkit-scrollbar': {
                   display: 'none',
                 },
                 scrollbarWidth: 'none',
               }}
-              top={0}
+              top={'10vh'}
               bottom={'10vh'}>
-              <FormItemId />
-              <VStack padding={2} w='100%'>
-                <HStack justifyContent={'space-around'} w='100%'>
-                  <Text width={'80%'} fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 1: Fill in details</Text>
-                  <FormItemIsSettlement />
-                </HStack>
-                <Divider marginBottom={2} />
-                <SimpleGrid columns={2} spacing={2} width={'100%'}>
-                  <FormItemName />
-                  <FormItemDateTime />
-                  <FormItemCategory />
-                  <FormItemSubCategory />
-                </SimpleGrid>
-                <SimpleGrid columns={2} spacing={2} width={'100%'}>
-                  <FormItemPaidBy {...{ users: users }} />
-                  <FormItemAmount />
-                </SimpleGrid>
-                <FormItemNote />
-              </VStack>
-              <VStack padding={2} marginY={4} width={'100%'}>
-                <Text fontSize={'xs'} fontWeight={300} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 2: Decide how to split</Text>
-                <Divider marginBottom={2} />
-                <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
-              </VStack>
+              <Tabs isFitted variant='transaction' colorScheme="purple">
+                <TabList>
+                  <Tab marginRight={1}>Details</Tab>
+                  <Tab marginLeft={1}>Split</Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                    <SimpleGrid columns={1} spacing={2} width={'100%'}>
+                      <HStack justifyContent={'space-around'} w='100%'>
+                        <Text width={'80%'} fontSize={'sm'} fontWeight={400} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 1: Fill in details</Text>
+                        <FormItemIsSettlement />
+                      </HStack>
+                      <Divider marginBottom={2} />
+                      <FormItemName />
+                      <FormItemDateTime />
+                      <FormItemCategory />
+                      <FormItemSubCategory />
+                      <FormItemNote />
+                      <FormItemId />
+                    </SimpleGrid>
+                  </TabPanel>
+                  <TabPanel>
+                    <SimpleGrid columns={1} spacing={2} width={'100%'}>
+                    <Text fontSize={'sm'} fontWeight={400} mb={2} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 2: Decide how to split</Text>
+                    <Divider marginBottom={2} />
+                    <FormItemPaidBy {...{ users: users }} />
+                    <FormItemAmount />
+                    <FormItemTransactionDetails {...{ users: users, transactionDetails: transactionWithDetails?.transactionDetails }} />
+                    </SimpleGrid>
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
             </DrawerBody>
             <DrawerFooter position={'absolute'}
               zIndex={1700}

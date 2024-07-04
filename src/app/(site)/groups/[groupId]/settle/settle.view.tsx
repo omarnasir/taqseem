@@ -53,7 +53,7 @@ import { type CreateTransaction } from "@/types/transactions.type";
 import { createTransactionAction } from '@/server/actions/transactions.action';
 import { Confirm } from '@/app/(site)/components/confirm';
 
-import { type SimplifiedBalances } from './page';
+import { type SimplifiedBalances } from '@/types/groups.type';
 
 type SettlementForm = {
   data: {
@@ -94,8 +94,8 @@ function SimplifiedBalancesPopover({ settlementDetails }: { settlementDetails: S
   )
 }
 
-function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
-  { groupId: string , settlementDetails: SimplifiedBalances[] , groupBalancesDetails: GroupBalanceDetails }) {
+function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
+  { groupId: string , settlementDetails: SimplifiedBalances[] , groupBalanceDetails: GroupBalanceDetails }) {
 
   const { session, status } = useSessionHook();
   const router = useRouter();
@@ -142,7 +142,7 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
       isSettlement: true,
       paidAt: new Date().toISOString(),
       transactionDetails: 
-      groupBalancesDetails.users.filter((user) => user.userId === settlement.paidById).map((user) => {
+      groupBalanceDetails.users.filter((user) => user.userId === settlement.paidById).map((user) => {
         return {
           userId: user.userId,
           amount: parseFloat(settlement.amount),
@@ -179,7 +179,7 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
               <Select variant='settlement' size={'xs'}
                 {...register(`data.${index}.paidById` as const)}
                 defaultValue={field.paidById}>
-                {groupBalancesDetails.users.map((user) => (
+                {groupBalanceDetails.users.map((user) => (
                   <option key={user.userId} value={user.userId}>{user.userName}</option>
                 ))}
               </Select>
@@ -224,7 +224,7 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
               <Select variant='settlement' size={'xs'}
                 {...register(`data.${index}.paidforId` as const)}
                 defaultValue={field.paidforId}>
-                {groupBalancesDetails.users.map((user) => (
+                {groupBalanceDetails.users.map((user) => (
                   data[index] ? data[index].paidById !== user.userId &&
                     <option key={user.userId} value={user.userId}>{user.userName}</option>
                     : <option key={user.userId} value={user.userId}>{user.userName}</option>
@@ -238,7 +238,7 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
           <HStack spacing={2} w={'20%'}>
           <IconButton variant={'outline'} size={'sm'} rounded={'full'} width={'10%'}  icon={<MdAddIcon />} aria-label='Add new settlement'
           onClick={() => 
-            append({ amount: '0', paidById: groupBalancesDetails.users[0].userId, paidforId: groupBalancesDetails.users[1].userId })
+            append({ amount: '0', paidById: groupBalanceDetails.users[0].userId, paidforId: groupBalanceDetails.users[1].userId })
           } marginTop={2} />
           <IconButton variant={'outline'} size={'sm'} rounded={'full'} width={'10%'} icon={<MdDeleteIcon />} aria-label='Delete last settlement'
           onClick={() => 
@@ -274,23 +274,23 @@ function SettleForm({ groupId , settlementDetails, groupBalancesDetails }:
   )
 }
 
-export function SettleView({ groupId, groupBalancesDetails, settlementDetails }:
-  { groupId: string , groupBalancesDetails: GroupBalanceDetailsWithName, settlementDetails: SimplifiedBalances[] }) {
+export function SettleView({ groupId, groupBalanceDetails, settlementDetails }:
+  { groupId: string , groupBalanceDetails: GroupBalanceDetailsWithName, settlementDetails: SimplifiedBalances[] }) {
 
   const chartData = useMemo(() => {
-    const balances = groupBalancesDetails.users.sort((a, b) => b.balance - a.balance);
+    const balances = groupBalanceDetails.users.sort((a, b) => b.balance - a.balance);
     balances.map((user) => {
       user.balance = parseFloat(user.balance.toFixed(2));
       return user;
     });
     return balances;
-  }, [groupBalancesDetails.users]);
+  }, [groupBalanceDetails.users]);
 
 
   return (
     <VStack spacing={4} align="stretch" paddingBottom={12}>
       <VStack paddingY={4} paddingX={1} rounded={'lg'} w={'100%'} border={'1px'} borderColor={'whiteAlpha.200'} boxShadow={'md'} align={'start'}>
-        <Text paddingX={4} fontSize={'xl'} fontWeight={500}>{groupBalancesDetails.groupName}</Text>
+        <Text paddingX={4} fontSize={'xl'} fontWeight={500}>{groupBalanceDetails.groupName}</Text>
         <Text paddingX={4} fontSize={'sm'}>Settlement Summary</Text>
         <ResponsiveContainer width={'100%'} height={chartData.length * 35}>
           <BarChart data={chartData} layout='vertical'>
@@ -325,7 +325,7 @@ export function SettleView({ groupId, groupBalancesDetails, settlementDetails }:
           <SimplifiedBalancesPopover settlementDetails={settlementDetails} />
         </CardHeader>
         <CardBody width='100%'>
-          <SettleForm groupId={groupId} settlementDetails={settlementDetails} groupBalancesDetails={groupBalancesDetails} />
+          <SettleForm groupId={groupId} settlementDetails={settlementDetails} groupBalanceDetails={groupBalanceDetails} />
         </CardBody>
       </Card>
       ) : (
