@@ -1,5 +1,5 @@
 "use server";
-import DashboardView from "./view";
+import DashboardView from "./dashboard.view";
 import { getBalancesByUserGroupsService } from "@/server/service/groups.service";
 import { getActivityHistoryByTimePeriodService } from "@/server/service/transactions.service";
 

@@ -173,10 +173,8 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
-        position={'sticky'} top={'-40px'}>{group?.name}</Text>
-      <Button size='sm' variant={'settle'} position={'relative'} top={'-40px'} alignSelf={'flex-end'} w={'20%'}
-        onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
+      <Text variant={'listHeading'}>{group?.name}</Text>
+      <Button size='sm' variant={'settleGroup'} onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
       <Divider />
       {hasPreviousPage &&
         <Button variant={'loadMore'}

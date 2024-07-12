@@ -46,10 +46,11 @@ async function getActivityHistoryByTimePeriodService(timePeriod?: number): Promi
     if (timePeriod === undefined) timePeriod = 14;
     let date = new Date();
     date.setDate(date.getDate() - timePeriod);
-    const transactions = await getTransactionsByUserIdAndDate(session?.user?.id as string, date.toLocaleDateString());
+    const transactions = await getTransactionsByUserIdAndDate(session?.user?.id as string, date.getTime());
     if (!transactions) throw new Error("No transactions found")
 
     const dates = transactions.map((transaction) => new Date(transaction.paidAt).toLocaleDateString());
+    
     const missingDates = [];
     for (let i = 0; i < timePeriod; i++) {
       const date = new Date();
@@ -59,28 +60,10 @@ async function getActivityHistoryByTimePeriodService(timePeriod?: number): Promi
         missingDates.push(date);
       }
     }
-    const finalTransactions: ActivityHistoryItem[] = transactions.map((transaction) => {
-      let { owe, getBack } = { owe: 0, getBack: 0 };
-      if (session?.user?.id! === transaction.paidById) {
-        getBack = transaction.amount - transaction.transactionDetails.find((detail) => detail.userId === session?.user?.id)?.amount!;
-      }
-      else {
-        owe = transaction.transactionDetails.find((detail) => detail.userId === session?.user?.id)?.amount!;
-      };
-      const paidAt = new Date(transaction.paidAt);
-      return { owe, getBack, paidAt };
-    });
-
     for (const missingDate of missingDates) {
-      finalTransactions.push({
-        owe: 0,
-        getBack: 0,
-        paidAt: missingDate,
-      });
+      transactions.push({ owe: 0, getBack: 0, paidAt: missingDate });
     }
-    finalTransactions.sort((a, b) => new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime());
-    finalTransactions.splice(0, Math.max(0, finalTransactions.length - timePeriod));
-    return { success: true, data: finalTransactions };
+    return { success: true, data: transactions };
   }
   catch (e) {
     return { success: false, error: e.message };

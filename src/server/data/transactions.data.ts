@@ -1,5 +1,6 @@
 'use server';
 import prisma from '@/lib/db/prisma';
+import { ActivityHistoryItem } from '@/types/activities.type';
 import { GroupBalanceDetails } from '@/types/groups.type';
 import {
   CreateTransaction,
@@ -369,26 +370,31 @@ async function getBalancesByUserGroups(userId: string) : Promise<BalancesByUserG
  * @returns 
  * @throws Error if failed to get transactions
  */
-async function getTransactionsByUserIdAndDate(userId: string, date: string) {
+async function getTransactionsByUserIdAndDate(userId: string, date: number) {
   try {
-    const transactions = await prisma.transactions.findMany({
-      where: {
-        transactionDetails: {
-          some: {
-            userId: userId
-          }
-        },
-        paidAt: {
-          gte: new Date(date)
-        }
-      },
-      include: {
-        transactionDetails: true
-      },
-      orderBy: {
-        paidAt: 'desc'
-      }
-    });
+    console.log(userId, date)
+    const transactions : ActivityHistoryItem[] = await prisma.$queryRaw`
+    SELECT q.paidAt, SUM(q.getBack) as getBack, SUM(q.owe) as owe
+    FROM 
+      (SELECT DATE(ROUND(t.paidAt / 1000), 'auto') as paidAt,
+              CAST(CASE WHEN t.paidById = ${userId} 
+                THEN t.amount - td.userAmount
+                ELSE 0
+              END AS REAL )AS getBack,
+              CAST(CASE WHEN t.paidById != ${userId}
+                THEN td.userAmount
+                ELSE 0
+              END AS REAL) AS owe
+      FROM Transactions as t
+      INNER JOIN
+        (SELECT transactionId, userId, amount as userAmount
+        FROM TransactionDetails
+        WHERE userId = ${userId}) AS td
+      ON t.id = td.transactionId
+      WHERE t.paidAt > ${date}) AS q
+    GROUP BY q.paidAt
+    ORDER BY q.paidAt ASC;`
+
     if (!transactions || transactions.length === 0 ) return null;
     return transactions;
   }

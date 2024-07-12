@@ -1,7 +1,7 @@
 'use client'
 import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Bar, ResponsiveContainer, BarChart, ReferenceLine } from 'recharts';
+import { Bar, ResponsiveContainer, BarChart, YAxis } from 'recharts';
 
 import {
   Text,
@@ -58,9 +58,10 @@ export default function DashboardView({ userGroupsBalance, activityHistory }:
 {
   const router = useRouter(); 
   const totalBalance : number = userGroupsBalance && Object.values(userGroupsBalance).reduce((acc: number, group) => acc + group.balance, 0) || 0;
+
   return (
     <VStack spacing={4} align="stretch">
-      <HStack rounded={'lg'} w={'100%'} border={'1px'} borderColor={'whiteAlpha.200'} boxShadow={'md'}>
+      <HStack rounded={'lg'} w={'100%'} bg='itemSurface' boxShadow={'md'}>
         <Statistic label={'Total Balance'} value={totalBalance} statProps={{ width: '55%' }} />
         <VStack w={'45%'}>
           {!!activityHistory && activityHistory.length > 0 &&
@@ -68,10 +69,10 @@ export default function DashboardView({ userGroupsBalance, activityHistory }:
               <BarChart data={activityHistory}>
                 <Bar dataKey="owe" stackId="a" fill="#38A169" />
                 <Bar dataKey="getBack" stackId="a" fill="#992513" />
-                <ReferenceLine y={0} stroke="#434343" />
+                <YAxis orientation={'right'} width={20} mirror={true} tick={{fontSize: '8px'}} tickLine={true} axisLine={false} />
               </BarChart>
             </ResponsiveContainer>}
-          <Text justifySelf={'end'} textAlign="right" fontSize="2xs" color="whiteAlpha.400">
+          <Text variant={'caption'}>
             {activityHistory && activityHistory.length > 0 ? 'Last 2 weeks' : 'No activity'}
           </Text>
         </VStack>
@@ -79,7 +80,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory }:
 
       {userGroupsBalance && 
         <>
-          <Text fontSize="md" color="whiteAlpha.700">Your Groups</Text>
+          <Text variant={'pageSubHeading'}>Your Groups</Text>
           <SimpleGrid spacing={2} columns={2}>
             {Object.entries(userGroupsBalance).map(([groupId, group]) =>
               <Card variant='summaryStat' size='sm' key={groupId}>
@@ -89,7 +90,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory }:
                   </NextLink>
                 </CardBody>
                 <CardFooter w='100%' justifyContent={'flex-end'} >
-                  <Button size='sm' variant={'settle'}
+                  <Button size='sm' variant={'settleDashboard'}
                   isDisabled={Math.abs(group.balance) < 1e-2} disabled={Math.abs(group.balance) < 1e-2} onClick={(e) => router.push(`/groups/${groupId}/settle`)}>Settle up</Button>
                 </CardFooter>
               </Card>

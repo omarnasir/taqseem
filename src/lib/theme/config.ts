@@ -21,6 +21,7 @@ import { drawerTheme } from "./elements/drawer"
 import { accordionTheme } from "./elements/accordion"
 import { statTheme } from "./elements/stat"
 import { tabTheme } from "./elements/tab"
+import { textTheme } from "./elements/text"
 
 const fonts = {
 	...chakraTheme.fonts,
@@ -96,6 +97,7 @@ const customTheme = extendTheme({ config, fonts },
 			Accordion: accordionTheme,
 			Stat: statTheme,
 			Tabs: tabTheme,
+			Text: textTheme
 		}
 	})
 

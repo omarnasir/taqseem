@@ -10,6 +10,7 @@ import {
   HStack,
   ListIcon,
   Button,
+  Divider,
 } from "@chakra-ui/react"
 import { ActivityService, type ActivityWithDetails } from '@/types/activities.type';
 import { ActivityTypeEnum, getTransactionIcon } from "@/lib/db/constants";
@@ -64,14 +65,14 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
         <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
           {activity.createdById === userId ? 'You' : activity.createdBy?.name}
         </Text>
-        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'tight'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
+        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'normal'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
         </Text>
       </HStack>
       <HStack>
         {!activity.isInvolved ?
           <Text fontSize={'xs'} color={'whiteAlpha.600'} opacity={0.8} fontWeight={'300'} letterSpacing={'normal'}>
             You are not involved</Text> :
-            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'green.400' : 'red.400'} opacity={0.8} fontWeight={'300'} letterSpacing={'normal'}>
+            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'green.300' : 'red.300'} opacity={0.9} fontWeight={'300'} letterSpacing={'normal'}>
               You{' '}{activity.transaction.paidById === userId ? (activity.transaction.isSettlement ? 'paid' : 'lent') :(activity.transaction.isSettlement ? 'get back' : 'borrowed')}{' '}
               {Math.abs(activity.amount).toFixed(2)}{' '}€</Text>}
       </HStack>
@@ -90,8 +91,8 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text fontSize='lg' alignSelf={'center'} fontWeight='300' textAlign={'center'} zIndex={1}
-        position={'sticky'} top={'-40px'}>Activity</Text>
+      <Text variant={'listHeading'}>Activity</Text>
+      <Divider marginY={7}/>
       {data.pages.map((page) => (
         page.activities.map((activity) => (
           <List w='100%' variant={'activity'} key={activity.id}>
