@@ -22,6 +22,7 @@ export default function AuthenticatedLayout({
 
   return (<Container
       h='100vh'
+      paddingX={0}
       flexDirection={'column'}
       alignItems={'center'}
       display={'flex'}>
@@ -37,6 +38,7 @@ export default function AuthenticatedLayout({
         </Header>
       </Flex>
       <Container
+        paddingX={1}
         flexDirection={'column'}
         position='absolute'
         overflow={'scroll'}

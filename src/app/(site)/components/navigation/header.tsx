@@ -9,6 +9,7 @@ export default function Header({children}: {children: React.ReactNode}) {
 
   return (
     <Container flexDirection='row' display='flex' w='100%'
+      paddingX={0}
       justifyContent={'space-between'}
       backdropFilter={'blur(20px)'}
       alignItems={'center'}>
