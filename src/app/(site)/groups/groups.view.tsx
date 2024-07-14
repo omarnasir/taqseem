@@ -134,8 +134,8 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
     <Stack direction={'column'} spacing={4} display={'flex'}>
       <HStack w='100%'>
         <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }} w='70%'>
-          <Text variant='pageHeading'>Groups</Text>
-          <Text variant='pageSubHeading'>Manage your groups.</Text>
+          <Text variant='h1'>Groups</Text>
+          <Text variant='h2'>Manage your groups.</Text>
         </VStack>
         <CreateGroupModal />
       </HStack>

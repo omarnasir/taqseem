@@ -1,31 +1,109 @@
 import { defineStyleConfig } from '@chakra-ui/react'
 
-export const textTheme = defineStyleConfig({
+
+const activityTexts = defineStyleConfig({
   variants: {
-    listHeading: {
+    activityCreatedBy: {
+      fontSize: 'sm',
+      color: 'whiteAlpha.900',
+      letterSpacing: 'tight',
+      fontWeight: '700'
+    },
+    activityDescription: {
+      fontSize: 'sm',
+      color: 'whiteAlpha.800',
+    },
+    activityUserStatus: {
+      fontSize: 'xs',
+      color: 'whiteAlpha.600',
+      opacity: 0.8,
+      fontWeight: 300,
+    },
+    activityLent: {
+      fontSize: 'xs',
+      color: 'green.300',
+      opacity: 0.9,
+      fontWeight: 300,
+    },
+    activityBorrowed: {
+      fontSize: 'xs',
+      color: 'red.300',
+      opacity: 0.9,
+      fontWeight: 300,
+    },
+  }
+})
+
+
+const settlementTexts = defineStyleConfig({
+  variants: {
+    settlementPayor: {
+      fontWeight: 500,
+      color: 'red.500',
+    },
+    settlementPayee: {
+      color: 'green.500',
+    },
+    settlementCaption: {
+      fontSize: 'xs',
+      color: 'whiteAlpha.500',
+      fontWeight: 500,
+    },
+  }
+})
+
+export const textTheme = defineStyleConfig({
+  baseStyle: {
+    fontWeight: 400,
+    letterSpacing: 'normal',
+    color: 'whiteAlpha.800'
+  },
+  variants: {
+    ...settlementTexts.variants,
+    ...activityTexts.variants,
+    h1: {
       fontSize: 'xl',
-      alignSelf:'center',
-      fontWeight:'300',
-      textAlign:'center',
+      fontWeight: 500,
+    },
+    h1Center: {
+      fontSize: 'xl',
+      alignSelf: 'center',
+      textAlign: 'center',
       zIndex:'1',
       position:'sticky',
       top:'-6vh',
     },
-    pageHeading: {
-      fontSize: '2xl',
-      fontWeight: 300,
-      letterSpacing: 'normal'
-    },
-    pageSubHeading: {
+    h2: {
       fontSize: 'md',
-      fontWeight: 200,
-      letterSpacing: 'normal'
+      fontWeight: 300,
+    },
+    listPrimary: {
+      textAlign: 'start',
+      fontSize: 'md',
+      fontWeight: 500,
+      color: 'white',
+    },
+    listSecondary: {
+      fontSize: 'xs',
+      color: 'whiteAlpha.800',
+      fontWeight: 500,
+    },
+    listSupplementary: {
+      fontSize: 'xs',
+      opacity: 0.85,
+      textAlign: 'end',
+      color: 'whiteAlpha.800'
     },
     caption: {
       justifySelf: 'end',
       textAlign: 'right',
-      fontSize: '2xs',
-      color: 'whiteAlpha.600'
+      fontSize: 'xs',
+      color: 'whiteAlpha.700'
+    },
+    footer: {
+      fontSize: { base: 'xs', md: 'sm' },
+      mt: 2,
+      display: { base: 'none', md: 'block' }
     }
   }
 })

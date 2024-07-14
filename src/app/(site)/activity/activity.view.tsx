@@ -62,17 +62,17 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
   return (
     <VStack w={cardItemWidths.desc} alignItems='start' ml={1}>
       <HStack spacing={1}>
-        <Text fontSize={'sm'} color={'whiteAlpha.900'} letterSpacing={'tight'} fontWeight={'700'}>
+        <Text variant={'activityCreatedBy'} >
           {activity.createdById === userId ? 'You' : activity.createdBy?.name}
         </Text>
-        <Text fontSize={'sm'} color={'whiteAlpha.800'} letterSpacing={'normal'} fontWeight={'400'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
+        <Text variant={'activityDescription'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
         </Text>
       </HStack>
       <HStack>
         {!activity.isInvolved ?
-          <Text fontSize={'xs'} color={'whiteAlpha.600'} opacity={0.8} fontWeight={'300'} letterSpacing={'normal'}>
+          <Text variant={'activityUserStatus'}>
             You are not involved</Text> :
-            <Text fontSize={'xs'} color={activity.transaction.paidById === userId ? 'green.300' : 'red.300'} opacity={0.9} fontWeight={'300'} letterSpacing={'normal'}>
+            <Text variant={activity.transaction.paidById === userId ? 'activityLent' : 'activityBorrowed'}>
               You{' '}{activity.transaction.paidById === userId ? (activity.transaction.isSettlement ? 'paid' : 'lent') :(activity.transaction.isSettlement ? 'get back' : 'borrowed')}{' '}
               {Math.abs(activity.amount).toFixed(2)}{' '}€</Text>}
       </HStack>
@@ -91,17 +91,15 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text variant={'listHeading'}>Activity</Text>
+      <Text variant={'h1Center'}>Activity</Text>
       <Divider marginY={7}/>
       {data.pages.map((page) => (
         page.activities.map((activity) => (
           <List w='100%' variant={'activity'} key={activity.id}>
-            <ListItem w='100%' key={activity.id}
-              flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
+            <ListItem w='100%' key={activity.id}>
               <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
               <ActivitySummary activity={activity} userId={sessionData.user?.id as string} />
-              <Text textAlign={'end'} letterSpacing={'tighter'} fontSize={'xs'} fontWeight={300}
-                width={cardItemWidths.date} color={'whiteAlpha.700'}>
+              <Text variant={'listSupplementary'} width={cardItemWidths.date}>
                 {relativeTimeAgo(new Date(activity.createdAt))}
               </Text>
             </ListItem>

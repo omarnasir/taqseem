@@ -163,8 +163,11 @@ export const buttonTheme = defineStyleConfig({
     settleDashboard: {
       ...baseVariants.variants?.settle,
       fontSize: 'xs',
-      height: '2rem',
-      width: '50%',
+      alignSelf: 'flex-end',
+      borderColor: 'whiteAlpha.600',
+      borderWidth: 0.5,
+      color: 'whiteAlpha.800',
+      bg: 'transparent',
     },
     detailsUserEveryone: {
       ...buttonFontSizes,

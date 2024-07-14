@@ -22,11 +22,14 @@ const baseStyle = definePartsStyle({
   },
   helpText: {
     padding: 1,
-    fontWeight: "200",
+    fontWeight: "300",
   },
 })
 
 const primary = definePartsStyle({
+  label: {
+    fontSize: "lg",
+  },
   number: {
     fontSize: "4xl",
   }
@@ -34,20 +37,22 @@ const primary = definePartsStyle({
 
 const secondary = definePartsStyle({
   container: {
+    textAlign: "center",
     padding: 0,
   },
   label: {
     padding: 0,
-    fontSize: "1rem",
+    fontSize: "sm",
   },
   number: {
-    paddingY: 1,
+    paddingBottom: 1,
     paddingX: 0,
-    fontSize: "1.8rem",
+    fontSize: "xl",
+    fontWeight: "500",
   },
   helpText: {
     padding: 0,
-    fontSize: "xs",
+    fontSize: "2xs",
     fontWeight: "300",
   },
 

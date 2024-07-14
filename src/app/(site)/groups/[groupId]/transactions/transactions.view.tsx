@@ -15,6 +15,7 @@ import {
   Flex,
   IconButton,
   Button,
+  Box,
 } from "@chakra-ui/react"
 
 import { getTransactionIcon } from "@/lib/db/constants";
@@ -33,8 +34,8 @@ import { useGetGroupTransactions } from "@/client/hooks/transactions.hook";
 
 const cardItemWidths = {
   date: '7%',
-  icon: '15%',
-  desc: '53%',
+  icon: '13%',
+  desc: '55%',
   amount: '25%',
 }
 
@@ -44,9 +45,9 @@ function DateDisplay({ paidAt }: { paidAt: TransactionWithDetails['paidAt'] }) {
       month: 'short',
     });
   return (
-    <VStack w={cardItemWidths['date']} spacing={0} fontSize={'xs'}>
-      <Text color='whiteAlpha.700' >{date.split(' ')[1]}</Text>
-      <Text color='whiteAlpha.700'>{date.split(' ')[0]}</Text>
+    <VStack w={cardItemWidths['date']} spacing={0}>
+      <Text variant={'caption'}>{date.split(' ')[1]}</Text>
+      <Text variant={'listSecondary'}>{date.split(' ')[0]}</Text>
     </VStack>
   )
 }
@@ -65,20 +66,14 @@ function AmountDisplay({ transaction, userId }:
   }, [totalAmount, paidById, transactionDetails, userId]);
 
 
-  const colorDarker = amount > 0 ? 'green.500' : amount < 0 ? 'red.500' : 'whiteAlpha.600';
-  const colorLighter = amount > 0 ? 'green.400' : amount < 0 ? 'red.400' : 'whiteAlpha.600';
+  const color = amount > 0 ? 'lent' : amount < 0 ? 'borrowed' : undefined;
 
   return (
     <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
-      <HStack>
-        <Text color={colorDarker}
-          fontSize={'lg'} letterSpacing={'tight'}>{amount === 0 ? '' : amount > 0 ? `${amount.toFixed(1)} €` : `${(Math.abs(amount)).toFixed(1)} €`}</Text>
-      </HStack>
-      <Text fontSize={'2xs'}
-        color={colorLighter} opacity={0.65}
-        fontWeight={'300'} letterSpacing={'tight'}>
+      <Text color={color} variant={'listSupplementary'} >
         {paidById === userId ? 'you lent' : amount === 0 ? 'not involved' : 'you borrowed'}
       </Text>
+      <Text variant={'listPrimary'} color={color}>{amount === 0 ? '' : amount > 0 ? `€ ${amount.toFixed(1)}` : `€ ${(Math.abs(amount)).toFixed(1)}`}</Text>
     </VStack>
   )
 }
@@ -91,9 +86,8 @@ function SummaryDisplay({ transaction, users, userId }:
 
   return (
     <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'}>
-      <Text textAlign={'start'} letterSpacing={'normal'} fontSize={'md'} color='whiteAlpha.900' marginBottom={1}>
-        {transaction.name}</Text>
-      <Text color='whiteAlpha.600' textAlign={'start'} fontSize={'2xs'}>
+      <Text variant={'listPrimary'} marginBottom={1}>{transaction.name}</Text>
+      <Text variant={'listSupplementary'} textAlign={'start'}>
         {name + ' paid ' + Math.abs(transaction.amount).toFixed(1) + ' €'}
       </Text>
     </VStack>
@@ -125,7 +119,6 @@ function TransactionDisclosureWrapper({
               <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={300} color={'whiteAlpha.800'} marginY={3}>{monthData.monthName}</Text>
               {monthData.data.map((transaction) => (
                 <ListItem w='100%' key={transaction.id}
-                  flexDirection={'row'} display={'flex'} justifyContent={'space-between'}
                   onClick={
                     () => {
                       setSelectedTransaction(transaction)
@@ -173,7 +166,7 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text variant={'listHeading'}>{group?.name}</Text>
+      <Text variant={'h1Center'}>{group?.name}</Text>
       <Button size='sm' variant={'settleGroup'} onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
       <Divider />
       {hasPreviousPage &&

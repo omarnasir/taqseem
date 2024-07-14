@@ -35,8 +35,7 @@ export default function Footer() {
           borderTopWidth={pathname.startsWith(linkItem.href) ? 2 : 0}
           flexDirection={'column'}>
           <Icon as={linkItem.icon} boxSize={{base: 5, md: 6}} />
-          <Text mt={2} fontSize={{base: 'xs', md: 'sm'}} display={{base: 'none', md: 'block'}}
-          fontWeight={300}>{linkItem.name}</Text>
+          <Text variant={'footer'}>{linkItem.name}</Text>
         </Button>
       ))}
     </Container>

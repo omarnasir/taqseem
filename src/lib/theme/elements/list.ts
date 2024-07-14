@@ -11,23 +11,38 @@ const transaction = definePartsStyle({
     alignItems: 'center',
     marginY: 2,
     rounded: 'md',
-    paddingY: 3,
-    paddingX: 4,
-    backgroundColor: 'bgListItem',
+    paddingY: 4,
+    paddingX: 3,
+    boxShadow: '0px 8px 24px 0 rgba(0,0,0,0.2)',
+    bg: 'bgListItem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
 })
 
 const activity = definePartsStyle({
   item: {
     alignItems: 'center',
-    marginY: 1,
+    marginY: 2,
     rounded: 'md',
     paddingY: 3,
     paddingX: 4,
     backgroundColor: 'bgListItem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
 })
 
+const groupBalances = definePartsStyle({
+  item: {
+    marginBottom: 4,
+    rounded: 'md',
+    borderBottomWidth: 0.5,
+    borderRadius: 0,
+  },
+})
 
 const members = definePartsStyle({
   item: {
@@ -43,4 +58,4 @@ const members = definePartsStyle({
 })
 
 
-export const listTheme = defineMultiStyleConfig({ variants: { transaction , activity, members} })
+export const listTheme = defineMultiStyleConfig({ variants: { transaction , activity, members, groupBalances } })

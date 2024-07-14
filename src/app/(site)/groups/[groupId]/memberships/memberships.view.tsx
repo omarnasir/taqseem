@@ -143,8 +143,8 @@ export default function MembershipsView({ membershipsInitialData,  groupsInitial
     <Stack direction={'column'} spacing={4} display={'flex'}>
       <HStack w='100%'>
         <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }} w='70%'>
-          <Text variant='pageHeading'>{group.name}</Text>
-          <Text variant='pageSubHeading'>Add or remove members.</Text>
+          <Text variant='h1'>{group.name}</Text>
+          <Text variant='h2'>Add or remove members.</Text>
         </VStack>
         <AddMemberModal {...group} />
       </HStack>
