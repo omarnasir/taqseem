@@ -38,7 +38,7 @@ import { Confirm } from '@/app/(site)/components/confirm';
 import { useState } from 'react';
 import MembershipsView from './memberships.view';
 
-function CreateGroupModal() {
+function CreateGroupDisclosure() {
   const router = useRouter();
   const { addToast } = CustomToast();
 
@@ -142,7 +142,7 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
           <Heading variant={'h2'}>Groups</Heading>
           <Heading variant={'h3'}>Manage your groups.</Heading>
         </VStack>
-        <CreateGroupModal />
+        <CreateGroupDisclosure />
       </HStack>
       <SimpleGrid spacing={4}>
         {groups &&
