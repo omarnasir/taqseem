@@ -31,6 +31,20 @@ const transaction = definePartsStyle({
   }
 })
 
+const add = definePartsStyle({
+  dialog: {
+    _dark: {
+      bg: 'rgba(77, 77, 90, 0.2)',
+      backdropFilter: 'blur(20px)'
+    },
+  },
+  overlay: {
+    _dark: {
+      bg: 'blackAlpha.800',
+    },
+  }
+})
+
 export const drawerTheme = defineMultiStyleConfig({
-  variants: { transaction },
+  variants: { transaction, add },
 })

@@ -13,6 +13,7 @@ import {
   Box,
   Text,
   SimpleGrid,
+  Heading,
   Divider,
   Tabs, TabList, TabPanels, Tab, TabPanel,
 } from "@chakra-ui/react"
@@ -123,13 +124,13 @@ function Transaction(
 
 
   async function onSubmit(values: FormTransaction) {
-    clearErrors(FormIdEnum.transactionDetails)
+    // clearErrors(FormIdEnum.transactionDetails)
     let userDetails: CreateTransactionDetails[] = [];
     try {
       userDetails = processTransactionDetails(values);
     }
     catch (error) {
-      setError(FormIdEnum.transactionDetails, { message: error })
+      // setError(FormIdEnum.transactionDetails, { message: error })
       return
     }
     // Build the transaction object
@@ -180,10 +181,8 @@ function Transaction(
       <DrawerContent height='100%' margin='auto'>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <DrawerHeader w='100%'
-              zIndex={1700} height={'8vh'} position='absolute' top={0}
-              fontWeight={400} fontSize={'md'} color={'white'} textAlign={'start'} letterSpacing={'wider'}>
-              {transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}
+            <DrawerHeader w='100%' height={'8vh'} position='absolute'>
+                <Heading variant={'h2'}>{transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}</Heading>
               <DrawerCloseButton />
             </DrawerHeader>
             <DrawerBody position='absolute' overflowX={'clip'} p={{ base: 1, sm: 2 }} width='100%'

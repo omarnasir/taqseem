@@ -29,7 +29,6 @@ const confirm = definePartsStyle({
     _dark: {
       bg: 'bgModal',
       color: 'white',
-      margin: '4',
     },
   },
 })
@@ -41,9 +40,10 @@ const create = definePartsStyle({
   dialog: {
     top: '5vh',
     _dark: {
-      bg: 'bgModal',
+      bg: 'rgba(27,27,30, 0.9)',
+      backdropFilter: 'blur(20px)',
       color: 'white',
-      margin: '4',
+      margin: 2,
     },
   },
 })

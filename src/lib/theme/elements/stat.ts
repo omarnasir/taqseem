@@ -5,57 +5,46 @@ const { definePartsStyle, defineMultiStyleConfig } =
   createMultiStyleConfigHelpers(statAnatomy.keys)
 
 const baseStyle = definePartsStyle({
-  container: {
-    padding: 2,
-    borderRadius: "xl",
-    boxShadow: "none",
-  },
-  label: {
-    padding: 1,
-    color: "white",
-    fontWeight: "300",
-  },
   number: {
-    padding: 1,
-    fontWeight: "600",
+    marginRight: 2,
+    textAlign: "right",
+    fontWeight: "500",
     letterSpacing: "tight",
   },
   helpText: {
-    padding: 1,
+    fontSize: "2xs",
+    marginRight: 2,
+    textAlign: "right",
     fontWeight: "300",
   },
 })
 
 const primary = definePartsStyle({
-  label: {
-    fontSize: "lg",
+  container: {
+    marginTop: 4,
   },
   number: {
-    fontSize: "4xl",
+    fontSize: "3xl",
+    textAlign: "left",
+  },
+  helpText: {
+    textAlign: "left",
+    fontSize: "2xs",
   }
 })
 
 const secondary = definePartsStyle({
   container: {
     textAlign: "center",
-    padding: 0,
-  },
-  label: {
-    padding: 0,
-    fontSize: "sm",
+    marginTop: 1,
   },
   number: {
-    paddingBottom: 1,
-    paddingX: 0,
-    fontSize: "xl",
+    fontSize: "2xl",
     fontWeight: "500",
   },
   helpText: {
-    padding: 0,
     fontSize: "2xs",
-    fontWeight: "300",
-  },
-
+  }
 })
 
 export const statTheme = defineMultiStyleConfig({

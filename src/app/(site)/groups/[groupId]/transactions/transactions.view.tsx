@@ -16,6 +16,7 @@ import {
   IconButton,
   Button,
   Box,
+  Heading,
 } from "@chakra-ui/react"
 
 import { getTransactionIcon } from "@/lib/db/constants";
@@ -56,25 +57,18 @@ function AmountDisplay({ transaction, userId }:
   { transaction: TransactionWithDetails, userId: string }) {
   const { amount: totalAmount, paidById, transactionDetails } = transaction;
 
-  const amount = useMemo(() => {
-    if (paidById === userId) {
-      return totalAmount;
-    }
-    return transactionDetails.map((td) => {
-      return td.userId === userId ? td.userId === paidById ? totalAmount - td.amount : -1 * td.amount : 0;
-    }).reduce((acc, val) => acc + val, 0);
-  }, [totalAmount, paidById, transactionDetails, userId]);
-
+  const amount =
+    paidById === userId ? totalAmount
+      : transactionDetails.map((td) => {
+        return td.userId === userId ? td.userId === paidById ? totalAmount - td.amount : -1 * td.amount : 0;
+      }).reduce((acc, val) => acc + val, 0);
 
   const color = amount > 0 ? 'lent' : amount < 0 ? 'borrowed' : undefined;
 
-  return (
-    <VStack w={cardItemWidths['amount']} spacing={0} alignItems={'flex-end'}>
-      <Text color={color} variant={'listSupplementary'} >
-        {paidById === userId ? 'you lent' : amount === 0 ? 'not involved' : 'you borrowed'}
-      </Text>
-      <Text variant={'listPrimary'} color={color}>{amount === 0 ? '' : amount > 0 ? `€ ${amount.toFixed(1)}` : `€ ${(Math.abs(amount)).toFixed(1)}`}</Text>
-    </VStack>
+  return (amount === 0 ?
+    <Text w={cardItemWidths['amount']} color={color} variant={'listSupplementary'}>not involved</Text>
+    :
+    <Text w={cardItemWidths['amount']} variant={'listAmount'} color={color}>{amount === 0 ? '' : amount > 0 ? `€${amount.toFixed(2)}` : `€${(Math.abs(amount)).toFixed(2)}`}</Text>
   )
 }
 
@@ -113,10 +107,10 @@ function TransactionDisclosureWrapper({
         {...buttonProps}>new</IconButton>
       {transactions.map((yearData, index) => (
         <List w='100%' variant={'transaction'} key={index}>
-          <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'sm'} fontWeight={500} color={'whiteAlpha.800'} marginTop={3}>{yearData.year}</Text>
+          <Heading marginY={2} variant={'h3'} textAlign={'center'}>{yearData.year}</Heading>
           {yearData.data.map((monthData, index) => (
             <div key={index}>
-              <Text textAlign={'center'} letterSpacing={'wide'} fontSize={'xs'} fontWeight={300} color={'whiteAlpha.800'} marginY={3}>{monthData.monthName}</Text>
+              <Heading variant={'h4'} marginTop={4} textAlign={'center'}>{monthData.monthName}</Heading>
               {monthData.data.map((transaction) => (
                 <ListItem w='100%' key={transaction.id}
                   onClick={
@@ -133,7 +127,6 @@ function TransactionDisclosureWrapper({
               ))}
             </div>
           ))}
-          <Divider marginY={1} />
         </List >
         ))}
       {isOpen &&
@@ -166,8 +159,8 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text variant={'h1Center'}>{group?.name}</Text>
-      <Button size='sm' variant={'settleGroup'} onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
+      <Heading variant={'h1Center'}>{group?.name}</Heading>
+      <Button variant={'settleGroup'} onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
       <Divider />
       {hasPreviousPage &&
         <Button variant={'loadMore'}

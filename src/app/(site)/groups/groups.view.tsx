@@ -7,7 +7,6 @@ import { createGroupAction, deleteGroupAction } from "@/server/actions/groups.ac
 
 import { 
   Stack, 
-  Text, 
   VStack ,
   Card,
   CardBody,
@@ -22,25 +21,22 @@ import {
   Input,
   HStack,
   FormLabel,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerCloseButton,
+  DrawerBody,
 } from "@chakra-ui/react";
 
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-} from '@chakra-ui/react'
 
 import { MdPersonRemove, MdManageAccounts, MdGroups } from "react-icons/md"
 
 import { type GroupData } from "@/types/groups.type";
 import { CustomToast } from '@/components/toast';
 import { Confirm } from '@/app/(site)/components/confirm';
-import { useGetUserGroups } from '@/client/hooks/groups.hook';
-
+import { useState } from 'react';
+import MembershipsView from './memberships.view';
 
 function CreateGroupModal() {
   const router = useRouter();
@@ -69,30 +65,34 @@ function CreateGroupModal() {
   return (
     <>
       <Button w='30%' variant={'add'} onClick={onOpen}>Create</Button>
-      <Modal isOpen={isOpen} onClose={onClose} variant={'create'}>
-        <ModalOverlay />
+      <Drawer isOpen={isOpen} onClose={onClose}
+        variant={'add'}
+        size={'sm'}
+        placement='right'>
+        <DrawerOverlay />
         <FormControl isInvalid={!!errors?.group}>
-          <ModalContent as='form' onSubmit={handleSubmit(onSubmit)}>
-            <ModalHeader>Create a New Group</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <FormLabel htmlFor='name'>Name</FormLabel>
-              <Input
-                id='name'
-                size={'sm'}
-                marginRight={3}
-                rounded={'md'}
-                placeholder='Name of your group'
-                {...register('name', {
-                  required: 'This is required',
-                  minLength: {
-                    value: 3,
-                    message: 'Name must be at least 3 characters long',
-                  }
-                })}
-              />
-            </ModalBody>
-            <ModalFooter>
+          <DrawerContent >
+            <DrawerCloseButton />
+            <DrawerHeader>
+              <Heading variant='h3'>Create a New Group</Heading>
+            </DrawerHeader>
+            <DrawerBody>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <FormLabel htmlFor='name'>Name</FormLabel>
+                <Input
+                  id='name'
+                  size={'sm'}
+                  marginRight={3}
+                  rounded={'md'}
+                  placeholder='Name of your group'
+                  {...register('name', {
+                    required: 'This is required',
+                    minLength: {
+                      value: 3,
+                      message: 'Name must be at least 3 characters long',
+                    }
+                  })}
+                />
               <Button w='40%' isLoading={isSubmitting} type='submit'
                 fontSize={'xs'}
                 size='sm' variant={"add"}>
@@ -103,10 +103,11 @@ function CreateGroupModal() {
                   {errors.group.message?.toString()}
                 </FormErrorMessage>
               }
-            </ModalFooter>
-          </ModalContent>
+              </form>
+              </DrawerBody>
+          </DrawerContent>
         </FormControl>
-      </Modal>
+      </Drawer>
     </>
   )
 }
@@ -114,7 +115,11 @@ function CreateGroupModal() {
 export default function GroupsView({ groups, sessionUserId }: {groups?: GroupData[], sessionUserId: string}) {
   const router = useRouter();
 
-  // const groups = useGetUserGroups(sessionUserId, groupsInitialData);
+  const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
+  const [selectedGroup, setSelectedGroup] = useState<GroupData>();
+
+  const { onClick } = getButtonProps();
+  const disclosureProps = getDisclosureProps();
 
   const { addToast } = CustomToast();
 
@@ -133,18 +138,16 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
   return (
     <Stack direction={'column'} spacing={4} display={'flex'}>
       <HStack w='100%'>
-        <VStack alignItems={'flex-start'} paddingX={{ base: 0, md: 3 }} w='70%'>
-          <Text variant='h1'>Groups</Text>
-          <Text variant='h2'>Manage your groups.</Text>
+        <VStack alignItems={'flex-start'} w='80%'>
+          <Heading variant={'h2'}>Groups</Heading>
+          <Heading variant={'h3'}>Manage your groups.</Heading>
         </VStack>
         <CreateGroupModal />
       </HStack>
       <SimpleGrid spacing={4}>
         {groups &&
           groups.map((group) => (
-            <Card key={group.id}
-              size={'sm'}
-              variant={'infoCard'}>
+            <Card key={group.id} size={'sm'} variant={'infoCard'}>
               <CardHeader>
                 <HStack>
                   <MdGroups />
@@ -158,16 +161,22 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
               <CardBody>
               <ButtonGroup isDisabled={group.createdById !== sessionUserId}>
                 <Button leftIcon={<MdManageAccounts />}
-                  w='100%'
+                  w='30%'
+                  variant='settle'
+                  onClick={(e) => router.push(`/groups/${group.id}/settle`)}>
+                  Settle
+                </Button>
+                <Button leftIcon={<MdManageAccounts />}
+                  w='30%'
                   variant="action"
-                  onClick={() => router.push(`/groups/${group.id}/memberships`)}>
+                  onClick={() => { setSelectedGroup(group); onClick() }}>
                   Manage
                 </Button>
                 <Confirm callback={() => {
                   onRemoveGroup(group.id)
                 }} mode="removeGroup" >
                   <Button leftIcon={<MdPersonRemove />}
-                    w='100%'
+                    w='30%'
                     variant="delete">
                     Remove
                   </Button>
@@ -177,6 +186,15 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
             </Card>
           ))}
       </SimpleGrid>
+      {isOpen && selectedGroup &&
+        <MembershipsView
+          {...{
+            disclosureProps,
+            isOpen, onCloseDrawer: onClose,
+            group: selectedGroup,
+            sessionUserId: sessionUserId,
+          }} />
+      }
     </Stack>
   )
 }

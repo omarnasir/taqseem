@@ -9,18 +9,21 @@ const transaction = definePartsStyle({
   },
   tab: {
     borderTopRadius: 'md',
-    fontWeight: '400',
+    fontWeight: 500,
+    color: 'whiteAlpha.600',
     fontSize: 'sm',
     bg: 'whiteAlpha.100',
     letterSpacing: 'wide',
     _selected: {
-      bg: 'purple.700',
+      fontWeight: 900,
+      color: 'black',
+      bg: 'whiteAlpha.700',
     }
   },
   tablist: {
     marginX: 4,
-    borderBottom: '1px solid',
-    borderColor: 'purple.700',
+    borderBottomWidth: 1,
+    borderColor: 'whiteAlpha.300',
   },
 })
 

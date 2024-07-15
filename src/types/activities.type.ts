@@ -40,9 +40,8 @@ export type Activity = Prisma.ActivityGetPayload<typeof activityDefaultArgs>
 export type ActivityWithDetails = Prisma.ActivityGetPayload<typeof activityWithDetails> & { isInvolved: boolean }
 
 export type ActivityHistoryItem = {
-  owe: number,
-  getBack: number,
-  paidAt: Date,
+  amount: number,
+  paidAt: string,
 }
 
 export type ActivityService = {

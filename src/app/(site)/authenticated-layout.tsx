@@ -15,8 +15,8 @@ export default function AuthenticatedLayout({
   const heights = {
     header: '8vh',
     footer: {
-      base: '7.5vh',
-      md: '8vh',
+      base: '7vh',
+      md: '7.5vh',
     }
   };
 
@@ -38,7 +38,7 @@ export default function AuthenticatedLayout({
         </Header>
       </Flex>
       <Container
-        paddingX={1}
+        paddingX={2}
         flexDirection={'column'}
         position='absolute'
         overflow={'scroll'}

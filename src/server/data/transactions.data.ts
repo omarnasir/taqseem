@@ -374,17 +374,13 @@ async function getTransactionsByUserIdAndDate(userId: string, date: number) {
   try {
     console.log(userId, date)
     const transactions : ActivityHistoryItem[] = await prisma.$queryRaw`
-    SELECT q.paidAt, SUM(q.getBack) as getBack, SUM(q.owe) as owe
+    SELECT q.paidAt, SUM(q.amount) as amount
     FROM 
       (SELECT DATE(ROUND(t.paidAt / 1000), 'auto') as paidAt,
               CAST(CASE WHEN t.paidById = ${userId} 
                 THEN t.amount - td.userAmount
-                ELSE 0
-              END AS REAL )AS getBack,
-              CAST(CASE WHEN t.paidById != ${userId}
-                THEN td.userAmount
-                ELSE 0
-              END AS REAL) AS owe
+                ELSE td.userAmount
+              END AS REAL) AS amount
       FROM Transactions as t
       INNER JOIN
         (SELECT transactionId, userId, amount as userAmount

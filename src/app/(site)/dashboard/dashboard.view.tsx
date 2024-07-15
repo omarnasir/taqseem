@@ -1,6 +1,6 @@
 'use client'
 import NextLink from 'next/link'
-import { Bar, ResponsiveContainer, BarChart, YAxis } from 'recharts';
+import { Bar, ResponsiveContainer, BarChart, YAxis, LineChart, Line, XAxis, Label } from 'recharts';
 
 import {
   Text,
@@ -9,21 +9,22 @@ import {
   StatNumber,
   StatHelpText,
   StatArrow,
-  VStack,
   HStack,
   List,
   ListItem,
-  ListIcon,
-  Divider,
   Icon,
   Box,
   Stack,
+  Divider,
+  Heading,
+  VStack,
 } from '@chakra-ui/react'
+import { MdGroup } from 'react-icons/md';
+
+import { BoxOutline } from '@/app/(site)/components/boxOutline';
 
 import { type BalancesByUserGroups } from "@/types/users.type";
-
 import { type ActivityHistoryItem } from '@/types/activities.type';
-import { MdGroup } from 'react-icons/md';
 
 function formatBasedOnAmount({ amount, isColor, isType, isText }:
   { amount: number, isColor?: boolean, isType?: boolean, isText?: boolean }): string | undefined {
@@ -38,12 +39,11 @@ function formatBasedOnAmount({ amount, isColor, isType, isText }:
 }
 
 
-function Statistic({ label, value, variant, statProps }:
-  { label: string, value: number, variant?: string, statProps?: any }) {
+function Statistic({ value, variant, statProps }:
+  { value: number, variant?: string, statProps?: any }) {
 
   return (
     <Stat variant={variant ? variant : 'primary'} {...statProps}>
-      <StatLabel>{label}</StatLabel>
       <StatNumber color={formatBasedOnAmount({ amount: value, isColor: true })}>€{' '}{Math.abs(value).toFixed(2)}</StatNumber>
       <StatHelpText>
         {Math.abs(value) > 1e-2 && <StatArrow type={formatBasedOnAmount({ amount: value, isType: true })} />}
@@ -54,47 +54,47 @@ function Statistic({ label, value, variant, statProps }:
 }
 
 
-export default function DashboardView({ userGroupsBalance, activityHistory }: 
-  { userGroupsBalance: BalancesByUserGroups | undefined, activityHistory?: ActivityHistoryItem[] }) 
-{
-  const totalBalance : number = userGroupsBalance && Object.values(userGroupsBalance).reduce((acc: number, group) => acc + group.balance, 0) || 0;
+export default function DashboardView({ userGroupsBalance, activityHistory }:
+  { userGroupsBalance: BalancesByUserGroups | undefined, activityHistory?: ActivityHistoryItem[] }) {
+  const totalBalance: number = userGroupsBalance && Object.values(userGroupsBalance).reduce((acc: number, group) => acc + group.balance, 0) || 0;
 
   return (
-    <VStack spacing={4} align="stretch">
-      <HStack>
-        <Statistic label={'Total Balance'} value={totalBalance} statProps={{ width: '55%' }} />
-        <VStack w={'45%'}>
-          {!!activityHistory && activityHistory.length > 0 &&
-            <ResponsiveContainer width="100%" height={80}>
-              <BarChart data={activityHistory}>
-                <Bar dataKey="owe" stackId="a" fill="#38A169" />
-                <Bar dataKey="getBack" stackId="a" fill="#992513" />
-                <YAxis orientation={'right'} width={20} mirror={true} tick={{ fontSize: '8px' }} tickLine={true} axisLine={false} />
-              </BarChart>
-            </ResponsiveContainer>}
-          <Text variant={'caption'}>
-            {activityHistory && activityHistory.length > 0 ? 'Last 2 weeks' : 'No activity'}
-          </Text>
-        </VStack>
-      </HStack>
-      <Divider />
-      <Text variant={'h2'}>Your Groups</Text>
+    <Stack width={'100%'}>
+      <BoxOutline >
+        <Heading variant={'h1'}>Your balance</Heading>
+        <Statistic value={totalBalance} variant={'primary'} />
+        </BoxOutline>
+      <BoxOutline>
+        {!!activityHistory && activityHistory.length > 0 &&
+          <ResponsiveContainer width="100%" height={140}>
+            <BarChart data={activityHistory} margin={{ bottom: -12, left: 8 }}>
+              <Bar dataKey="amount" fill='white' />
+              <XAxis dataKey="paidAt" tick={{ fontSize: '8px', fill:'gray' }} tickLine={false} axisLine={false}/>
+              <YAxis orientation={'left'} width={20}
+                tick={{ fontSize: '10px',fill:'gray' }} tickLine={false} axisLine={false} />
+            </BarChart>
+          </ResponsiveContainer>}
+      </BoxOutline>
+      <Heading variant={'h3'}>Your groups</Heading>
       {userGroupsBalance &&
         <>
           <List variant={'groupBalances'}>
             {Object.entries(userGroupsBalance).map(([groupId, group]) =>
               <ListItem key={groupId}>
-                <HStack width={'100%'} as={NextLink} href={`/groups/${groupId}/transactions`}>
-                  <Box marginRight={2} bg={'bgListItem'} boxSize={'40px'} rounded={'lg'} alignContent={'center'} justifyContent={'center'} textAlign={'center'}>
-                    <Icon as={MdGroup} color='whiteAlpha.800' paddingTop={1} boxSize={'20px'}/>
+                <VStack width={'100%'}>
+                <HStack width={'100%'} as={NextLink} href={`/groups/${groupId}/transactions`} justifyContent={'space-between'} textAlign={'end'}>
+                  <Box marginRight={2} bg={'whiteAlpha.200'} boxSize={'43px'} rounded={'full'} alignContent={'center'} justifyContent={'center'} textAlign={'center'}>
+                    <Icon as={MdGroup} color='whiteAlpha.800' paddingTop={1} boxSize={'20px'} />
                   </Box>
-                  <Text width={'50%'} variant={'listPrimary'}>{group.groupName}</Text>
-                  <Statistic label={''} value={group.balance} variant={'secondary'} statProps={{ width: '40%' }}/>
+                  <Text width='50%' variant={'listPrimary'}>{group.groupName}</Text>
+                  <Statistic value={group.balance} variant='secondary' />
                 </HStack>
+                <Divider />
+                </VStack>
               </ListItem>
             )}
           </List>
         </>}
-    </VStack>
+    </Stack>
   );
 }

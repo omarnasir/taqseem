@@ -11,6 +11,7 @@ import {
   ListIcon,
   Button,
   Divider,
+  Heading,
 } from "@chakra-ui/react"
 import { ActivityService, type ActivityWithDetails } from '@/types/activities.type';
 import { ActivityTypeEnum, getTransactionIcon } from "@/lib/db/constants";
@@ -91,7 +92,7 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Text variant={'h1Center'}>Activity</Text>
+      <Heading variant={'h1Center'}>Activity</Heading>
       <Divider marginY={7}/>
       {data.pages.map((page) => (
         page.activities.map((activity) => (

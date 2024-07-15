@@ -16,7 +16,7 @@ const infoCard = definePartsStyle({
     boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
   },
   body: {
-    paddingTop: 0,
+    paddingTop: 4,
     alignSelf: 'flex-end',
   }
 })
@@ -36,20 +36,6 @@ const createCard = definePartsStyle({
   }
 })
 
-const summaryStat = definePartsStyle({
-  container: {
-    bg: 'itemSurface',
-    borderRadius: "lg",
-    boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
-  },
-  body: {
-    paddingBottom: 2,
-  },
-  footer: {
-    paddingTop: 0,
-    justifyContent: 'flex-end',
-  }
-})
 
 const loginCard = definePartsStyle({
   ...createCard,
@@ -60,23 +46,11 @@ const loginCard = definePartsStyle({
   },
 })
 
-const settlementCard = definePartsStyle({
-  container: {
-    bg: 'itemSurface',
-    borderRadius: "lg",
-    boxShadow: "0 2px 14px rgba(20, 19, 25, 0.5)",
-  },
-  header : {
-    justifyContent: 'space-between',
-  }
-})
 
 export const cardTheme = defineMultiStyleConfig({
   variants: {
     loginCard,
     infoCard,
     createCard,
-    summaryStat,
-    settlementCard,
   },
 })

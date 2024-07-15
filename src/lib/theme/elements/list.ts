@@ -9,38 +9,28 @@ const { definePartsStyle, defineMultiStyleConfig } =
 const transaction = definePartsStyle({
   item: {
     alignItems: 'center',
-    marginY: 2,
-    rounded: 'md',
-    paddingY: 4,
-    paddingX: 3,
-    boxShadow: '0px 8px 24px 0 rgba(0,0,0,0.2)',
-    bg: 'bgListItem',
+    borderBottomWidth: 0.5,
+    borderColor: 'whiteAlpha.300',
+    borderRadius: 0,
     display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
   },
 })
 
 const activity = definePartsStyle({
   item: {
     alignItems: 'center',
-    marginY: 2,
-    rounded: 'md',
-    paddingY: 3,
-    paddingX: 4,
-    backgroundColor: 'bgListItem',
+    borderBottomWidth: 0.5,
+    borderColor: 'whiteAlpha.300',
+    borderRadius: 0,
     display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
   },
 })
 
 const groupBalances = definePartsStyle({
   item: {
-    marginBottom: 4,
-    rounded: 'md',
-    borderBottomWidth: 0.5,
-    borderRadius: 0,
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingY: 0,
   },
 })
 
@@ -49,13 +39,22 @@ const members = definePartsStyle({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginY: 2,
     rounded: 'md',
-    paddingY: 2,
-    paddingX: 4,
-    backgroundColor: 'bgListItem',
+    borderBottomWidth: 0.5,
+    borderColor: 'whiteAlpha.300',
+    borderRadius: 0,
   },
 })
 
 
-export const listTheme = defineMultiStyleConfig({ variants: { transaction , activity, members, groupBalances } })
+export const listTheme = defineMultiStyleConfig(
+  {
+    baseStyle: {
+      item: {
+        marginY: 2,
+        paddingY: 3,
+      }
+    },
+    variants: { transaction, activity, members, groupBalances }
+  }
+)

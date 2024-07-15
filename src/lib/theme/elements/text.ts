@@ -55,31 +55,16 @@ const settlementTexts = defineStyleConfig({
 export const textTheme = defineStyleConfig({
   baseStyle: {
     fontWeight: 400,
-    letterSpacing: 'normal',
-    color: 'whiteAlpha.800'
+    letterSpacing: 'tight',
+    color: 'white'
   },
   variants: {
     ...settlementTexts.variants,
     ...activityTexts.variants,
-    h1: {
-      fontSize: 'xl',
-      fontWeight: 500,
-    },
-    h1Center: {
-      fontSize: 'xl',
-      alignSelf: 'center',
-      textAlign: 'center',
-      zIndex:'1',
-      position:'sticky',
-      top:'-6vh',
-    },
-    h2: {
-      fontSize: 'md',
-      fontWeight: 300,
-    },
     listPrimary: {
       textAlign: 'start',
       fontSize: 'md',
+      letterSpacing: 'normal',
       fontWeight: 500,
       color: 'white',
     },
@@ -90,9 +75,13 @@ export const textTheme = defineStyleConfig({
     },
     listSupplementary: {
       fontSize: 'xs',
-      opacity: 0.85,
+      opacity: 0.65,
       textAlign: 'end',
       color: 'whiteAlpha.800'
+    },
+    listAmount: {
+      textAlign: 'end',
+      fontSize: 'lg',
     },
     caption: {
       justifySelf: 'end',

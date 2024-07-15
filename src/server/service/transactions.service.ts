@@ -43,26 +43,41 @@ async function getActivityHistoryByTimePeriodService(timePeriod?: number): Promi
     throw new Error('Unauthorized');
   }
   try {
-    if (timePeriod === undefined) timePeriod = 14;
+    if (timePeriod === undefined) timePeriod = 30;
     let date = new Date();
     date.setDate(date.getDate() - timePeriod);
     const transactions = await getTransactionsByUserIdAndDate(session?.user?.id as string, date.getTime());
     if (!transactions) throw new Error("No transactions found")
 
-    const dates = transactions.map((transaction) => new Date(transaction.paidAt).toLocaleDateString());
+    // const dates = transactions.map((transaction) => new Date(transaction.paidAt).toLocaleDateString());
     
-    const missingDates = [];
-    for (let i = 0; i < timePeriod; i++) {
-      const date = new Date();
-      date.setUTCHours(0, 0, 0, 0);
-      date.setDate(date.getDate() - i);
-      if (!dates.includes(date.toLocaleDateString())) {
-        missingDates.push(date);
-      }
-    }
-    for (const missingDate of missingDates) {
-      transactions.push({ owe: 0, getBack: 0, paidAt: missingDate });
-    }
+    transactions.forEach((transaction) => {
+      transaction.paidAt = new Date(transaction.paidAt).toLocaleDateString('en-ca', {
+        month: 'short',
+        day: '2-digit'
+      })
+    })
+
+    // const missingDates = [];
+    // for (let i = 0; i < timePeriod; i++) {
+    //   const date = new Date();
+    //   date.setUTCHours(0, 0, 0, 0);
+    //   date.setDate(date.getDate() - i);
+    //   if (!dates.includes(date.toLocaleDateString())) {
+    //     missingDates.push(date);
+    //   }
+    // }
+    // for (const missingDate of missingDates) {
+    //   transactions.push({ amount: 0, paidAt: missingDate });
+    // }
+    // let cumsum: number = 0;
+
+    // transactions.forEach((transaction) => {
+    //   cumsum += transaction.amount;
+    //   transaction.amount = cumsum;
+    // }
+    // );
+
     return { success: true, data: transactions };
   }
   catch (e) {

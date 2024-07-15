@@ -25,6 +25,7 @@ import { MdEuroSymbol,
  } from 'react-icons/md';
 
 import { Confirm } from "@/app/(site)/components/confirm";
+
 import { useSessionHook } from "@/client/hooks/session.hook";
 import { createTransactionAction } from "@/server/actions/transactions.action";
 import { SimplifiedBalances, GroupBalanceDetails } from "@/types/groups.type";
@@ -41,18 +42,19 @@ type SettlementForm = {
 
 export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
   { groupId: string , settlementDetails: SimplifiedBalances[] , groupBalanceDetails: GroupBalanceDetails }) {
-
+    console.log('rerendered')
   const { session } = useSessionHook();
   const router = useRouter();
+  const defaultValues = {
+    data:
+    settlementDetails.map((settlement) => ({
+      amount: settlement.amount.toString(),
+      paidById: settlement.payor.userId,
+      paidforId: settlement.payee.userId,
+    }))
+  }
   const methods = useForm<SettlementForm>({
-    defaultValues:  {
-      data:
-      settlementDetails.map((settlement) => ({
-        amount: settlement.amount.toString(),
-        paidById: settlement.payor.userId,
-        paidforId: settlement.payee.userId,
-      }))
-    }
+    defaultValues:  defaultValues,
   });
 
   const {
@@ -61,10 +63,11 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
     handleSubmit,
     clearErrors,
     getFieldState,
-    formState: { isDirty, isValid }
+    reset,
+    formState: { isValid }
   } = methods;
 
-  const { fields, update, append, remove, replace } = useFieldArray({
+  const { fields, update, append, remove } = useFieldArray({
     control,
     name: 'data'
   })
@@ -102,15 +105,15 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <HStack spacing={1}  w={'100%'} justify={'space-between'}
-        borderBottom={'1px'} borderColor={'whiteAlpha.200'} paddingY={2}>
-          <Text variant={'settlementCaption'}>Who pays?</Text>
-          <Text variant={'settlementCaption'}>How much?</Text>
-          <Text variant={'settlementCaption'}>Who gets?</Text>
+        <HStack spacing={4} w={'100%'} justify={'space-between'} textAlign={'left'}
+        borderBottom={'1px'} borderColor={'whiteAlpha.200'} paddingY={2} mt={4}>
+          <Text w='33%' marginLeft={6} variant={'settlementCaption'}>Who pays?</Text>
+          <Text w='33%' variant={'settlementCaption'}>How much?</Text>
+          <Text w='33%' variant={'settlementCaption'}>Who gets?</Text>
         </HStack>
         {fields.map((field, index) => (
           <FormControl id={'data'} key={index} isInvalid={getFieldState(`data.${index}`).invalid}>
-            <HStack spacing={2} w={'100%'} justify={'space-between'}>
+            <HStack>
               <Checkbox onChange={(e) => {
                 if (!e.target.checked) update(index, { ...field, amount: '' })
                 else update(index, { ...field, amount: '0' })
@@ -118,9 +121,10 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
                 variant={'settlement'}
                 defaultChecked={true}
                 rounded='full'
-                size={'sm'}>
+                width={'5%'}
+                size={'md'}>
               </Checkbox>
-              <Select variant='settlement' size={'xs'}
+              <Select variant='settlement' size={'sm'}
                 {...register(`data.${index}.paidById` as const)}
                 defaultValue={field.paidById}>
                 {groupBalanceDetails.users.map((user) => (
@@ -128,8 +132,8 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
                 ))}
               </Select>
               <InputGroup variant={"settlement"}>
-                <InputLeftElement marginLeft={-2} marginTop={-1} alignContent={'center'} >
-                  <MdEuroSymbol  size={'0.75rem'} color='gray'/>
+                <InputLeftElement marginLeft={-2} marginTop={-1}>
+                  <MdEuroSymbol color='gray'/>
                 </InputLeftElement>
                 <Controller
                   name={`data.${index}.amount`}
@@ -137,7 +141,6 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
                   render={({ field: { ref, name, onChange, ...restField } }) => (
                     <NumberInput size={'sm'} variant={'settlement'}
                       {...restField}
-                      value={field.amount}
                       onChange={(value) => {
                         getFieldState(`data.${index}.amount`).invalid && clearErrors(`data.${index}.amount`)
                         onChange(value)
@@ -161,12 +164,13 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
                       <NumberInputField
                         ref={ref}
                         name={name}
+                        paddingLeft={4}
                         placeholder={'0,0'}
                         textIndent={'0.5rem'}
                       />
                     </NumberInput>)} />
               </InputGroup>
-              <Select variant='settlement' size={'xs'}
+              <Select variant='settlement' size={'sm'}
                 {...register(`data.${index}.paidforId` as const)}
                 defaultValue={field.paidforId}>
                 {groupBalanceDetails.users.map((user) => (
@@ -176,6 +180,7 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
                 ))}
               </Select>
             </HStack>
+            <Divider />
           </FormControl>
         ))}
         <Divider />
@@ -190,23 +195,13 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
             remove(fields.length - 1)
           } marginTop={2} />
           <IconButton variant={'outline'} size={'sm'} rounded={'full'} width={'10%'} icon={<MdResetIcon />} aria-label='Reset all settlements'
-          onClick={() => 
-          {
-            replace(settlementDetails.map((settlement, index) => {
-              return {
-                amount: settlement.amount.toString(),
-                paidById: settlement.payor.userId,
-                paidforId: settlement.payee.userId,
-              }
-            }))
-          }}
-          marginTop={2} />
+              onClick={() => { reset(defaultValues); }} marginTop={2} />
           </HStack>
           <HStack spacing={2} w={'80%'} justifyContent={'flex-end'}>
             <Confirm callback={() => {
               handleSubmit(onSubmit)();
             }} mode="settlement">
-              <Button variant={'settle'} size={'sm'} w={'40%'} disabled={!isDirty || !isValid} marginTop={2}>Settle</Button>
+              <Button variant={'settle'} size={'sm'} w={'40%'} isDisabled={!isValid || (fields.length === 0)} marginTop={2}>Settle</Button>
             </Confirm>
           </HStack>
         </HStack>

@@ -20,7 +20,6 @@ export default function Footer() {
     { name: 'Home', href: '/dashboard', icon: MdHomeFilled },
     { name: 'Groups', href: '/groups', icon: MdGroup },
     { name: 'Activity', href: '/activity', icon: MdNotifications },
-    // { name: 'Profile', href: '/profile', icon: MdPerson },
   ]
   const pathname = usePathname()
   
@@ -31,8 +30,8 @@ export default function Footer() {
       {linkItems.map((linkItem, index) => (
         <Button key={index} href={linkItem.href} as={Link} w='100%' h='100%'
           variant='footer'
-          borderTopColor={pathname.startsWith(linkItem.href) ? 'teal.500' : 'transparent'}
-          borderTopWidth={pathname.startsWith(linkItem.href) ? 2 : 0}
+          opacity={pathname.startsWith(linkItem.href) ? 1 : 0.5}
+          color={pathname.startsWith(linkItem.href) ? 'whiteAlpha.900' : 'whiteAlpha.700'}
           flexDirection={'column'}>
           <Icon as={linkItem.icon} boxSize={{base: 5, md: 6}} />
           <Text variant={'footer'}>{linkItem.name}</Text>
