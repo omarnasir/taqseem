@@ -8,28 +8,25 @@ const baseStyle = definePartsStyle({
   number: {
     marginRight: 2,
     textAlign: "right",
-    fontWeight: "500",
-    letterSpacing: "tight",
+    fontWeight: "400",
   },
   helpText: {
-    fontSize: "2xs",
+    fontSize: "xs",
     marginRight: 2,
     textAlign: "right",
-    fontWeight: "300",
   },
 })
 
 const primary = definePartsStyle({
   container: {
-    marginTop: 4,
+    marginTop: 0,
   },
   number: {
-    fontSize: "3xl",
+    fontSize: "5xl",
     textAlign: "left",
   },
   helpText: {
     textAlign: "left",
-    fontSize: "2xs",
   }
 })
 
@@ -43,7 +40,7 @@ const secondary = definePartsStyle({
     fontWeight: "500",
   },
   helpText: {
-    fontSize: "2xs",
+    fontSize: "sm",
   }
 })
 

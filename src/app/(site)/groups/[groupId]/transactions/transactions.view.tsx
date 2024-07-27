@@ -80,7 +80,7 @@ function SummaryDisplay({ transaction, users, userId }:
 
   return (
     <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'}>
-      <Text variant={'listPrimary'} marginBottom={1}>{transaction.name}</Text>
+      <Text variant={'listPrimary'} >{transaction.name}</Text>
       <Text variant={'listSupplementary'} textAlign={'start'}>
         {name + ' paid ' + Math.abs(transaction.amount).toFixed(1) + ' €'}
       </Text>

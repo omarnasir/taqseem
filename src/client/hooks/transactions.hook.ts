@@ -1,5 +1,5 @@
 'use client'
-import { useInfiniteQuery, g, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { type GetTransactionsResponse,
   TransactionWithDetails,
   GroupedTransactions

@@ -94,9 +94,9 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Heading variant={'h1Center'}>Activity</Heading>
       <Divider marginY={7}/>
-      {data.pages.map((page) => (
-        page.activities.map((activity) => (
-          <List w='100%' variant={'activity'} key={activity.id}>
+      <List w='100%' variant={'activity'}>
+        {data.pages.map((page) => (
+          page.activities.map((activity) => (
             <ListItem w='100%' key={activity.id}>
               <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
               <ActivitySummary activity={activity} userId={sessionData.user?.id as string} />
@@ -104,9 +104,9 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
                 {relativeTimeAgo(new Date(activity.createdAt))}
               </Text>
             </ListItem>
-          </List>
-        ))
-      ))}
+          ))
+        ))}
+      </List>
       <Button variant={'loadMore'}
         isDisabled={!hasNextPage}
         isLoading={isFetchingNextPage}

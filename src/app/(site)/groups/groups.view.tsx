@@ -139,12 +139,12 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
     <Stack direction={'column'} spacing={4} display={'flex'}>
       <HStack w='100%'>
         <VStack alignItems={'flex-start'} w='80%'>
-          <Heading variant={'h2'}>Groups</Heading>
+          <Heading variant={'h1'}>Groups</Heading>
           <Heading variant={'h3'}>Manage your groups.</Heading>
         </VStack>
         <CreateGroupDisclosure />
       </HStack>
-      <SimpleGrid spacing={4}>
+      <SimpleGrid spacing={4} marginTop={4}>
         {groups &&
           groups.map((group) => (
             <Card key={group.id} size={'sm'} variant={'infoCard'}>
@@ -152,14 +152,12 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
                 <HStack>
                   <MdGroups />
                   <Heading
-                    as={NextLink} marginLeft={2}
-                    href={`/groups/${group.id}/transactions`}
-                    fontSize={'lg'} letterSpacing={'wide'}
-                    fontWeight={300}>{group.name}</Heading>
+                    as={NextLink} variant={'h2'}
+                    href={`/groups/${group.id}/transactions`}>{group.name}</Heading>
                 </HStack>
               </CardHeader>
               <CardBody>
-              <ButtonGroup isDisabled={group.createdById !== sessionUserId}>
+              <ButtonGroup isDisabled={group.createdById !== sessionUserId} justifyContent={'flex-end'}>
                 <Button leftIcon={<MdManageAccounts />}
                   w='30%'
                   variant='settle'

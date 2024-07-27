@@ -11,8 +11,9 @@ import {
   MdHomeFilled,
   MdGroup,
   MdNotifications,
-  MdPerson,
+  MdSettings
 } from 'react-icons/md';
+
 
 
 export default function Footer() {
@@ -20,6 +21,7 @@ export default function Footer() {
     { name: 'Home', href: '/dashboard', icon: MdHomeFilled },
     { name: 'Groups', href: '/groups', icon: MdGroup },
     { name: 'Activity', href: '/activity', icon: MdNotifications },
+    { name: 'Settings', href: '/settings', icon:  MdSettings },
   ]
   const pathname = usePathname()
   
@@ -28,15 +30,18 @@ export default function Footer() {
       paddingX={0}
       justifyContent={'space-evenly'}>
       {linkItems.map((linkItem, index) => (
-        <Button key={index} href={linkItem.href} as={Link} w='100%' h='100%'
+        <Button key={index} href={linkItem.href} as={Link}
           variant='footer'
-          opacity={pathname.startsWith(linkItem.href) ? 1 : 0.5}
-          color={pathname.startsWith(linkItem.href) ? 'whiteAlpha.900' : 'whiteAlpha.700'}
-          flexDirection={'column'}>
+          color={pathname.startsWith(linkItem.href) ? 'white' : 'whiteAlpha.600'}>
           <Icon as={linkItem.icon} boxSize={{base: 5, md: 6}} />
           <Text variant={'footer'}>{linkItem.name}</Text>
         </Button>
       ))}
+      {/* <Button aria-label='Logout' variant='footer'
+        onClick={async () => await signOutAction()}>
+        <Icon as={MdLogout} boxSize={{base: 5, md: 6}} />
+        <Text variant={'footer'}>Logout</Text>
+      </Button> */}
     </Container>
   );
 }

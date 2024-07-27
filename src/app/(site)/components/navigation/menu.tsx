@@ -1,11 +1,7 @@
-import { usePathname } from 'next/navigation'
 import { Session } from 'next-auth';
 
 import {
-  MdHomeFilled,
-  MdGroup,
-  MdNotifications,
-  MdLogout, 
+  MdLogout,
   MdOutlineMenu
 } from 'react-icons/md';
 
@@ -13,7 +9,6 @@ import {
   IconButton,
   Text,
   Link,
-
   Menu,
   MenuButton,
   MenuGroup,
@@ -23,17 +18,9 @@ import {
 import { signOutAction } from '@/server/actions/auth.action';
 
 
-export default function NavbarMenu({session }: {session: Session}) {
-  const linkItems = [
-    { name: 'Home', href: '/dashboard', icon: MdHomeFilled },
-    { name: 'Groups', href: '/groups', icon: MdGroup },
-    { name: 'Activity', href: '/activity', icon: MdNotifications },
-    // { name: 'Profile', href: '/profile', icon: MdPerson },
-  ]
-  const pathname = usePathname()
-
+export default function NavbarMenu({ session }: { session: Session }) {
   return (
-    <Menu closeOnBlur={true} gutter={-4} >
+    <Menu closeOnBlur={true} offset={[-20, -100]} defaultIsOpen={true}>
       <MenuButton
         as={IconButton}
         aria-label='Options'
@@ -41,18 +28,8 @@ export default function NavbarMenu({session }: {session: Session}) {
         icon={<MdOutlineMenu size={25} />} />
       <MenuList>
         <MenuGroup title={`Hello, ${session?.user?.name}`} fontSize={'md'}>
-          {linkItems.map((linkItem, index) => (
-            <MenuItem key={index} href={linkItem.href} as={Link}
-              padding={4}
-              fontSize={'sm'}
-              bg={pathname === linkItem.href || (linkItem.href === '/groups' && pathname === '/transactions') ? 'teal.800' : 'transparent'}
-              flexDirection={'row'}
-              icon={<linkItem.icon/>}>
-              <Text fontWeight={300}>{linkItem.name}</Text>
-            </MenuItem>
-          ))}
           <MenuItem fontSize={'sm'} as='button' padding={4}
-          icon={<MdLogout />} onClick={async () => await signOutAction()}>Logout</MenuItem>
+            icon={<MdLogout />} onClick={async () => await signOutAction()}>Logout</MenuItem>
         </MenuGroup>
       </MenuList>
     </Menu>

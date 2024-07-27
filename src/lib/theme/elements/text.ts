@@ -4,7 +4,7 @@ import { defineStyleConfig } from '@chakra-ui/react'
 const activityTexts = defineStyleConfig({
   variants: {
     activityCreatedBy: {
-      fontSize: 'sm',
+      fontSize: 'md',
       color: 'whiteAlpha.900',
       letterSpacing: 'tight',
       fontWeight: '700'
@@ -55,7 +55,7 @@ const settlementTexts = defineStyleConfig({
 export const textTheme = defineStyleConfig({
   baseStyle: {
     fontWeight: 400,
-    letterSpacing: 'tight',
+    letterSpacing: 'normal',
     color: 'white'
   },
   variants: {
@@ -63,7 +63,7 @@ export const textTheme = defineStyleConfig({
     ...activityTexts.variants,
     listPrimary: {
       textAlign: 'start',
-      fontSize: 'md',
+      fontSize: 'lg',
       letterSpacing: 'normal',
       fontWeight: 500,
       color: 'white',
@@ -74,19 +74,19 @@ export const textTheme = defineStyleConfig({
       fontWeight: 500,
     },
     listSupplementary: {
-      fontSize: 'xs',
+      fontSize: 'sm',
       opacity: 0.65,
       textAlign: 'end',
       color: 'whiteAlpha.800'
     },
     listAmount: {
       textAlign: 'end',
-      fontSize: 'lg',
+      fontSize: 'xl',
     },
     caption: {
       justifySelf: 'end',
       textAlign: 'right',
-      fontSize: 'xs',
+      fontSize: 'sm',
       color: 'whiteAlpha.700'
     },
     footer: {

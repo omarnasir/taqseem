@@ -2,7 +2,7 @@ import { defineStyleConfig } from '@chakra-ui/react'
 
 const buttonFontSizes = {
   fontSize: {
-    base: 'sm',
+    base: 'md',
     '2xl': 'md',
   }
 }
@@ -60,8 +60,8 @@ const baseVariants = defineStyleConfig({
     delete: {
       ...buttonFontSizes,
       borderWidth: 0.5,
-      borderColor: 'red.300',
-      color: 'red.300',
+      borderColor: 'red.200',
+      color: 'red.200',
     },
     deleteBin: {
       ...buttonFontSizes,
@@ -77,6 +77,10 @@ const baseVariants = defineStyleConfig({
     footer: {
       color: 'whiteAlpha.800',
       borderRadius: '0',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
     },
     previous: {
       bg: 'rgb(50,50,50)',
@@ -97,7 +101,7 @@ const baseVariants = defineStyleConfig({
     },
     action: {
       ...buttonFontSizes,
-      bg: 'whiteAlpha.800',
+      bg: 'purple.200',
       color: 'black',
     },
     formNavigation: {
@@ -140,16 +144,15 @@ const baseVariants = defineStyleConfig({
 export const buttonTheme = defineStyleConfig({
   baseStyle: {
     borderRadius: 'md',
-    fontWeight: 900,
+    fontWeight: '500',
     color: 'black',
-    letterSpacing: 'normal',
   },
   sizes: {
     sm: {
       height: '2rem',
     },
     md: {
-      height: '2rem',
+      height: '2.2rem',
     },
   },
   variants: {

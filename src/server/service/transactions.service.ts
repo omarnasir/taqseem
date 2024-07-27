@@ -37,20 +37,17 @@ async function getUserTransactionsByGroupIdService(input: GetTransactionsInput):
 }
 
 
-async function getActivityHistoryByTimePeriodService(timePeriod?: number): Promise<GETActivityHistory> {
+async function getActivityHistoryByTimePeriodService(): Promise<GETActivityHistory> {
   const session = await auth();
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
   try {
-    if (timePeriod === undefined) timePeriod = 30;
-    let date = new Date();
-    date.setDate(date.getDate() - timePeriod);
-    const transactions = await getTransactionsByUserIdAndDate(session?.user?.id as string, date.getTime());
+    const transactions = await getTransactionsByUserIdAndDate(session?.user?.id as string);
     if (!transactions) throw new Error("No transactions found")
-
-    // const dates = transactions.map((transaction) => new Date(transaction.paidAt).toLocaleDateString());
     
+    // const dates = transactions.map((transaction) => new Date(transaction.paidAt).toLocaleDateString());
+
     transactions.forEach((transaction) => {
       transaction.paidAt = new Date(transaction.paidAt).toLocaleDateString('en-ca', {
         month: 'short',
@@ -64,7 +61,10 @@ async function getActivityHistoryByTimePeriodService(timePeriod?: number): Promi
     //   date.setUTCHours(0, 0, 0, 0);
     //   date.setDate(date.getDate() - i);
     //   if (!dates.includes(date.toLocaleDateString())) {
-    //     missingDates.push(date);
+    //     missingDates.push(date.toLocaleDateString('en-ca', {
+    //       month: 'short',
+    //       day: '2-digit'
+    //     }));
     //   }
     // }
     // for (const missingDate of missingDates) {
@@ -77,7 +77,7 @@ async function getActivityHistoryByTimePeriodService(timePeriod?: number): Promi
     //   transaction.amount = cumsum;
     // }
     // );
-
+    
     return { success: true, data: transactions };
   }
   catch (e) {

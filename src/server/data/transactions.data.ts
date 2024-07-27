@@ -153,7 +153,7 @@ async function updateTransaction(userId: string, groupId: string, data: UpdateTr
     data: {
       ...data,
       createdById: userId,
-      amount: -1 * data.amount,
+      amount: -1 * (data.amount as number),
       transactionDetails: {
         deleteMany: {
           transactionId: data.id as number
@@ -370,9 +370,8 @@ async function getBalancesByUserGroups(userId: string) : Promise<BalancesByUserG
  * @returns 
  * @throws Error if failed to get transactions
  */
-async function getTransactionsByUserIdAndDate(userId: string, date: number) {
+async function getTransactionsByUserIdAndDate(userId: string) {
   try {
-    console.log(userId, date)
     const transactions : ActivityHistoryItem[] = await prisma.$queryRaw`
     SELECT q.paidAt, SUM(q.amount) as amount
     FROM 
@@ -387,7 +386,8 @@ async function getTransactionsByUserIdAndDate(userId: string, date: number) {
         FROM TransactionDetails
         WHERE userId = ${userId}) AS td
       ON t.id = td.transactionId
-      WHERE t.paidAt > ${date}) AS q
+      ORDER BY t.paidAt DESC
+      LIMIT 30) AS q
     GROUP BY q.paidAt
     ORDER BY q.paidAt ASC;`
 

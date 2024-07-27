@@ -10,6 +10,7 @@ import {
   IconButton,
   Skeleton,
   Box,
+  Heading,
 } from '@chakra-ui/react'
 
 import {
@@ -75,48 +76,46 @@ export function SettleView({ groupId, groupBalanceDetails, settlementDetails }:
 
 
   return (
-    <VStack spacing={4}>
+    <VStack spacing={4} display={'flex'}>
       <BoxOutline>
-        <Text marginY={2} variant='h1'>{groupBalanceDetails.groupName}</Text>
-        <Text marginY={2} variant={'h2'}>Settlement Summary</Text>
-        <Box marginX={-4}>
-          <ResponsiveContainer width={'100%'} height={chartData.length * 45} >
-            <BarChart data={chartData} layout='vertical'>
-              <Bar dataKey="balance" barSize={20} yAxisId={0}>
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.balance > 0 ? 'rgb(99, 255, 132)' : 'rgb(255, 99, 132)'} />
-                ))}
-              </Bar>
-              <XAxis type="number" hide />
-              <YAxis yAxisId={0} textAnchor="end" type="category" dataKey="userName" tickLine={false} axisLine={false} fontSize={12} tick={{ fill: 'white' }} />
-              <YAxis yAxisId={1} orientation='right' type="category" dataKey="balance" tickLine={false} axisLine={false}
-                tick={(props) => {
-                  const { x, y, payload } = props;
-                  return (
-                    <g transform={`translate(${x},${y})`}>
-                      <text fontSize={12} x={0} y={0} dy={4}
-                        fill={payload.value === 0 ? 'gray' : payload.value > 0 ? 'rgb(99, 255, 132)' : 'rgb(255, 99, 132)'}>
-                        {payload.value.toFixed(2)} €
-                      </text>
-                    </g>
-                  );
-                }
-                } />
-            </BarChart>
-          </ResponsiveContainer>
-        </Box>
+        <Heading marginY={2} variant='h2'>{groupBalanceDetails.groupName}</Heading>
+        <Heading marginY={2} variant={'h3'}>Settlement Summary</Heading>
+        <ResponsiveContainer width={'100%'} height={chartData.length * 45}>
+          <BarChart data={chartData} layout='vertical' style={{marginLeft: '-4px'}}>
+            <Bar dataKey="balance" barSize={20} yAxisId={0}>
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.balance > 0 ? 'rgb(99, 255, 132)' : 'rgb(255, 99, 132)'} />
+              ))}
+            </Bar>
+            <XAxis type="number" hide />
+            <YAxis yAxisId={0} textAnchor="end" type="category" dataKey="userName" tickLine={false} axisLine={false} fontSize={12} tick={{ fill: 'white' }} />
+            <YAxis yAxisId={1} orientation='right' type="category" dataKey="balance" tickLine={false} axisLine={false}
+              tick={(props) => {
+                const { x, y, payload } = props;
+                return (
+                  <g transform={`translate(${x},${y})`}>
+                    <text fontSize={12} dy={4}
+                      fill={payload.value === 0 ? 'gray' : payload.value > 0 ? 'rgb(99, 255, 132)' : 'rgb(255, 99, 132)'}>
+                      {payload.value.toFixed(2)} €
+                    </text>
+                  </g>
+                );
+              }
+              } />
+          </BarChart>
+        </ResponsiveContainer>
       </BoxOutline>
       {settlementDetails.length > 0 ? (
-        <BoxOutline size='sm'>
+        <Box marginTop={4}>
           <HStack justifyContent={'space-between'}>
             <VStack>
-              <Text alignSelf={'flex-start'} variant={'h2'}>Settlement Actions</Text>
+              <Heading alignSelf={'flex-start'} variant={'h2'}>Settlement Actions</Heading>
               <Text variant={'settlementCaption'}>You can use the form below with simplified debts, or specify the amount to settle.</Text>
             </VStack>
             <SimplifiedBalancesPopover settlementDetails={settlementDetails} />
           </HStack>
           <SettleForm groupId={groupId} settlementDetails={settlementDetails} groupBalanceDetails={groupBalanceDetails} />
-        </BoxOutline>
+        </Box>
       ) : (
         <Text fontSize="sm" color="whiteAlpha.500">No debts to settle.</Text>
       )}

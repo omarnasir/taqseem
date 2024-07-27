@@ -9,8 +9,10 @@ export function BoxOutline({ children, ...props }
   return (
     <Box
       width={'100%'}
-      borderRadius="lg"
+      borderRadius="xl"
+      bg={'itemSurface'}
       paddingY={4}
+      paddingX={4}
       {...props}
     >
       {children}

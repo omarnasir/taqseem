@@ -42,7 +42,6 @@ type SettlementForm = {
 
 export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
   { groupId: string , settlementDetails: SimplifiedBalances[] , groupBalanceDetails: GroupBalanceDetails }) {
-    console.log('rerendered')
   const { session } = useSessionHook();
   const router = useRouter();
   const defaultValues = {

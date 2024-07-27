@@ -1,5 +1,5 @@
 'use client';
-import { Container, Flex } from '@chakra-ui/react';
+import { Box, Container, Flex } from '@chakra-ui/react';
 
 import Footer from '@/app/(site)/components/navigation/footer';
 import Header from '@/app/(site)/components/navigation/header';
@@ -20,37 +20,26 @@ export default function AuthenticatedLayout({
     }
   };
 
-  return (<Container
+  return (<Box
       h='100vh'
       paddingX={0}
       flexDirection={'column'}
       alignItems={'center'}
       display={'flex'}>
-      <Flex
-        zIndex={1}
-        height={heights.header}
-        bg='bgHeader'
-        w='100%'
-        position='absolute'
-        top={0}>
-        <Header>
-          <NavbarMenu session={session} />
-        </Header>
-      </Flex>
       <Container
         paddingX={2}
         flexDirection={'column'}
-        position='absolute'
         overflow={'scroll'}
-        pt={heights.header}
+        // pt={heights.header}
         sx={{
           '&::-webkit-scrollbar': {
             display: 'none',
           },
           scrollbarWidth: 'none',
         }}
+        top={'2vh'}
+        position={'absolute'}
         pb={heights.footer}
-        top={0}
         bottom={heights.footer}>
         {children}
       </Container>
@@ -59,14 +48,13 @@ export default function AuthenticatedLayout({
         boxShadow={'dark-lg'}
         borderTopWidth={0}
         bg='bgFooter'
-        borderBottomWidth={2}
-        borderBottomColor='whiteAlpha.200'
+        borderBottomWidth={0}
         w='100%'
-        position='absolute'
+        position='fixed'
         overflow={'hidden'}
         bottom={0}>
-        <Footer />
+      <Footer />
       </Flex>
-    </Container>
+    </Box>
   );
 }
