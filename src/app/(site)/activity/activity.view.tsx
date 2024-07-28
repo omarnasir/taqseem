@@ -1,5 +1,5 @@
 'use client'
-import React from "react"
+import React, { useState } from "react"
 
 import {
   Text,
@@ -12,13 +12,18 @@ import {
   Button,
   Divider,
   Heading,
+  useDisclosure,
 } from "@chakra-ui/react"
 import { ActivityService, type ActivityWithDetails } from '@/types/activities.type';
 import { ActivityTypeEnum, getTransactionIcon } from "@/lib/db/constants";
 
-import { GroupData } from "@/types/groups.type";
+import { GroupData, GroupWithMembers } from "@/types/groups.type";
 
 import { useGetUserActivity } from "@/client/hooks/activities.hook";
+import { TransactionWithDetails } from "@/types/transactions.type";
+import { Transaction } from "../groups/[groupId]/transactions/transaction";
+import { UserBasicData } from "@/types/users.type";
+import { User } from "next-auth";
 
 const cardItemWidths = {
   icon: '7%',
@@ -66,16 +71,19 @@ function ActivitySummary({ activity, userId }: { activity: ActivityWithDetails, 
         <Text variant={'activityCreatedBy'} >
           {activity.createdById === userId ? 'You' : activity.createdBy?.name}
         </Text>
-        <Text variant={'activityDescription'}>{action}{' '}{transactionName}{' in '}{activity.group?.name}{'.'}
+        <Text variant={'activityDescription'}>{action}{transactionName}.
         </Text>
       </HStack>
       <HStack>
+        <Text variant={'activityUserStatus'}>
+          {activity.group?.name}
+        </Text>
         {!activity.isInvolved ?
           <Text variant={'activityUserStatus'}>
             You are not involved</Text> :
-            <Text variant={activity.transaction.paidById === userId ? 'activityLent' : 'activityBorrowed'}>
-              You{' '}{activity.transaction.paidById === userId ? (activity.transaction.isSettlement ? 'paid' : 'lent') :(activity.transaction.isSettlement ? 'get back' : 'borrowed')}{' '}
-              {Math.abs(activity.amount).toFixed(2)}{' '}€</Text>}
+          <Text variant={activity.transaction.paidById === userId ? 'activityLent' : 'activityBorrowed'}>
+            You{' '}{activity.transaction.paidById === userId ? (activity.transaction.isSettlement ? 'paid' : 'lent') : (activity.transaction.isSettlement ? 'get back' : 'borrowed')}{' '}
+            {Math.abs(activity.amount).toFixed(2)}{' '}€</Text>}
       </HStack>
     </VStack>
   )
@@ -90,6 +98,12 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
     isFetchingNextPage
    } = useGetUserActivity(sessionData.user?.id as string, userGroups.map(group => group.id), activitiesInitialData);
 
+   const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
+   const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
+   const [group, setGroup] = useState<GroupWithMembers>();
+   const { onClick, buttonProps } = getButtonProps();
+   const disclosureProps = getDisclosureProps();
+
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
       <Heading variant={'h1Center'}>Activity</Heading>
@@ -97,7 +111,18 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
       <List w='100%' variant={'activity'}>
         {data.pages.map((page) => (
           page.activities.map((activity) => (
-            <ListItem w='100%' key={activity.id}>
+            <ListItem w='100%' key={activity.id}
+            onClick={
+              async () => {
+                const [transaction, members] : [TransactionWithDetails, UserBasicData[]] = await Promise.all([
+                  fetch(`/api/groups/transaction/?transactionId=${activity.transactionId}`).then(res => res.json()),
+                  fetch(`/api/groups/memberships/?groupId=${activity.groupId}`).then(res => res.json())
+                ])
+                setSelectedTransaction(transaction);
+                setGroup({ ...userGroups.find(group => group.id === activity.groupId) as GroupData, users: members });
+                onClick();
+              }
+            }>
               <ListIcon as={getTransactionIcon(activity.transaction.category)} width={cardItemWidths.icon} h='5' color='whiteAlpha.700' />
               <ActivitySummary activity={activity} userId={sessionData.user?.id as string} />
               <Text variant={'listSupplementary'} width={cardItemWidths.date}>
@@ -106,6 +131,15 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
             </ListItem>
           ))
         ))}
+        {isOpen &&
+          <Transaction
+            {...{
+              disclosureProps,
+              isOpen, onCloseDrawer: onClose,
+              group: group as GroupWithMembers,
+              transactionWithDetails: selectedTransaction,
+            }} />
+        }
       </List>
       <Button variant={'loadMore'}
         isDisabled={!hasNextPage}

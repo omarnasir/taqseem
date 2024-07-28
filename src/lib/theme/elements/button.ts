@@ -101,7 +101,7 @@ const baseVariants = defineStyleConfig({
     },
     action: {
       ...buttonFontSizes,
-      bg: 'purple.200',
+      bg: 'orange.300',
       color: 'black',
     },
     formNavigation: {

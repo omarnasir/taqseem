@@ -10,7 +10,7 @@ const activityTexts = defineStyleConfig({
       fontWeight: '700'
     },
     activityDescription: {
-      fontSize: 'sm',
+      fontSize: 'md',
       color: 'whiteAlpha.800',
     },
     activityUserStatus: {

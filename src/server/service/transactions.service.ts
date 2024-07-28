@@ -1,9 +1,11 @@
 "use server";
 import { 
+  getTransactionById,
   getTransactionsByGroupId,
   getTransactionsByUserIdAndDate,
  } from '@/server/data/transactions.data';
 import {
+  TransactionWithDetails,
   type GetTransactionsInput,
   type GetTransactionsResponse
 } from "@/types/transactions.type";
@@ -14,6 +16,28 @@ import { auth } from '@/lib/auth';
 
 type GETGroupedTransactionsResponse = ServiceResponse<GetTransactionsResponse>
 type GETActivityHistory = ServiceResponse<ActivityHistoryItem[]>
+type GETTransactionResponse = ServiceResponse<TransactionWithDetails>
+
+
+/**
+ * Get transaction by transaction Id.
+ * @param input
+ * @returns
+ */
+async function getTransactionByIdService(transactionId: number): Promise<GETTransactionResponse> {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error('Unauthorized');
+  }
+  try {
+    const response = await getTransactionById(transactionId);
+
+    return { success: true, data: response };
+  }
+  catch (e) {
+    throw new Error(e.message);
+  }
+}
 
 
 /**
@@ -86,6 +110,7 @@ async function getActivityHistoryByTimePeriodService(): Promise<GETActivityHisto
 }
 
 export {
+  getTransactionByIdService,
   getUserTransactionsByGroupIdService,
   getActivityHistoryByTimePeriodService
 }

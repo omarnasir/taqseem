@@ -1,13 +1,15 @@
 "use server";
+import { auth } from "@/lib/auth";
 import DashboardView from "./dashboard.view";
 import { getBalancesByUserGroupsService } from "@/server/service/groups.service";
 import { getActivityHistoryByTimePeriodService } from "@/server/service/transactions.service";
 
 
 export default async function DashboardPage() {
-  const [userGroupsBalance, activityHistory ] = await Promise.all([
+  const [userGroupsBalance, activityHistory, sessionData ] = await Promise.all([
     getBalancesByUserGroupsService(),
-    getActivityHistoryByTimePeriodService()
+    getActivityHistoryByTimePeriodService(),
+    auth()
   ]);
 
   if (!userGroupsBalance.success || !activityHistory.success) {
@@ -15,6 +17,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <DashboardView userGroupsBalance={userGroupsBalance.data} activityHistory={activityHistory.data}/>
+    <DashboardView userGroupsBalance={userGroupsBalance.data} activityHistory={activityHistory.data}
+      user={sessionData?.user}/>
   );
 }

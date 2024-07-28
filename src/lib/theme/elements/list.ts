@@ -31,8 +31,9 @@ const activity = definePartsStyle({
 const groupBalances = definePartsStyle({
   item: {
     display: 'flex',
-    borderRadius: 'lg',
-    paddingY: 0,
+    borderRadius: 'xl',
+    paddingX: 3,
+    background: 'itemSurface',
   },
 })
 

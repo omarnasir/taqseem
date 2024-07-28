@@ -23,6 +23,7 @@ async function getTransactionById(transactionId: number) : Promise<TransactionWi
       }
     });
     if (!transaction) throw new Error("Transaction not found");
+    transaction.amount = Math.abs(transaction.amount);
     return transaction;
   }
   catch (e) {
@@ -78,7 +79,7 @@ async function getTransactionsByGroupId({ groupId, cursor, direction, isFirstFet
     if (!transactions || transactions.length === 0) 
       return { transactions: [], cursor: { next: undefined, prev: undefined, direction: direction } };
     transactions.map(transaction => {
-      return transaction.amount = transaction.amount < 0 ? -1 * transaction.amount : transaction.amount;
+      return transaction.amount = Math.abs(transaction.amount);
     });
 
     return {
@@ -169,6 +170,7 @@ async function updateTransaction(userId: string, groupId: string, data: UpdateTr
     include: {
       transactionDetails: true
     }})
+    updatedTransaction.amount = Math.abs(updatedTransaction.amount);
     return updatedTransaction;
   }
   catch (e) {
@@ -386,8 +388,8 @@ async function getTransactionsByUserIdAndDate(userId: string) {
         FROM TransactionDetails
         WHERE userId = ${userId}) AS td
       ON t.id = td.transactionId
-      ORDER BY t.paidAt DESC
-      LIMIT 30) AS q
+      ORDER BY paidAt DESC
+      LIMIT 10) AS q
     GROUP BY q.paidAt
     ORDER BY q.paidAt ASC;`
 

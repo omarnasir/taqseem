@@ -27,7 +27,7 @@ export default function AuthenticatedLayout({
       alignItems={'center'}
       display={'flex'}>
       <Container
-        paddingX={2}
+        paddingX={4}
         flexDirection={'column'}
         overflow={'scroll'}
         // pt={heights.header}

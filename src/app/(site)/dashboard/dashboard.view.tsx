@@ -18,6 +18,8 @@ import {
   Divider,
   Heading,
   VStack,
+  Flex,
+  Skeleton,
 } from '@chakra-ui/react'
 import { MdGroup } from 'react-icons/md';
 
@@ -44,54 +46,55 @@ function Statistic({ value, variant, statProps }:
 }
 
 
-export default function DashboardView({ userGroupsBalance, activityHistory }:
-  { userGroupsBalance: BalancesByUserGroups | undefined, activityHistory?: ActivityHistoryItem[] }) {
+export default function DashboardView({ userGroupsBalance, activityHistory, user }:
+  { userGroupsBalance: BalancesByUserGroups | undefined, activityHistory?: ActivityHistoryItem[], user: any }) {
   const totalBalance: number = userGroupsBalance && Object.values(userGroupsBalance).reduce((acc: number, group) => acc + group.balance, 0) || 0;
 
+  const lastTenTransactions = activityHistory?.reduce((acc: number, item) => acc + item.amount, 0) || 0;
+
   return (
-    <Stack width={'100%'} display={'flex'} spacing={4}>
-      <BoxOutline>
-        <Heading variant={'h1'}>Your balance</Heading>
+    <Stack width={'100%'} spacing={4}>
+      <Box alignSelf={'start'} >
+        <Heading variant={'h2'}>Hello, {user?.name}!</Heading>
         <Statistic value={totalBalance} variant={'primary'} />
-        {!!activityHistory && activityHistory.length > 0 &&
-          <Box padding={0} pos={'relative'} opacity={0.6}>
-            <ResponsiveContainer width="100%" height={140}>
-              <BarChart data={activityHistory} margin={{ bottom: -12, left: 8 }}>
+      </Box>
+      <Box paddingY={4}>
+        <Skeleton isLoaded={!!activityHistory && activityHistory.length > 0} height={'200px'}>
+          <ResponsiveContainer width="100%" height={140}>
+            <BarChart data={activityHistory} margin={{ bottom: -12, left: 8 }}>
               <defs>
                 <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="gray" stopOpacity={0.1} />
-                  <stop offset="95%" stopColor="gray" stopOpacity={0.7} />
+                  <stop offset="5%" stopColor="white" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="white" stopOpacity={0.4} />
                 </linearGradient>
               </defs>
-                <Bar dataKey="amount" fill="url(#colorUv)" type={'basis'} strokeWidth={0}/>
-                <XAxis dataKey="paidAt" tick={{ fontSize: '9px', fill: 'gray' }} axisLine={false} />
-                <YAxis orientation={'left'} width={20} tickCount={3}
-                  tick={{ fontSize: '9px', fill: 'gray' }} tickLine={false} axisLine={false} />
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
-        }
-      </BoxOutline>
+              <Bar dataKey="amount" fill="url(#colorUv)" type={'basis'} strokeWidth={0} />
+              <XAxis dataKey="paidAt" tick={{ fontSize: '9px', fill: 'gray' }} axisLine={false} />
+              <YAxis orientation={'left'} width={20} tickCount={3}
+                tick={{ fontSize: '9px', fill: 'gray' }} tickLine={false} axisLine={false} />
+            </BarChart>
+          </ResponsiveContainer>
+          <HStack justify={'center'} marginTop={4} >
+            <Text variant={'caption'}>last 10 transactions</Text>
+            <Text variant={'caption'} color={lastTenTransactions > 0 ? 'lent' : 'borrowed'}>€{lastTenTransactions.toFixed(2)}</Text>
+          </HStack>
+        </Skeleton>
+      </Box>
       <Heading variant={'h2'}>Your groups</Heading>
-      {userGroupsBalance &&
-        <>
-          <List variant={'groupBalances'}>
-            {Object.entries(userGroupsBalance).map(([groupId, group]) =>
-              <ListItem key={groupId}>
-                <VStack width={'100%'}>
-                <HStack width={'100%'} as={NextLink} href={`/groups/${groupId}/transactions`} justifyContent={'space-between'} textAlign={'end'}>
-                  <Box marginRight={2} bg={'whiteAlpha.200'} boxSize={'43px'} rounded={'full'} alignContent={'center'} justifyContent={'center'} textAlign={'center'}>
-                    <Icon as={MdGroup} color='whiteAlpha.800' paddingTop={1} boxSize={'20px'} />
-                  </Box>
-                  <Heading width='50%' variant={'h3'} textAlign={'left'}>{group.groupName}</Heading>
-                  <Statistic value={group.balance} variant='secondary' />
-                </HStack>
-                <Divider />
-                </VStack>
-              </ListItem>
-            )}
-          </List>
-        </>}
+      <List variant={'groupBalances'}>
+        {userGroupsBalance &&
+          Object.entries(userGroupsBalance).map(([groupId, group]) =>
+            <ListItem key={groupId}>
+              <HStack width={'100%'} as={NextLink} href={`/groups/${groupId}/transactions`} justifyContent={'space-between'} textAlign={'end'}>
+                <Box marginRight={2} bg={'whiteAlpha.200'} boxSize={'43px'} rounded={'full'} alignContent={'center'} justifyContent={'center'} textAlign={'center'}>
+                  <Icon as={MdGroup} color='whiteAlpha.800' paddingTop={1} boxSize={'20px'} />
+                </Box>
+                <Heading width='50%' variant={'h3'} textAlign={'left'}>{group.groupName}</Heading>
+                <Statistic value={group.balance} variant='secondary' />
+              </HStack>
+            </ListItem>
+          )}
+      </List>
     </Stack>
   );
 }

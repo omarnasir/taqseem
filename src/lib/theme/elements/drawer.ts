@@ -14,7 +14,7 @@ const transaction = definePartsStyle({
   },
   dialog: {
     _dark: {
-      bg: 'rgba(77, 77, 90, 0.2)',
+      bg: 'bgModal',
       backdropFilter: 'blur(20px)'
     },
   },

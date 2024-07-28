@@ -11,7 +11,7 @@ export function BoxOutline({ children, ...props }
       width={'100%'}
       borderRadius="xl"
       bg={'itemSurface'}
-      paddingY={4}
+      paddingY={3}
       paddingX={4}
       {...props}
     >

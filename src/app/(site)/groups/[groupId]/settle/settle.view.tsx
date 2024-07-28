@@ -80,21 +80,21 @@ export function SettleView({ groupId, groupBalanceDetails, settlementDetails }:
       <BoxOutline>
         <Heading marginY={2} variant='h2'>{groupBalanceDetails.groupName}</Heading>
         <Heading marginY={2} variant={'h3'}>Settlement Summary</Heading>
-        <ResponsiveContainer width={'100%'} height={chartData.length * 45}>
-          <BarChart data={chartData} layout='vertical' style={{marginLeft: '-4px'}}>
+        <ResponsiveContainer width={'100%'} height={chartData.length * 40}>
+          <BarChart data={chartData} layout='vertical' margin={{left: -4}}>
             <Bar dataKey="balance" barSize={20} yAxisId={0}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.balance > 0 ? 'rgb(99, 255, 132)' : 'rgb(255, 99, 132)'} />
               ))}
             </Bar>
             <XAxis type="number" hide />
-            <YAxis yAxisId={0} textAnchor="end" type="category" dataKey="userName" tickLine={false} axisLine={false} fontSize={12} tick={{ fill: 'white' }} />
+            <YAxis yAxisId={0} textAnchor="end" type="category" dataKey="userName" tickLine={false} axisLine={false} fontSize={12} tick={{ fill: 'white' }}/>
             <YAxis yAxisId={1} orientation='right' type="category" dataKey="balance" tickLine={false} axisLine={false}
               tick={(props) => {
                 const { x, y, payload } = props;
                 return (
                   <g transform={`translate(${x},${y})`}>
-                    <text fontSize={12} dy={4}
+                    <text fontSize={12} x={0} y={0} dy={4}
                       fill={payload.value === 0 ? 'gray' : payload.value > 0 ? 'rgb(99, 255, 132)' : 'rgb(255, 99, 132)'}>
                       {payload.value.toFixed(2)} €
                     </text>

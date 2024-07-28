@@ -6,14 +6,13 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const baseStyle = definePartsStyle({
   number: {
-    marginRight: 2,
     textAlign: "right",
     fontWeight: "400",
   },
   helpText: {
     fontSize: "xs",
-    marginRight: 2,
     textAlign: "right",
+    color: "whiteAlpha.800",
   },
 })
 
@@ -24,8 +23,11 @@ const primary = definePartsStyle({
   number: {
     fontSize: "5xl",
     textAlign: "left",
+    marginBottom: -2,
+    fontFamily: "montserrat",
   },
   helpText: {
+    marginTop: 0,
     textAlign: "left",
   }
 })
@@ -33,9 +35,9 @@ const primary = definePartsStyle({
 const secondary = definePartsStyle({
   container: {
     textAlign: "center",
-    marginTop: 1,
   },
   number: {
+    fontFamily: "montserrat",
     fontSize: "2xl",
     fontWeight: "500",
   },
