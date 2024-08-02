@@ -2,18 +2,15 @@
 import { Box, Container, Flex } from '@chakra-ui/react';
 
 import Footer from '@/app/(site)/components/navigation/footer';
-import Header from '@/app/(site)/components/navigation/header';
-import NavbarMenu from '@/app/(site)/components/navigation/menu';
 
 import { Session } from 'next-auth';
 
 export default function AuthenticatedLayout({
-  children, session
+  children
 }: {
   children: React.ReactNode, session: Session
 }) {
   const heights = {
-    header: '8vh',
     footer: {
       base: '7vh',
       md: '7.5vh',
@@ -30,7 +27,6 @@ export default function AuthenticatedLayout({
         paddingX={4}
         flexDirection={'column'}
         overflow={'scroll'}
-        // pt={heights.header}
         sx={{
           '&::-webkit-scrollbar': {
             display: 'none',

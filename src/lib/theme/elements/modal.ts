@@ -27,7 +27,7 @@ const transaction = definePartsStyle({
 const confirm = definePartsStyle({
   dialog: {
     _dark: {
-      bg: 'bgModal',
+      bg: 'bgCard',
       color: 'white',
     },
   },
