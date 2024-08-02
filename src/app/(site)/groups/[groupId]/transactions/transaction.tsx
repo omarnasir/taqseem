@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Button,
   DrawerHeader,
@@ -93,16 +94,18 @@ function processTransactionDetails(values: FormTransaction): CreateTransactionDe
 
 
 function Transaction(
-  { group, disclosureProps, isOpen, onCloseDrawer, transactionWithDetails }: {
+  { group, disclosureProps, isOpen, onCloseDrawer, transactionWithDetails, shouldRefetch }: {
     group: GroupWithMembers,
     disclosureProps: any,
     isOpen: boolean,
     onCloseDrawer: () => void,
-    transactionWithDetails?: TransactionWithDetails
+    transactionWithDetails?: TransactionWithDetails,
+    shouldRefetch?: boolean
   }
 ) {
   const { session } = useSessionHook();
   const users = group.users!;
+  const router = useRouter();
 
   const mutation = useMutationAction();
 
@@ -113,24 +116,20 @@ function Transaction(
   const methods = useForm<FormTransaction>({
     values: defaultValues
   });
+  // Temporary fix for typescript stuck in 'loading' state
+  const { clearErrors, setError } : { clearErrors: any, setError: any } = methods;
 
-  const {
-    handleSubmit,
-    setError,
-    clearErrors,
-    formState: { isDirty, isValid }
-  } = methods
   const { addToast } = CustomToast();
 
 
   async function onSubmit(values: FormTransaction) {
-    // clearErrors(FormIdEnum.transactionDetails)
+    clearErrors(FormIdEnum.transactionDetails);
     let userDetails: CreateTransactionDetails[] = [];
     try {
       userDetails = processTransactionDetails(values);
     }
     catch (error) {
-      // setError(FormIdEnum.transactionDetails, { message: error })
+      setError(FormIdEnum.transactionDetails, { message: error })
       return
     }
     // Build the transaction object
@@ -145,6 +144,9 @@ function Transaction(
         groupId: group.id
       });
       onCloseDrawer();
+      if (shouldRefetch) {
+        window.location.reload();
+      }
     }
     else {
       addToast(values.id ? "Error updating transaction" : "Error creating transaction", response.error, "error")
@@ -166,6 +168,9 @@ function Transaction(
       addToast('Cannot delete transaction.', res.error, 'error')
     }
     onCloseDrawer();
+    if (shouldRefetch) {
+      window.location.reload();
+    }
   }
 
   return (
@@ -180,7 +185,7 @@ function Transaction(
       <DrawerOverlay />
       <DrawerContent height='100%' margin='auto'>
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
             <DrawerHeader w='100%' height={'8vh'} position='absolute'>
                 <Heading variant={'h2'}>{transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}</Heading>
               <DrawerCloseButton />
@@ -252,7 +257,7 @@ function Transaction(
                 <Button size={'sm'} w={'29%'}
                   leftIcon={transactionWithDetails ? <MdOutlineSync size={'1rem'} /> : <MdAdd size={'1rem'}/>}
                   variant={transactionWithDetails ? 'update' : 'add'}
-                  isDisabled={!isValid || !isDirty} 
+                  isDisabled={!methods.formState.isValid || !methods.formState.isDirty} 
                   isLoading={methods.formState.isSubmitting} type='submit'>
                   {transactionWithDetails ? 'Update' : 'Add'}
                 </Button>

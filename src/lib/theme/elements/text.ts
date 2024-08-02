@@ -74,7 +74,7 @@ export const textTheme = defineStyleConfig({
       fontWeight: 500,
     },
     listSupplementary: {
-      fontSize: 'sm',
+      fontSize: 'xs',
       opacity: 0.65,
       textAlign: 'end',
       color: 'whiteAlpha.800'

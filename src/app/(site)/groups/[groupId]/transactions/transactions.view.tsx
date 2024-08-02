@@ -68,7 +68,7 @@ function AmountDisplay({ transaction, userId }:
   return (amount === 0 ?
     <Text w={cardItemWidths['amount']} color={color} variant={'listSupplementary'}>not involved</Text>
     :
-    <Text w={cardItemWidths['amount']} variant={'listAmount'} color={color}>{amount === 0 ? '' : amount > 0 ? `€${amount.toFixed(2)}` : `€${(Math.abs(amount)).toFixed(2)}`}</Text>
+    <Text w={cardItemWidths['amount']} variant={'listAmount'} color={color}>{amount === 0 ? '' : '€ ' + (amount > 0 ? `${amount.toFixed(2)}` : `${(Math.abs(amount)).toFixed(2)}`)}</Text>
   )
 }
 
@@ -82,7 +82,7 @@ function SummaryDisplay({ transaction, users, userId }:
     <VStack width={cardItemWidths['desc']} spacing={0} alignItems={'flex-start'}>
       <Text variant={'listPrimary'} >{transaction.name}</Text>
       <Text variant={'listSupplementary'} textAlign={'start'}>
-        {name + ' paid ' + Math.abs(transaction.amount).toFixed(1) + ' €'}
+        {name + ' paid ' + '€ ' + Math.abs(transaction.amount).toFixed(1)}
       </Text>
     </VStack>
   )

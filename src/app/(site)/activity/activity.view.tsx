@@ -101,7 +101,7 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
    const { isOpen, onClose, getDisclosureProps, getButtonProps } = useDisclosure();
    const [selectedTransaction, setSelectedTransaction] = useState<TransactionWithDetails>();
    const [group, setGroup] = useState<GroupWithMembers>();
-   const { onClick, buttonProps } = getButtonProps();
+   const { onClick } = getButtonProps();
    const disclosureProps = getDisclosureProps();
 
   return (
@@ -138,6 +138,7 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
               isOpen, onCloseDrawer: onClose,
               group: group as GroupWithMembers,
               transactionWithDetails: selectedTransaction,
+              shouldRefetch: true
             }} />
         }
       </List>
