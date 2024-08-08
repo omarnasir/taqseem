@@ -21,14 +21,15 @@ const primary = definePartsStyle({
     marginTop: 0,
   },
   number: {
-    fontSize: "5xl",
+    fontSize: ["5xl", "6xl"],
     textAlign: "left",
-    marginBottom: -2,
+    marginY: -2,
     fontFamily: "montserrat",
   },
   helpText: {
     marginTop: 0,
     textAlign: "left",
+    fontSize: ["md", "lg"],
   }
 })
 
@@ -38,11 +39,11 @@ const secondary = definePartsStyle({
   },
   number: {
     fontFamily: "montserrat",
-    fontSize: "2xl",
+    fontSize: ["2xl", "3xl"],
     fontWeight: "500",
   },
   helpText: {
-    fontSize: "sm",
+    fontSize: ["sm", "md"],
   }
 })
 

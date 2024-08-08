@@ -1,11 +1,10 @@
 'use client'
 import NextLink from 'next/link'
-import { Bar, ResponsiveContainer, BarChart, YAxis, LineChart, Line, XAxis, Label, AreaChart, Area } from 'recharts';
+import { Bar, ResponsiveContainer, BarChart, YAxis, XAxis } from 'recharts';
 
 import {
   Text,
   Stat,
-  StatLabel,
   StatNumber,
   StatHelpText,
   StatArrow,
@@ -15,15 +14,10 @@ import {
   Icon,
   Box,
   Stack,
-  Divider,
   Heading,
-  VStack,
-  Flex,
   Skeleton,
 } from '@chakra-ui/react'
 import { MdGroup } from 'react-icons/md';
-
-import { BoxOutline } from '@/app/(site)/components/boxOutline';
 
 import { type BalancesByUserGroups } from "@/types/users.type";
 import { type ActivityHistoryItem } from '@/types/activities.type';
@@ -55,7 +49,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory, user
   return (
     <Stack width={'100%'} spacing={4}>
       <Box alignSelf={'start'} >
-        <Heading variant={'h2'}>Hello, {user?.name}!</Heading>
+        <Heading size={'h2'}>Hello, {user?.name}!</Heading>
         <Statistic value={totalBalance} variant={'primary'} />
       </Box>
       <Box paddingY={4}>
@@ -80,7 +74,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory, user
           </HStack>
         </Skeleton>
       </Box>
-      <Heading variant={'h2'}>Your groups</Heading>
+      <Heading size={'h2'}>Your groups</Heading>
       <List variant={'groupBalances'}>
         {userGroupsBalance &&
           Object.entries(userGroupsBalance).map(([groupId, group]) =>
@@ -89,7 +83,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory, user
                 <Box marginRight={2} bg={'whiteAlpha.200'} boxSize={'43px'} rounded={'full'} alignContent={'center'} justifyContent={'center'} textAlign={'center'}>
                   <Icon as={MdGroup} color='whiteAlpha.800' paddingTop={1} boxSize={'20px'} />
                 </Box>
-                <Heading width='50%' variant={'h3'} textAlign={'left'}>{group.groupName}</Heading>
+                <Heading width='50%' size={'h3'} variant={'h3'} textAlign={'left'}>{group.groupName}</Heading>
                 <Statistic value={group.balance} variant='secondary' />
               </HStack>
             </ListItem>

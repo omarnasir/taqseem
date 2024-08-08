@@ -93,8 +93,8 @@ export default function MembershipsView({
       <DrawerOverlay />
       <DrawerContent height='100%' margin='auto'>
         <DrawerHeader w='100%' height={'12vh'} position='absolute'>
-          <Heading variant='h2'>{group.name}</Heading>
-          <Heading variant='h3' marginY={2}>Manage memberships.</Heading>
+          <Heading size='h2'>{group.name}</Heading>
+          <Heading size='h3' marginY={2}>Manage memberships.</Heading>
           <DrawerCloseButton />
         </DrawerHeader>
         <DrawerBody position='absolute' overflowX={'clip'}  width='100%'
@@ -113,7 +113,7 @@ export default function MembershipsView({
                 <ListItem w='100%' key={member.id}>
                   <MdPerson width={'20%'} />
                   <Heading width={'50%'}
-                    fontSize={'md'}
+                    size={'md'}
                     fontWeight={400}>{member.name}</Heading>
                   <HStack w='30%'>
                     <Confirm callback={() => {
@@ -142,12 +142,12 @@ export default function MembershipsView({
           overflow={'hidden'}
           bottom={0}>
           <VStack spacing={4} width={'100%'}>
-            <Heading variant='h3'>Add a new Member</Heading>
+            <Heading size='h3'>Add a new Member</Heading>
             <FormControl isInvalid={!!errors?.email}>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <FormLabel htmlFor='email'>Email</FormLabel>
                 <Input
-                  size={'sm'}
+                  size={['sm', 'lg']}
                   marginRight={3}
                   rounded={'md'}
                   id='email'

@@ -109,10 +109,10 @@ function TransactionDisclosureWrapper({
         {...buttonProps}>new</IconButton>
       {transactions.map((yearData, index) => (
         <List w='100%' variant={'transaction'} key={index}>
-          <Heading marginY={2} variant={'h3'} textAlign={'center'}>{yearData.year}</Heading>
+          <Heading marginY={2} size={'h3'} textAlign={'center'}>{yearData.year}</Heading>
           {yearData.data.map((monthData, index) => (
             <div key={index}>
-              <Heading variant={'h4'} marginTop={4} textAlign={'center'}>{monthData.monthName}</Heading>
+              <Heading size={'h4'} marginTop={4} textAlign={'center'}>{monthData.monthName}</Heading>
               {monthData.data.map((transaction) => (
                 <ListItem w='100%' key={transaction.id}
                   onClick={
@@ -161,7 +161,7 @@ export default function TransactionsView({ group, transactionsInitialData, sessi
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Heading variant={'h1Center'}>{group?.name}</Heading>
+      <Heading size={'h1Center'}>{group?.name}</Heading>
       <Button variant={'settleGroup'} onClick={(e) => router.push(`/groups/${group.id}/settle`)}>Settle up</Button>
       <Divider />
       {hasPreviousPage &&

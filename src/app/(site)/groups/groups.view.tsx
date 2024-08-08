@@ -27,6 +27,7 @@ import {
   DrawerHeader,
   DrawerCloseButton,
   DrawerBody,
+  Icon,
 } from "@chakra-ui/react";
 
 
@@ -74,14 +75,14 @@ function CreateGroupDisclosure() {
           <DrawerContent >
             <DrawerCloseButton />
             <DrawerHeader>
-              <Heading variant='h3'>Create a New Group</Heading>
+              <Heading size='h3'>Create a New Group</Heading>
             </DrawerHeader>
             <DrawerBody>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <FormLabel htmlFor='name'>Name</FormLabel>
                 <Input
                   id='name'
-                  size={'sm'}
+                  size={['sm', 'lg']}
                   marginRight={3}
                   rounded={'md'}
                   placeholder='Name of your group'
@@ -139,8 +140,8 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
     <Stack direction={'column'} spacing={4} display={'flex'}>
       <HStack w='100%'>
         <VStack alignItems={'flex-start'} w='80%'>
-          <Heading variant={'h1'}>Groups</Heading>
-          <Heading variant={'h3'}>Manage your groups.</Heading>
+          <Heading size={'h1'}>Groups</Heading>
+          <Heading size={'h3'}>Manage your groups.</Heading>
         </VStack>
         <CreateGroupDisclosure />
       </HStack>
@@ -150,9 +151,9 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
             <Card key={group.id} size={'sm'} variant={'infoCard'}>
               <CardHeader>
                 <HStack>
-                  <MdGroups />
+                  <Icon as={MdGroups} boxSize={['1.2rem', '2rem']}/>
                   <Heading
-                    as={NextLink} variant={'h2'}
+                    as={NextLink} size={'h3'}
                     href={`/groups/${group.id}/transactions`}>{group.name}</Heading>
                 </HStack>
               </CardHeader>

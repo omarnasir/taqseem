@@ -78,8 +78,8 @@ export function SettleView({ groupId, groupBalanceDetails, settlementDetails }:
   return (
     <VStack spacing={4} display={'flex'}>
       <BoxOutline>
-        <Heading marginY={2} variant='h2'>{groupBalanceDetails.groupName}</Heading>
-        <Heading marginY={2} variant={'h3'}>Settlement Summary</Heading>
+        <Heading marginY={2} size='h2'>{groupBalanceDetails.groupName}</Heading>
+        <Heading marginY={2} size={'h3'}>Settlement Summary</Heading>
         <ResponsiveContainer width={'100%'} height={chartData.length * 40}>
           <BarChart data={chartData} layout='vertical' margin={{left: -4}}>
             <Bar dataKey="balance" barSize={20} yAxisId={0}>
@@ -109,7 +109,7 @@ export function SettleView({ groupId, groupBalanceDetails, settlementDetails }:
         <Box marginTop={4}>
           <HStack justifyContent={'space-between'}>
             <VStack>
-              <Heading alignSelf={'flex-start'} variant={'h2'}>Settlement Actions</Heading>
+              <Heading alignSelf={'flex-start'} size={'h2'}>Settlement Actions</Heading>
               <Text variant={'settlementCaption'}>You can use the form below with simplified debts, or specify the amount to settle.</Text>
             </VStack>
             <SimplifiedBalancesPopover settlementDetails={settlementDetails} />

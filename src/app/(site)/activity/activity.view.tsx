@@ -106,7 +106,7 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
 
   return (
     <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
-      <Heading variant={'h1Center'}>Activity</Heading>
+      <Heading size={'h1Center'}>Activity</Heading>
       <Divider marginY={7}/>
       <List w='100%' variant={'activity'}>
         {data.pages.map((page) => (

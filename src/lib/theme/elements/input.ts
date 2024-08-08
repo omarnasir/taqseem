@@ -13,11 +13,11 @@ export const base = definePartsStyle({
     textColor: "whiteAlpha.600",
     letterSpacing: "wide",
     fontWeight: 300,
-    fontSize: "md"
+    fontSize: ["md" , "lg"],
   },
   field: {
     borderRadius: "none",
-    fontSize: "md",
+    fontSize: ["md", "lg"],
     _invalid: {
       borderColor: "rgba(155, 25, 30, 1)",
       borderBottomWidth: "2px",

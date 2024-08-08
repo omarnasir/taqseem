@@ -187,7 +187,7 @@ function Transaction(
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <DrawerHeader w='100%' height={'8vh'} position='absolute'>
-                <Heading variant={'h2'}>{transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}</Heading>
+                <Heading size={'h2'}>{transactionWithDetails ? 'Edit Transaction' : 'Add Transaction'}</Heading>
               <DrawerCloseButton />
             </DrawerHeader>
             <DrawerBody position='absolute' overflowX={'clip'} p={{ base: 1, sm: 2 }} width='100%'

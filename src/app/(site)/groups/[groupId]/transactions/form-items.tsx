@@ -389,6 +389,7 @@ function FormItemIsSettlement() {
       <InputGroup size={'md'} alignItems={'flex-start'}>
       <FormLabel variant={'transaction'}>Settlement?</FormLabel>
       <Checkbox variant={'settlement'}
+      alignSelf={'center'}
       {...register(FormIdEnum.isSettlement, {
         required: false
       })} />

@@ -1,13 +1,13 @@
 import { defineStyleConfig } from '@chakra-ui/react'
 
 export const headingTheme = defineStyleConfig({
-  variants: {
+  sizes: {
     h1: {
-      fontSize: '2xl',
+      fontSize: ['2xl', '4xl'],
       fontWeight: 500,
     },
     h1Center: {
-      fontSize: 'xl',
+      fontSize: ['xl', '3xl'],
       alignSelf: 'center',
       textAlign: 'center',
       zIndex:'1',
@@ -15,15 +15,15 @@ export const headingTheme = defineStyleConfig({
       top:'-6vh',
     },
     h2: {
-      fontSize: 'xl',
+      fontSize: ['xl', '2xl'],
       fontWeight: 500,
     },
     h3: {
-      fontSize: 'md',
+      fontSize: ['lg', 'xl'],
       fontWeight: 500,
     },
     h4: {
-      fontSize: 'sm',
+      fontSize: ['md', 'lg'],
       fontWeight: 500,
     },
   }

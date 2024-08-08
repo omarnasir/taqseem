@@ -3,7 +3,7 @@ import { defineStyleConfig } from '@chakra-ui/react'
 const buttonFontSizes = {
   fontSize: {
     base: 'md',
-    '2xl': 'md',
+    'md': 'md',
   }
 }
 
@@ -159,7 +159,7 @@ export const buttonTheme = defineStyleConfig({
     ...baseVariants.variants,
     settleGroup: {
       ...baseVariants.variants?.settle,
-      fontSize: 'sm',
+      fontSize: ['sm', 'md'],
       height: '2.0rem',
       width: '30%',
       position: 'relative',
