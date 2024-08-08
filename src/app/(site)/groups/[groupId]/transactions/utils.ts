@@ -75,7 +75,7 @@ function mapTransactionToForm(transaction: TransactionWithDetails, users: UserBa
     ...transaction,
     category: transaction.isSettlement ? 0 : transaction.category,
     subCategory: transaction.isSettlement ? 0 : transaction.subCategory,
-    amount: transaction.amount.toFixed(2),
+    amount: Math.abs(transaction.amount).toFixed(2),
     paidAt: formatDateToString(transaction.paidAt),
     transactionDetails: users.map((user) => {
       const detail = transaction.transactionDetails.find((detail) => detail.userId === user.id)

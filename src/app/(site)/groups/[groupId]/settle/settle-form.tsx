@@ -96,7 +96,6 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
         }
       })
     }));
-    console.log(transactions);
     await Promise.all(transactions.map((transaction) => createTransactionAction(groupId, transaction))).then(() => {
       router.push(`/groups/${groupId}/transactions`);
     });

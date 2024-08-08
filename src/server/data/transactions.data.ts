@@ -78,9 +78,6 @@ async function getTransactionsByGroupId({ groupId, cursor, direction, isFirstFet
 
     if (!transactions || transactions.length === 0) 
       return { transactions: [], cursor: { next: undefined, prev: undefined, direction: direction } };
-    transactions.map(transaction => {
-      return transaction.amount = Math.abs(transaction.amount);
-    });
 
     return {
       transactions, cursor: {
@@ -170,7 +167,6 @@ async function updateTransaction(userId: string, groupId: string, data: UpdateTr
     include: {
       transactionDetails: true
     }})
-    updatedTransaction.amount = Math.abs(updatedTransaction.amount);
     return updatedTransaction;
   }
   catch (e) {

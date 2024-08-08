@@ -63,7 +63,7 @@ function AmountDisplay({ transaction, userId }:
         return td.userId === userId ? td.userId === paidById ? totalAmount - td.amount : -1 * td.amount : 0;
       }).reduce((acc, val) => acc + val, 0);
 
-  const color = (transaction.isSettlement || amount === 0) ? 'whiteAlpha.600' : amount > 0 ? 'lent' : 'borrowed';
+  const color = (transaction.isSettlement || amount === 0) ? 'whiteAlpha.600' : paidById === userId ? 'lent' : 'borrowed';
 
   return (amount === 0 ?
     <Text w={cardItemWidths['amount']} color={color} variant={'listSupplementary'}>not involved</Text>
