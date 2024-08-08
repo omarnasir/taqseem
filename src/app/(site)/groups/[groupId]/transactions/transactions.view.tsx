@@ -63,12 +63,14 @@ function AmountDisplay({ transaction, userId }:
         return td.userId === userId ? td.userId === paidById ? totalAmount - td.amount : -1 * td.amount : 0;
       }).reduce((acc, val) => acc + val, 0);
 
-  const color = amount > 0 ? 'lent' : amount < 0 ? 'borrowed' : undefined;
+  const color = (transaction.isSettlement || amount === 0) ? 'whiteAlpha.600' : amount > 0 ? 'lent' : 'borrowed';
 
   return (amount === 0 ?
     <Text w={cardItemWidths['amount']} color={color} variant={'listSupplementary'}>not involved</Text>
     :
-    <Text w={cardItemWidths['amount']} variant={'listAmount'} color={color}>{amount === 0 ? '' : '€ ' + (amount > 0 ? `${amount.toFixed(2)}` : `${(Math.abs(amount)).toFixed(2)}`)}</Text>
+    <Text w={cardItemWidths['amount']} variant={'listAmount'} color={color}>
+      {'€ ' + (amount > 0 ? `${amount.toFixed(2)}` : `${(Math.abs(amount)).toFixed(2)}`)}
+    </Text>
   )
 }
 

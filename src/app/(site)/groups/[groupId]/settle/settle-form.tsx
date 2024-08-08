@@ -89,13 +89,14 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
       isSettlement: true,
       paidAt: new Date().toISOString(),
       transactionDetails: 
-      groupBalanceDetails.users.filter((user) => user.userId === settlement.paidById).map((user) => {
+      groupBalanceDetails.users.filter((user) => user.userId !== settlement.paidById).map((user) => {
         return {
           userId: user.userId,
           amount: parseFloat(settlement.amount),
         }
       })
     }));
+    console.log(transactions);
     await Promise.all(transactions.map((transaction) => createTransactionAction(groupId, transaction))).then(() => {
       router.push(`/groups/${groupId}/transactions`);
     });
@@ -173,9 +174,8 @@ export function SettleForm({ groupId , settlementDetails, groupBalanceDetails }:
                 {...register(`data.${index}.paidforId` as const)}
                 defaultValue={field.paidforId}>
                 {groupBalanceDetails.users.map((user) => (
-                  data[index] ? data[index].paidById !== user.userId &&
+                  data[index].paidById !== user.userId &&
                     <option key={user.userId} value={user.userId}>{user.userName}</option>
-                    : <option key={user.userId} value={user.userId}>{user.userName}</option>
                 ))}
               </Select>
             </HStack>
