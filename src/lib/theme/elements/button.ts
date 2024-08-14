@@ -19,10 +19,9 @@ const baseVariants = defineStyleConfig({
     },
     new: {
       position: 'fixed',
-      bottom: 14,
-      right: 3,
-      alignSelf: 'flex-end',
-      fontSize: '2xl',
+      boxSize: ['3rem', '4rem'],
+      bottom: 2,
+      fontSize: ['md', '2xl'],
       zIndex: 1,
       rounded: 'full',
       bg: 'whiteAlpha.800',
@@ -123,7 +122,6 @@ const baseVariants = defineStyleConfig({
       ...buttonFontSizes,
       bg: 'whiteAlpha.800',
       color: 'black',
-      alignSelf: 'flex-end',
       _hover: {
         bg: 'whiteAlpha.700',
       },
@@ -158,12 +156,12 @@ export const buttonTheme = defineStyleConfig({
   variants: {
     ...baseVariants.variants,
     settleGroup: {
-      ...baseVariants.variants?.settle,
-      fontSize: ['sm', 'md'],
-      height: '2.0rem',
-      width: '30%',
-      position: 'relative',
-      top: '-4vh',
+      fontSize: ['xl', '2xl'],
+      bg: 'whiteAlpha.800',
+      rounded: 'full',
+      top: 4,
+      position: 'absolute',
+      right: 0,
     },
     detailsUserEveryone: {
       ...buttonFontSizes,

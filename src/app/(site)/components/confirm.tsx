@@ -86,7 +86,7 @@ export function Confirm({ callback, mode, children }: ConfirmProps) {
               No
             </Button>
             <Button colorScheme='red' ml={3} onClick={() => {
-              callback()
+              callback(),
               onClose()
             }}>
               Yes

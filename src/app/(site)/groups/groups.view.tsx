@@ -6,7 +6,6 @@ import { useForm, FieldValues } from "react-hook-form"
 import { createGroupAction, deleteGroupAction } from "@/server/actions/groups.action";
 
 import { 
-  Stack, 
   VStack ,
   Card,
   CardBody,
@@ -28,10 +27,13 @@ import {
   DrawerCloseButton,
   DrawerBody,
   Icon,
+  Container,
 } from "@chakra-ui/react";
 
 
-import { MdPersonRemove, MdManageAccounts, MdGroups } from "react-icons/md"
+import { MdPersonRemove, MdManageAccounts, MdGroups, 
+  MdOutlineHandshake
+ } from "react-icons/md"
 
 import { type GroupData } from "@/types/groups.type";
 import { CustomToast } from '@/components/toast';
@@ -137,8 +139,8 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
   }
 
   return (
-    <Stack direction={'column'} spacing={4} display={'flex'}>
-      <HStack w='100%'>
+    <Container width='100%' paddingX={2}>
+      <HStack w='100%' paddingBottom={5}>
         <VStack alignItems={'flex-start'} w='80%'>
           <Heading size={'h1'}>Groups</Heading>
           <Heading size={'h3'}>Manage your groups.</Heading>
@@ -159,7 +161,7 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
               </CardHeader>
               <CardBody>
               <ButtonGroup isDisabled={group.createdById !== sessionUserId} justifyContent={'flex-end'}>
-                <Button leftIcon={<MdManageAccounts />}
+                <Button leftIcon={<MdOutlineHandshake />}
                   w='30%'
                   variant='settle'
                   onClick={(e) => router.push(`/groups/${group.id}/settle`)}>
@@ -194,6 +196,6 @@ export default function GroupsView({ groups, sessionUserId }: {groups?: GroupDat
             sessionUserId: sessionUserId,
           }} />
       }
-    </Stack>
+    </Container>
   )
 }

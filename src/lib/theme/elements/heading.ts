@@ -7,12 +7,10 @@ export const headingTheme = defineStyleConfig({
       fontWeight: 500,
     },
     h1Center: {
-      fontSize: ['xl', '3xl'],
+      fontSize: ['2xl', '4xl'],
       alignSelf: 'center',
       textAlign: 'center',
-      zIndex:'1',
       position:'sticky',
-      top:'-6vh',
     },
     h2: {
       fontSize: ['xl', '2xl'],
@@ -24,6 +22,10 @@ export const headingTheme = defineStyleConfig({
     },
     h4: {
       fontSize: ['md', 'lg'],
+      fontWeight: 500,
+    },
+    h5: {
+      fontSize: ['sm', 'md'],
       fontWeight: 500,
     },
   }

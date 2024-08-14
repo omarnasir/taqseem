@@ -13,6 +13,7 @@ import {
   Divider,
   Heading,
   useDisclosure,
+  Container,
 } from "@chakra-ui/react"
 import { ActivityService, type ActivityWithDetails } from '@/types/activities.type';
 import { ActivityTypeEnum, getTransactionIcon } from "@/lib/db/constants";
@@ -105,7 +106,7 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
    const disclosureProps = getDisclosureProps();
 
   return (
-    <Flex w='100%' direction={'column'} paddingBottom={20} paddingTop={5}>
+    <Container width='100%' display='flex' flexDirection={'column'} paddingBottom={20} paddingTop={5} paddingX={2}>
       <Heading size={'h1Center'}>Activity</Heading>
       <Divider marginY={7}/>
       <List w='100%' variant={'activity'}>
@@ -146,6 +147,6 @@ export default function ActivityView({ userGroups, activitiesInitialData, sessio
         isDisabled={!hasNextPage}
         isLoading={isFetchingNextPage}
         onClick={() => fetchNextPage()}>Load More</Button>
-    </Flex>
+    </Container>
   );
 } 

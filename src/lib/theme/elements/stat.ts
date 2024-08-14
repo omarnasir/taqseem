@@ -17,17 +17,14 @@ const baseStyle = definePartsStyle({
 })
 
 const primary = definePartsStyle({
-  container: {
-    marginTop: 0,
-  },
   number: {
     fontSize: ["5xl", "6xl"],
     textAlign: "left",
-    marginY: -2,
     fontFamily: "montserrat",
   },
   helpText: {
-    marginTop: 0,
+    marginTop: -2,
+    marginBottom: 6,
     textAlign: "left",
     fontSize: ["md", "lg"],
   }

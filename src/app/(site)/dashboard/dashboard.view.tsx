@@ -16,11 +16,13 @@ import {
   Stack,
   Heading,
   Skeleton,
+  Container,
 } from '@chakra-ui/react'
 import { MdGroup } from 'react-icons/md';
 
 import { type BalancesByUserGroups } from "@/types/users.type";
 import { type ActivityHistoryItem } from '@/types/activities.type';
+import { BoxOutline } from '../components/boxOutline';
 
 
 function Statistic({ value, variant, statProps }:
@@ -47,15 +49,13 @@ export default function DashboardView({ userGroupsBalance, activityHistory, user
   const lastTenTransactions = activityHistory?.reduce((acc: number, item) => acc + item.amount, 0) || 0;
 
   return (
-    <Stack width={'100%'} spacing={4}>
-      <Box alignSelf={'start'} >
+    <Container width={'100%'} paddingX={2}>
+      <BoxOutline paddingTop={4}>
         <Heading size={'h2'}>Hello, {user?.name}!</Heading>
         <Statistic value={totalBalance} variant={'primary'} />
-      </Box>
-      <Box paddingY={4}>
         <Skeleton isLoaded={!!activityHistory && activityHistory.length > 0} height={'200px'}>
           <ResponsiveContainer width="100%" height={140}>
-            <BarChart data={activityHistory} margin={{ bottom: -12, left: 8 }}>
+            <BarChart data={activityHistory} margin={{  bottom: -12, left: 8 }}>
               <defs>
                 <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="white" stopOpacity={0.3} />
@@ -73,7 +73,7 @@ export default function DashboardView({ userGroupsBalance, activityHistory, user
             <Text variant={'caption'} color={lastTenTransactions > 0 ? 'lent' : 'borrowed'}>€{lastTenTransactions.toFixed(2)}</Text>
           </HStack>
         </Skeleton>
-      </Box>
+      </BoxOutline>
       <Heading size={'h2'}>Your groups</Heading>
       <List variant={'groupBalances'}>
         {userGroupsBalance &&
@@ -89,6 +89,6 @@ export default function DashboardView({ userGroupsBalance, activityHistory, user
             </ListItem>
           )}
       </List>
-    </Stack>
+    </Container>
   );
 }

@@ -17,15 +17,11 @@ export default function AuthenticatedLayout({
     }
   };
 
-  return (<Box
-      h='100vh'
-      paddingX={0}
-      flexDirection={'column'}
-      alignItems={'center'}
-      display={'flex'}>
-      <Container
-        paddingX={4}
-        flexDirection={'column'}
+  return (
+    <>
+      <Flex
+        h='100vh'
+        direction={'column'}
         overflow={'scroll'}
         sx={{
           '&::-webkit-scrollbar': {
@@ -34,23 +30,20 @@ export default function AuthenticatedLayout({
           scrollbarWidth: 'none',
         }}
         top={'2vh'}
-        position={'absolute'}
-        pb={heights.footer}
-        bottom={heights.footer}>
+        pb={heights.footer}>
         {children}
-      </Container>
+      </Flex>
       <Flex
         height={heights.footer}
         boxShadow={'dark-lg'}
-        borderTopWidth={0}
         bg='bgFooter'
-        borderBottomWidth={0}
+        borderWidth={0}
         w='100%'
         position='fixed'
         overflow={'hidden'}
         bottom={0}>
-      <Footer />
+        <Footer />
       </Flex>
-    </Box>
+    </>
   );
 }

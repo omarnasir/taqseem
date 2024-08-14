@@ -23,7 +23,7 @@ import {
   MdCalendarMonth, MdOutlineCategory, MdOutlineCancel,
   MdPerson
 } from "react-icons/md"
-import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-form";
+import { useFormContext, useFieldArray, Controller, useWatch, set } from "react-hook-form";
 
 import { UserBasicData } from "@/types/users.type";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/lib/db/constants";
@@ -72,13 +72,12 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[] })
     clearErrors,
     formState: { errors },
     control } = useFormContext()
-  const { fields, replace, update } = useFieldArray({
+  const { fields, replace } = useFieldArray({
     control,
     name: FormIdEnum.transactionDetails,
   })
   return (
     <VStack width={'100%'} >
-      {/* <Text fontSize={'xs'}>€{(parseFloat(amount || 0) / users.length).toFixed(2)} each</Text> */}
       <FormControl id={FormIdEnum.transactionDetails} isInvalid={Boolean(errors[FormIdEnum.transactionDetails])}>
         <ButtonGroup marginY={2}>
           <Button onClick={() => {
@@ -101,16 +100,12 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[] })
             variant={'detailsUserNone'}>
             None
           </Button>
-      {/* <Text alignSelf={'center'} fontSize={'2xs'} fontWeight={'light'} w='50%'>
-        You can leave the amount for a user empty if you want us to calculate it for you.
-      </Text> */}
         </ButtonGroup>
         <VStack width={'100%'} >
           {fields && fields.map((field, index) => (
             <FormItemAmountDetailsUser
               key={field.id}
               control={control}
-              update={update}
               user={users[index]}
               index={index}
               value={field} />
@@ -122,12 +117,11 @@ function FormItemTransactionDetails({ users } : { users: UserBasicData[] })
   )
 }
 
-function FormItemAmountDetailsUser({ index, update, value, control, user }:
-  { user: UserBasicData, index: number, control: any, update: any, value: any}) {
-  const { clearErrors, getFieldState } = useFormContext()
+function FormItemAmountDetailsUser({ index, value, control, user } :
+  { user: UserBasicData, index: number, control: any, value: any }) {
+  const { clearErrors, getFieldState, setValue } = useFormContext()
   
-  const registerAmount = useMemo(() => `${FormIdEnum.transactionDetails}.${index}.amount`, [index]);
-
+  const registerAmount = `${FormIdEnum.transactionDetails}.${index}.amount`;
   const [selected, setSelected] = useState<boolean>(value.amount !== undefined && value.amount !== '0');
 
   return (
@@ -136,11 +130,11 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
       <HStack height={'2.5rem'}>
         <Checkbox onChange={(e) => {
           setSelected(e.target.checked);
-          if (!e.target.checked) update(index, { ...value, amount: undefined });
-          else update(index, { ...value, amount: '' });
+          if (!e.target.checked) setValue(registerAmount, undefined);
+          else setValue(registerAmount, '');
           clearErrors(FormIdEnum.transactionDetails);
         }}
-          defaultChecked={selected}
+          isChecked={selected}
           variant={'transactionDetailsUser'}
           w='55%'>
           <Text fontSize={'sm'} fontWeight={300}>{user.name}</Text>
@@ -153,7 +147,6 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
             <Controller
               name={registerAmount}
               control={control}
-              disabled={!selected}
               rules={{
                 required: false,
                 validate: (value) => value > 0 || value === ''
@@ -189,7 +182,7 @@ function FormItemAmountDetailsUser({ index, update, value, control, user }:
                     fontSize={'md'}
                   />
                   <InputRightElement color={'gray.500'}
-                    onClick={() => update(index, { ...value, amount: '' }, clearErrors(FormIdEnum.transactionDetails))}>
+                    onClick={() => {setValue(registerAmount, ''), clearErrors(FormIdEnum.transactionDetails)}}>
                     <MdOutlineCancel size={'0.8rem'} />
                   </InputRightElement>
                 </NumberInput>)} />

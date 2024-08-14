@@ -15,7 +15,6 @@ import {
 } from 'react-icons/md';
 
 
-
 export default function Footer() {
   const linkItems = [
     { name: 'Home', href: '/dashboard', icon: MdHomeFilled },
@@ -26,22 +25,17 @@ export default function Footer() {
   const pathname = usePathname()
   
   return (
-    <Container flexDirection='row' display='flex' w='100%'
-      paddingX={0}
-      justifyContent={'space-evenly'}>
+    <Container flexDirection='row' display='flex' w='100%' paddingX={0}>
       {linkItems.map((linkItem, index) => (
         <Button key={index} href={linkItem.href} as={Link}
           variant='footer'
+          marginRight={pathname.includes('transactions')  && linkItem.name === 'Groups' ? 6 : 0}
+          marginLeft={pathname.includes('transactions')  &&  linkItem.name === 'Activity' ? 6 : 0}
           color={pathname.startsWith(linkItem.href) ? 'white' : 'whiteAlpha.600'}>
           <Icon as={linkItem.icon} boxSize={{base: 5, md: 6}} />
           <Text variant={'footer'}>{linkItem.name}</Text>
         </Button>
       ))}
-      {/* <Button aria-label='Logout' variant='footer'
-        onClick={async () => await signOutAction()}>
-        <Icon as={MdLogout} boxSize={{base: 5, md: 6}} />
-        <Text variant={'footer'}>Logout</Text>
-      </Button> */}
     </Container>
   );
 }
