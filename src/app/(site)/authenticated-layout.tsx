@@ -1,5 +1,5 @@
 'use client';
-import { Box, Container, Flex } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 
 import Footer from '@/app/(site)/components/navigation/footer';
 
