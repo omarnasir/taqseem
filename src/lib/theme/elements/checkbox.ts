@@ -111,6 +111,7 @@ const settlement = definePartsStyle({
     justifyContent: 'flex-start',
   },
   control: {
+    justifySelf: 'center',
     bg: 'whiteAlpha.300',
     border: 'none',
     _checked: {

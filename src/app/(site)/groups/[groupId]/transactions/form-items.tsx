@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   Input,
   Text,
@@ -23,7 +23,7 @@ import {
   MdCalendarMonth, MdOutlineCategory, MdOutlineCancel,
   MdPerson
 } from "react-icons/md"
-import { useFormContext, useFieldArray, Controller, useWatch, set } from "react-hook-form";
+import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-form";
 
 import { UserBasicData } from "@/types/users.type";
 import { TransactionCategoryEnum, TransactionSubCategoryEnum } from "@/lib/db/constants";
@@ -378,15 +378,13 @@ function FormItemNote() {
 function FormItemIsSettlement() {
   const { formState: { errors }, register } = useFormContext()
   return (
-    <FormControl w={'30%'} id={FormIdEnum.isSettlement} isInvalid={Boolean(errors[FormIdEnum.isSettlement])}>
-      <InputGroup size={'md'} alignItems={'flex-start'}>
-      <FormLabel variant={'transaction'}>Settlement?</FormLabel>
+    <FormControl width={'50%'} textAlign={'end'} id={FormIdEnum.isSettlement} isInvalid={Boolean(errors[FormIdEnum.isSettlement])}>
       <Checkbox variant={'settlement'}
-      alignSelf={'center'}
-      {...register(FormIdEnum.isSettlement, {
-        required: false
-      })} />
-      </InputGroup>
+        {...register(FormIdEnum.isSettlement, {
+          required: false
+        })}>
+        Settlement?
+      </Checkbox>
       <FormErrorMessage>{errors[FormIdEnum.isSettlement]?.message?.toString()}</FormErrorMessage>
     </FormControl>
   )

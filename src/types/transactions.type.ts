@@ -1,8 +1,18 @@
-import { Prisma } from '@prisma/client'
+import {
+  Prisma,
+  type Transactions,
+  type TransactionDetails
+} from '@prisma/client'
 
-const transaction = Prisma.validator<Prisma.TransactionsDefaultArgs>()({
-  include: { transactionDetails: true }
-})
+// Re-export Prisma types to avoid import statements in components
+export {
+  type Transactions,
+  type TransactionDetails
+}
+
+export type TransactionWithDetails = Transactions & {
+  transactionDetails: TransactionDetails[]
+}
 
 export type CreateTransactionDetails = Prisma.TransactionDetailsUncheckedCreateWithoutTransactionInput
 export type CreateTransaction = Omit<Prisma.TransactionsUncheckedCreateInput, 'transactionDetails'> & {
@@ -14,7 +24,15 @@ export type UpdateTransaction = Omit<Prisma.TransactionsUncheckedUpdateInput, 't
   transactionDetails: UpdateTransactionDetails[]
 }
 
-export type TransactionWithDetails = Prisma.TransactionsGetPayload<typeof transaction>
+type FormTransactionDetails = Omit<TransactionDetails, 'amount'> & {
+  amount?: string
+}
+
+export type FormTransaction = Omit<Transactions, 'amount' | 'paidAt'> & {
+  amount?: string,
+  paidAt: string,
+  transactionDetails: FormTransactionDetails[]
+}
 
 export type GroupedTransactions = {
   year: number,

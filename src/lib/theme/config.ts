@@ -6,13 +6,9 @@ import {
 }
 from "@chakra-ui/react"
 
-import '@fontsource/open-sans'
-import '@fontsource/roboto'
 import '@fontsource/montserrat';
-import '@fontsource/raleway';
 import '@fontsource/poppins';
 import '@fontsource/lato';
-import '@fontsource/source-sans-pro';
 
 
 import { menuTheme } from "./elements/menu"

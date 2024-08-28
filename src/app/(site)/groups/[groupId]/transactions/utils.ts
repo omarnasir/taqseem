@@ -2,9 +2,12 @@ import {
   type CreateTransactionDetails, 
   type CreateTransaction, 
   type UpdateTransaction, 
-  type TransactionWithDetails 
+  type TransactionWithDetails,
+  type FormTransaction,
+  type TransactionDetails
 } from "@/types/transactions.type"
 import { UserBasicData } from "@/types/users.type"
+
 
 // Declare enum for form field ids to avoid hardcoding strings.
 enum FormIdEnum {
@@ -18,17 +21,6 @@ enum FormIdEnum {
   paidById = 'paidById',
   notes = 'notes',
   isSettlement = 'isSettlement',
-}
-
-// Reuse auto-generated types from Prisma.
-// Override amount fields to be string instead of number to match form input type.
-type FormTransactionDetails = Omit<CreateTransactionDetails, "amount"> & {
-  amount: string | undefined
-}
-
-interface FormTransaction extends Omit<CreateTransaction, "transactionDetails" | "amount"> {
-  amount: string | undefined,
-  transactionDetails: FormTransactionDetails[]
 }
 
 /**
@@ -78,10 +70,11 @@ function mapTransactionToForm(transaction: TransactionWithDetails, users: UserBa
     amount: Math.abs(transaction.amount).toFixed(2),
     paidAt: formatDateToString(transaction.paidAt),
     transactionDetails: users.map((user) => {
-      const detail = transaction.transactionDetails.find((detail) => detail.userId === user.id)
+      const detail = transaction.transactionDetails.find((detail) => detail.userId === user.id) as TransactionDetails
       return {
+        ...detail,
         userId: user.id,
-        amount: detail ? detail.amount.toFixed(2) : undefined
+        amount: detail ? detail.amount.toFixed(2) : undefined,
       }
     })
   }
@@ -95,10 +88,10 @@ function mapTransactionToForm(transaction: TransactionWithDetails, users: UserBa
  */
 function getTransactionFormDefaultValues(groupId: string, userId: string, users: UserBasicData[]): FormTransaction {
   return {
-    id: undefined,
+    id: -1,
     name: '',
     amount: '',
-    transactionDetails: users.map(user => ({ userId: user.id, amount: '' })),
+    transactionDetails: users.map(user => ({ userId: user.id, amount: '', id: -1, createdAt: new Date(), transactionId: -1 })),
     category: 0,
     subCategory: 0,
     isSettlement: false,
@@ -107,12 +100,12 @@ function getTransactionFormDefaultValues(groupId: string, userId: string, users:
     notes: '',
     groupId: groupId,
     createdById: userId,
+    createdAt: new Date(),
   }
 }
 
 export {
   FormIdEnum,
-  type FormTransaction,
   mapFormToTransaction,
   mapTransactionToForm,
   getTransactionFormDefaultValues,

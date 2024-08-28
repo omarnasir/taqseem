@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
 import {
   Button,
   DrawerHeader,
@@ -49,14 +48,14 @@ import {
   type CreateTransaction,
   type CreateTransactionDetails,
   type UpdateTransaction,
-  type TransactionWithDetails
+  type TransactionWithDetails,
+  type FormTransaction
 }
 from "@/types/transactions.type";
 import { CustomToast } from "@/components/toast";
 import { Confirm } from "@/app/(site)/components/confirm";
 import { formatDateToString, 
   FormIdEnum, 
-  type FormTransaction, 
   getTransactionFormDefaultValues, 
   mapFormToTransaction, 
   mapTransactionToForm 
@@ -105,22 +104,19 @@ function Transaction(
 ) {
   const { session } = useSessionHook();
   const users = group.users!;
-  const router = useRouter();
 
   const mutation = useMutationAction();
 
-  const defaultValues: FormTransaction = useMemo(() => (
-    transactionWithDetails ? mapTransactionToForm(transactionWithDetails, users) : getTransactionFormDefaultValues(group.id, session?.user?.id as string, users)
-  ), [session, group, users, transactionWithDetails]);
+  const defaultValues: FormTransaction = useMemo(() => {
+    return transactionWithDetails ? mapTransactionToForm(transactionWithDetails, users) : getTransactionFormDefaultValues(group.id, session?.user?.id as string, users)
+  }, [group.id, session?.user?.id, users, transactionWithDetails]);
 
   const methods = useForm<FormTransaction>({
     values: defaultValues
   });
-  // Temporary fix for typescript stuck in 'loading' state
-  const { clearErrors, setError } : { clearErrors: any, setError: any } = methods;
+  const { clearErrors, setError }  = methods;
 
   const { addToast } = CustomToast();
-
 
   async function onSubmit(values: FormTransaction) {
     clearErrors(FormIdEnum.transactionDetails);
@@ -134,11 +130,11 @@ function Transaction(
     }
     // Build the transaction object
     const transaction = mapFormToTransaction(values, userDetails as CreateTransactionDetails[], group.id)
-    const response = await(values.id ? updateTransactionAction(group.id, transaction as UpdateTransaction) : 
-      createTransactionAction(group.id, transaction as CreateTransaction));
+    const response = await (values.id === -1 ? createTransactionAction(group.id, transaction as CreateTransaction) :
+      updateTransactionAction(group.id, transaction as UpdateTransaction));
     if (response.success) {
       mutation.mutate({
-        action: values.id ? 'update' : 'create',
+        action: values.id === -1 ? 'create' : 'update',
         data: response.data,
         transactionId: response.data?.id as number,
         groupId: group.id
@@ -208,8 +204,8 @@ function Transaction(
                 <TabPanels>
                   <TabPanel>
                     <SimpleGrid columns={1} spacing={2} width={'100%'}>
-                      <HStack justifyContent={'space-around'} w='100%'>
-                        <Text width={'80%'} fontSize={'sm'} fontWeight={400} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 1: Fill in details</Text>
+                      <HStack justifyContent={'space-between'} alignItems={'center'} w='100%' h={'2rem'}>
+                        <Text variant={'caption'}>Step 1: Fill in details</Text>
                         <FormItemIsSettlement />
                       </HStack>
                       <Divider marginBottom={2} />
@@ -223,7 +219,9 @@ function Transaction(
                   </TabPanel>
                   <TabPanel>
                     <SimpleGrid columns={1} spacing={2} width={'100%'}>
-                    <Text fontSize={'sm'} fontWeight={400} mb={2} alignSelf={'flex-start'} letterSpacing={'wide'} color={'whiteAlpha.700'}>Step 2: Decide how to split</Text>
+                    <HStack justifyContent={'space-between'} w='100%'  h={'2rem'}>
+                      <Text variant={'caption'}>Step 2: Decide how to split</Text>
+                    </HStack>
                     <Divider marginBottom={2} />
                     <FormItemPaidBy {...{ users: users }} />
                     <FormItemAmount />
