@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Welcome to Taqseem
 
-## Getting Started
+Taqseem is a web application that allows users to create and join groups to share expenses. This project was created as an alternative to popular, but paid expense sharing applications.
 
-First, run the development server:
+This application is built using the following technologies:
+* [Next.js v14](https://nextjs.org/)
+* [React.js v18](https://react.dev/)
+* [Chakra UI v2](https://v2.chakra-ui.com/)
+* [Auth.js](https://authjs.dev/)
+* [Prisma](https://www.prisma.io/)
+* [React Hook Forms](https://react-hook-form.com/)
+* [Tanstack Query](https://tanstack.com/query/latest)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This project uses Next.js React Server Components insofar as allowed by Chakra UI. Since Chakra is a client-side library, the server components are limited to acting as data providers and pre-hydration which reduces the time to first paint. It also uses Server Actions for mutations and TanStack query for client-side data fetching and infinite scrolling.
+
+## Project Structure
+```
+.
+├── prisma
+│   ├── schema.prisma
+├── src
+│   ├── app
+│   │   ├── (auth)
+│   │   ├── (site)
+│   │   |   ├── components
+│   │   |   ├── activity
+│   │   |   ├── group
+│   │   |   ├── dashboard
+│   │   |   ├── settings
+│   ├── client/hooks
+│   ├── components
+│   ├── lib
+│   |   ├── db
+│   |   ├── providers
+│   |   ├── theme
+│   |   ├── utils
+│   ├── server
+│   |   ├── actions
+│   |   ├── data
+│   |   ├── service
+│   ├── types
+├── public
+├── .env
+├── Dockerfile
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+|   |   |   |
+|---|---|---|
+|![home](https://github.com/user-attachments/assets/dda878eb-0899-4c87-bf33-edefcb101dd1) |![groups](https://github.com/user-attachments/assets/63a2aa52-8da6-493b-ad13-ab2a8cedfbb1) | ![transactions](https://github.com/user-attachments/assets/3d991cc9-a31c-40e4-b3ae-a63569b5af6e)|
+|![new_transaction](https://github.com/user-attachments/assets/226f63dd-00e5-4761-8b7c-2add242b57ee)|![new_transaction_2](https://github.com/user-attachments/assets/b670d769-fc13-459e-86fa-29b1b0a02620)|![settlement](https://github.com/user-attachments/assets/bdc445c1-34e7-4d83-97f9-c454aa565629)|
