@@ -1,0 +1,96 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64"]
+  output        = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  expires      DateTime
+  userId       String
+  user         Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Users {
+  id                 String               @id @default(cuid())
+  name               String
+  email              String               @unique
+  hashedPassword     String
+  sessions           Session[]
+  groups             Memberships[]
+  ownedGroups        Groups[]
+  PaidBy             Transactions[]       @relation("PaidBy")
+  CreatedBy          Transactions[]       @relation("CreatedBy")
+  transactionDetails TransactionDetails[]
+  activity          Activity[]
+}
+
+model Groups {
+  id           String         @id @default(cuid())
+  name         String
+  users        Memberships[]
+  createdBy    Users          @relation(fields: [createdById], references: [id])
+  createdById  String
+  transactions Transactions[]
+  activity     Activity[]
+}
+
+model Memberships {
+  user    Users  @relation(fields: [userId], references: [id])
+  userId  String
+  group   Groups @relation(fields: [groupId], references: [id])
+  groupId String
+
+  @@id([userId, groupId])
+}
+
+model Transactions {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  category           Int
+  subCategory        Int
+  notes              String?
+  amount             Float
+  group              Groups               @relation(fields: [groupId], references: [id])
+  groupId            String
+  paidBy             Users                @relation("PaidBy", fields: [paidById], references: [id])
+  paidById           String
+  paidAt             DateTime             @default(now())
+  createdBy          Users                @relation("CreatedBy", fields: [createdById], references: [id])
+  createdById        String
+  createdAt          DateTime             @default(now())
+  transactionDetails TransactionDetails[]
+  isSettlement       Boolean              @default(false)
+  activity           Activity[]
+
+  @@unique([paidAt(sort: Desc), groupId], name: "transactionCursor")
+}
+
+model TransactionDetails {
+  id            Int          @id @default(autoincrement())
+  transaction   Transactions @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  transactionId Int
+  user          Users        @relation(fields: [userId], references: [id])
+  userId        String
+  amount        Float
+  createdAt     DateTime     @default(now())
+}
+
+model Activity {
+  id           Int      @id @default(autoincrement())
+  action       Int
+  amount       Float   @default(0)
+  createdBy    Users    @relation(fields: [createdById], references: [id])
+  createdById  String
+  createdAt    DateTime @default(now())
+  transaction  Transactions @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  transactionId Int
+  group       Groups @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String
+}
