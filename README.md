@@ -48,3 +48,8 @@ This project uses Next.js React Server Components insofar as allowed by Chakra U
 |---|---|---|
 |![home](https://github.com/user-attachments/assets/dda878eb-0899-4c87-bf33-edefcb101dd1) |![groups](https://github.com/user-attachments/assets/63a2aa52-8da6-493b-ad13-ab2a8cedfbb1) | ![transactions](https://github.com/user-attachments/assets/3d991cc9-a31c-40e4-b3ae-a63569b5af6e)|
 |![new_transaction](https://github.com/user-attachments/assets/226f63dd-00e5-4761-8b7c-2add242b57ee)|![new_transaction_2](https://github.com/user-attachments/assets/b670d769-fc13-459e-86fa-29b1b0a02620)|![settlement](https://github.com/user-attachments/assets/bdc445c1-34e7-4d83-97f9-c454aa565629)|
+
+## TODO
+- [ ] Verify Dockerfile, build image locally and test self-hosting
+- [ ] Improve docstrings and comments in the code
+- [ ] Manage Tags and Release Versioning
